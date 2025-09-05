@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+## Description: Run CodeIgniter spark CLI inside the web container
+## Usage: spark [flags] [args]
+## Example: "ddev spark routes" or "ddev spark migrate" or "ddev spark cache:clear"
+## ProjectTypes: php
+## ExecRaw: true
+## MutagenSync: true
+
+# Asegurarse de que el comando funcione desde cualquier directorio
+php ./spark "$@"
