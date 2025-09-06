@@ -1,35 +1,42 @@
 # --- Etapa de construcción (Builder) ---
 FROM php:8.2-cli-alpine AS builder
-# Instalamos las extensiones de PHP que CodeIgniter necesita
+
+# Instalamos las extensiones de PHP necesarias para que Composer se ejecute
 RUN apk add --no-cache \
     icu-dev \
     libzip-dev \
     && docker-php-ext-install intl zip
 
-# Copiamos Composer a nuestra nueva imagen base.
+# Copiamos Composer a nuestra nueva imagen base
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 WORKDIR /app
 
 COPY composer.json composer.lock ./
-# Ahora, composer install se ejecutará en un entorno idéntico al de producción.
+# Composer instala las dependencias en un entorno de PHP 8.2
 RUN composer install --no-dev --no-interaction --optimize-autoloader
 
 COPY . .
 
 # --- Etapa Final ---
-# Usamos una imagen ligera de PHP-FPM basada en Alpine para producción
-FROM php:8.0-fpm-alpine
+FROM php:8.2-fpm-alpine
 
 WORKDIR /var/www/html
-# Instalamos las extensiones de PHP que CodeIgniter necesita
-# gd para imágenes, intl para internacionalización, pdo_mysql para la base de datos
-RUN apk --no-cache add libzip-dev icu-dev libpng-dev libjpeg-turbo-dev freetype-dev \
+
+# CORRECCIÓN: Reincorporamos la solución para el error de 'iconv'
+ENV ICONV_DIR="/usr/local"
+
+RUN apk --no-cache add \
+    gnu-libiconv \
+    libzip-dev \
+    icu-dev \
+    libpng-dev \
+    libjpeg-turbo-dev \
+    freetype-dev \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install -j$(nproc) gd intl pdo_mysql zip bcmath bz2 calendar iconv mbstring opcache mysqli zip
+    && docker-php-ext-install -j$(nproc) gd intl pdo_mysql zip iconv bcmath bz2 calendar mbstring opcache mysqli
 
-
-# Copiamos los archivos de la aplicación y las dependencias desde la etapa de construcción
+# Copiamos los archivos de la aplicación desde la etapa de construcción
 COPY --from=builder /app .
 
 # Damos permisos al servidor web sobre los directorios necesarios
