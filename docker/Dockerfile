@@ -1,14 +1,20 @@
 # --- Etapa de construcción (Builder) ---
-# Usamos una imagen oficial de Composer para instalar dependencias de forma segura
-FROM composer:2 as builder
+FROM php:8.2-cli-alpine AS builder
+# Instalamos las extensiones de PHP que CodeIgniter necesita
+RUN apk add --no-cache \
+    icu-dev \
+    libzip-dev \
+    && docker-php-ext-install intl zip
+
+# Copiamos Composer a nuestra nueva imagen base.
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 WORKDIR /app
-# Copiamos solo los archivos de dependencias y las instalamos
-# Esto aprovecha el cache de Docker si no cambian las dependencias
+
 COPY composer.json composer.lock ./
+# Ahora, composer install se ejecutará en un entorno idéntico al de producción.
 RUN composer install --no-dev --no-interaction --optimize-autoloader
 
-# Copiamos el resto del código de la aplicación
 COPY . .
 
 # --- Etapa Final ---
