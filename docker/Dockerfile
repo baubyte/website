@@ -1,9 +1,9 @@
 # --- Etapa de construcción (Builder) ---
-FROM php:8.2-cli-alpine AS builder
+FROM php:8.2-cli-bookworm AS builder
 
 # Instalamos las extensiones de PHP necesarias para que Composer se ejecute
-RUN apk add --no-cache \
-    icu-dev \
+RUN apt-get update && apt-get install -y \
+    libicu-dev \
     libzip-dev \
     && docker-php-ext-install intl zip
 
@@ -19,22 +19,30 @@ RUN composer install --no-dev --no-interaction --optimize-autoloader
 COPY . .
 
 # --- Etapa Final ---
-FROM php:8.2-fpm-alpine
+FROM php:8.2-fpm-bookworm
 
 WORKDIR /var/www/html
 
-# CORRECCIÓN: Reincorporamos la solución para el error de 'iconv'
-ENV ICONV_DIR="/usr/local"
-
-RUN apk --no-cache add \
-    gnu-libiconv \
+# 2. El comando RUN ahora encontrará la librería gracias a la variable de entorno.
+RUN apt-get update && apt-get install -y \
     libzip-dev \
-    icu-dev \
+    libicu-dev \
     libpng-dev \
-    libjpeg-turbo-dev \
-    freetype-dev \
+    libjpeg-dev \
+    libfreetype6-dev \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install -j$(nproc) gd intl pdo_mysql zip iconv bcmath bz2 calendar mbstring opcache mysqli
+    && docker-php-ext-install -j$(nproc) \
+    gd \
+    intl \
+    pdo_mysql \
+    zip \
+    iconv \
+    bcmath \
+    bz2 \
+    calendar \
+    mbstring \
+    opcache \
+    mysqli
 
 # Copiamos los archivos de la aplicación desde la etapa de construcción
 COPY --from=builder /app .
