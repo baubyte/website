@@ -1,4 +1,4 @@
-
+name: 'baubyte-website'
 services:
   # Servicio de la Aplicación PHP
   baubyte-website:
