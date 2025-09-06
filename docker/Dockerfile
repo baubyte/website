@@ -5,7 +5,8 @@ FROM php:8.2-cli-bookworm AS builder
 RUN apt-get update && apt-get install -y \
     libicu-dev \
     libzip-dev \
-    && docker-php-ext-install intl zip
+    libonig-dev \
+    && docker-php-ext-install intl zip mbstring
 
 # Copiamos Composer a nuestra nueva imagen base
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
@@ -30,6 +31,8 @@ RUN apt-get update && apt-get install -y \
     libpng-dev \
     libjpeg-dev \
     libfreetype6-dev \
+    libbz2-dev \
+    libonig-dev \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j$(nproc) \
     gd \
