@@ -1,7 +1,7 @@
 # --- Etapa de construcción (Builder) ---
 FROM php:8.2-cli-bookworm AS builder
 
-# Instalamos las extensiones de PHP necesarias para que Composer se ejecute
+# Añadimos libonig-dev también aquí para asegurar la compatibilidad con composer
 RUN apt-get update && apt-get install -y \
     libicu-dev \
     libzip-dev \
