@@ -13,7 +13,7 @@ COPY . .
 
 # --- Etapa Final ---
 # Usamos una imagen ligera de PHP-FPM basada en Alpine para producción
-FROM php:8.2-fpm-alpine
+FROM php:8.0-fpm-alpine
 
 WORKDIR /var/www/html
 # Instalamos las extensiones de PHP que CodeIgniter necesita

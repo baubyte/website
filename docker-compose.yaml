@@ -27,7 +27,7 @@ services:
       - baubyte-website
     networks:
       - baubyte-website-net
-        - traefik-proxy # Red compartida con Traefik
+      - traefik-proxy # Red compartida con Traefik
     labels:
       # --- Etiquetas para Traefik ---
       - "traefik.enable=true" # Habilitar Traefik para este servicio

@@ -128,3 +128,4 @@ nb-configuration.xml
 .env
 dB/baubyte_website.sql
 dB/website-db.sql
+prod.env

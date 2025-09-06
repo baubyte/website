@@ -146,3 +146,14 @@ recaptcha2.secret = ''
 #recaptcha3.key = 'XXXXXXXX-XXXXXXXX'
 #recaptcha3.secret = 'XXXXXXXX-XXXXXXXX'
 #recaptcha3.scoreThreshold = 0.5
+
+
+
+#--------------------------------------------------------------------
+# DEPLOYMENT
+#--------------------------------------------------------------------
+
+DEPLOY_HOST=
+DEPLOY_USER=
+DEPLOY_PATH=
+DEPLOY_REPO=
