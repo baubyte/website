@@ -38,8 +38,7 @@ host("production")
 // --- Tarea de Despliegue Personalizada ---
 desc('Construye y levanta los contenedores de Docker');
 task('deploy:docker', function () {
-    // Añadimos un 'echo' para verificar que se ejecuta la última versión
-    run('echo "--- EJECUTANDO EL SCRIPT DE DEPLOY CORRECTO ---" && cd {{release_path}} && docker compose up -d --build --remove-orphans');
+    run('cd {{release_path}} && docker compose up -d --build --remove-orphans');
 });
 
 // --- Flujo de Despliegue ---
