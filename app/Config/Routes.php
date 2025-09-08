@@ -63,6 +63,32 @@ $routes->group('admin',['filter'=>'role:admin'],function($routes){
         $routes->get('/',  'DashboardController::index', ['as' => 'dashboard']);
     });
     /**
+     * Rutas de configuración del sitio web
+     * Estas rutas están protegidas por el filtro de permisos
+     * y permiten gestionar la configuración del sitio.
+     */
+    $routes->group('settings', [
+        'filter'    => 'permission:admin-website',
+        'namespace' => 'App\Controllers\Admin\Settings',
+    ], function ($routes) {
+        $routes->get('', 'SettingsController::index', [
+            'as' => 'settings_index',
+            'filter' => 'permission:admin-website'
+        ]);
+        $routes->get('symlink', 'SettingsController::set', [
+            'filter'    => 'permission:admin-website',
+            'as' => 'symlink'
+        ]);
+        $routes->get('cache-clean', 'SettingsController::cache_clean_site', [
+            'as' => 'cache_clean_site',
+            'filter' => 'permission:admin-website'
+        ]);
+        $routes->get('maintenance-update/(:any)', 'SettingsController::maintenance_update/$1', [
+            'as' => 'maintenance_update',
+            'filter' => 'permission:admin-website'
+        ]);
+    });
+    /**
      * Rutas Profile.
      **/
     $routes->group('profile', [

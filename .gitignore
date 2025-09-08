@@ -57,7 +57,6 @@ writable/logs/*
 writable/session/*
 !writable/session/index.html
 
-writable/uploads/*
 !writable/uploads/index.html
 
 writable/debugbar/*
@@ -129,3 +128,4 @@ nb-configuration.xml
 dB/baubyte_website.sql
 dB/website-db.sql
 prod.env
+public/uploads

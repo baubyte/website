@@ -8,10 +8,10 @@
   <title>BAUBYTE | <?= $this->renderSection('title') ?></title>
   <meta content="" name="description">
   <meta content="" name="keywords">
-  <?=csrf_meta()?>
+  <?= csrf_meta() ?>
   <!-- Favicons -->
-  <link href="<?= base_url('favicon.png')?>" rel="icon">
-  <link href="<?= base_url('apple-touch-icon.png')?>" rel="apple-touch-icon">
+  <link href="<?= base_url('favicon.png') ?>" rel="icon">
+  <link href="<?= base_url('apple-touch-icon.png') ?>" rel="apple-touch-icon">
   <!-- Google Font: Source Sans Pro -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
 
@@ -20,11 +20,12 @@
   <link rel="stylesheet" href="<?= base_url('/assets/admin/plugins/fontawesome-free/css/all.min.css') ?>">
   <!-- Render CSS File -->
   <?= $this->renderSection('styles') ?>
-    <!-- Theme style -->
-    <link rel="stylesheet" href="<?= base_url('/assets/admin/adminlte/css/adminlte.min.css') ?>">
-    <link rel="stylesheet" href="<?= base_url('/assets/admin/css/styles.css') ?>">
+  <!-- Theme style -->
+  <link rel="stylesheet" href="<?= base_url('/assets/admin/adminlte/css/adminlte.min.css') ?>">
+  <link rel="stylesheet" href="<?= base_url('/assets/admin/css/styles.css') ?>">
 </head>
-<body class="sidebar-mini control-sidebar-slide-open layout-fixed layout-navbar-fixed sidebar-closed sidebar-collapse">
+
+<body class="sidebar-mini control-sidebar-slide-open layout-fixed layout-navbar-fixed sidebar-closed sidebar-collapse dark-mode">
   <div class="wrapper">
     <!-- Incluimos el NavBar -->
     <?= $this->include('Admin/layout/navbar') ?>
@@ -60,7 +61,11 @@
   <script src="<?= base_url('/assets/admin/adminlte/js/adminlte.min.js') ?>"></script>
   <!-- Todas las Peticiones Ajax se agrega el header -->
   <script>
-  $.ajaxSetup({headers:{'<?=csrf_header() ?>':$('meta[name="<?=csrf_header() ?>"]').attr('content')}})
+    $.ajaxSetup({
+      headers: {
+        '<?= csrf_header() ?>': $('meta[name="<?= csrf_header() ?>"]').attr('content')
+      }
+    })
   </script>
   <!-- Scripts App -->
   <script src="<?= base_url('/assets/admin/js/scripts.js') ?>"></script>

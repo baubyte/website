@@ -23,7 +23,7 @@ function changeColorMode(event) {
     }
 }
 //Comprobamos el estado del darkMode en el LocalStorage
-if (localStorage.getItem('darkMode') == 'enabled') {
+if (localStorage.getItem('darkMode') === 'enabled') {
     //removemos la clase del body
     document.body.classList.toggle('dark-mode');
     //cambiamos/agregamos la clase del icono

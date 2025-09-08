@@ -1,7 +1,7 @@
   <!-- Main Sidebar Container -->
   <aside class="main-sidebar sidebar-dark-primary elevation-4">
     <!-- Brand Logo -->
-    <a href="<?=site_url(route_to('dashboard'))?>" class="brand-link">
+    <a href="<?= site_url(route_to('dashboard')) ?>" class="brand-link">
       <img src="<?= base_url('favicon.png') ?>" alt="Admin BAUBYTE" class="brand-image img-circle elevation-3" style="opacity: .8">
       <span class="brand-text font-weight-light">Admin Website</span>
     </a>
@@ -33,7 +33,7 @@
       <nav class="mt-2">
         <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
           <li class="nav-item">
-            <a href="<?=site_url(route_to('profile'))?>" class="nav-link">
+            <a href="<?= site_url(route_to('profile')) ?>" class="nav-link">
               <i class="nav-icon fab fa-teamspeak"></i>
               <p>
                 Gestión Perfil
@@ -42,7 +42,7 @@
             </a>
           </li>
           <li class="nav-item">
-            <a href="<?=site_url(route_to('skill'))?>" class="nav-link">
+            <a href="<?= site_url(route_to('skill')) ?>" class="nav-link">
               <i class="nav-icon fas fa-jedi"></i>
               <p>
                 Gestión Skill
@@ -51,7 +51,7 @@
             </a>
           </li>
           <li class="nav-item">
-            <a href="<?=site_url(route_to('experience'))?>" class="nav-link">
+            <a href="<?= site_url(route_to('experience')) ?>" class="nav-link">
               <i class="nav-icon fas fa-industry"></i>
               <p>
                 Gestión Experiencia
@@ -60,11 +60,21 @@
             </a>
           </li>
           <li class="nav-item">
-            <a href="<?=site_url(route_to('study'))?>" class="nav-link">
-            <i class="nav-icon fas fa-user-graduate"></i>
+            <a href="<?= site_url(route_to('study')) ?>" class="nav-link">
+              <i class="nav-icon fas fa-user-graduate"></i>
               <p>
                 Gestión Estudios
                 <span class="right badge badge-warning">+</span>
+              </p>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="<?= site_url(route_to('settings_index')) ?>" class="nav-link"
+              title="Gestionar Configuración">
+              <i class="nav-icon fas fa-cogs"></i>
+              <p class=" title-sidebar">
+                Gestión Configuración
+                <span class="right badge badge-info">+</span>
               </p>
             </a>
           </li>

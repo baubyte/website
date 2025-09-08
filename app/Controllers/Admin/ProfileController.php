@@ -162,7 +162,9 @@ class ProfileController extends BaseController
 			$pathAvatar = $avatar->store('profile/images/', $profileEntity->avatar);
 			$pathOldAvatar = WRITEPATH."uploads".DIRECTORY_SEPARATOR."profile".DIRECTORY_SEPARATOR."images".DIRECTORY_SEPARATOR.$oldAvatar;
 			//eliminamos el avatar anterior
-			unlink($pathOldAvatar);
+			if (is_file($pathOldAvatar)) {
+				unlink($pathOldAvatar);
+			}
 		}
 		/**Actualiza el Profile */
 		$this->profileModel->update($id,$profileEntity);
