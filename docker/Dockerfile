@@ -21,6 +21,15 @@ COPY . .
 
 # --- Etapa Final ---
 FROM php:8.2-fpm-bookworm
+# Recibimos los IDs del host como argumentos de construcción
+ARG UID=1001
+ARG GID=1001
+
+# Creamos un grupo y un usuario ('appuser') con los IDs del host
+# y lo añadimos al grupo 'www-data' para compatibilidad.
+RUN groupadd -g ${GID} appgroup
+RUN useradd -u ${UID} -g appgroup -m appuser
+RUN usermod -a -G www-data appuser
 
 WORKDIR /var/www/html
 
@@ -50,8 +59,12 @@ RUN apt-get update && apt-get install -y \
 # Copiamos los archivos de la aplicación desde la etapa de construcción
 COPY --from=builder /app .
 
-# Damos permisos al servidor web sobre los directorios necesarios
-RUN chown -R www-data:www-data /var/www/html/writable
+# Le decimos a PHP-FPM que sus procesos deben correr como nuestro nuevo usuario
+RUN sed -i "s/user = www-data/user = appuser/g" /usr/local/etc/php-fpm.d/www.conf
+RUN sed -i "s/group = www-data/group = appgroup/g" /usr/local/etc/php-fpm.d/www.conf
+
+# El contenedor se ejecutará como nuestro nuevo usuario, que coincide con el propietario de los archivos
+USER appuser
 
 # Exponemos el puerto de PHP-FPM y arrancamos el servicio
 EXPOSE 9000

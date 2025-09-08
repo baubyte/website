@@ -5,13 +5,16 @@ services:
     build:
       context: .
       dockerfile: ./docker/Dockerfile
+      args:
+        UID: 1001
+        GID: 1001
     container_name: baubyte-website
     restart: unless-stopped
     volumes:
      # Mapea el directorio 'writable' desde el host al contenedor
       - ./writable:/var/www/html/writable
       # Mapea el archivo '.env' desde el host al contenedor (solo lectura)
-      - ./.env:/var/www/html/.env:ro
+      - ./.env:/var/www/html/.env
     networks:
       - baubyte-website-net
       - traefik-proxy # Red compartida con Traefik
