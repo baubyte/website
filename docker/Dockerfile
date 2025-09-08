@@ -59,6 +59,8 @@ RUN apt-get update && apt-get install -y \
 # Copiamos los archivos de la aplicación desde la etapa de construcción
 COPY --from=builder /app .
 
+RUN chown -R appuser:appgroup /var/www/html
+
 # Le decimos a PHP-FPM que sus procesos deben correr como nuestro nuevo usuario
 RUN sed -i "s/user = www-data/user = appuser/g" /usr/local/etc/php-fpm.d/www.conf
 RUN sed -i "s/group = www-data/group = appgroup/g" /usr/local/etc/php-fpm.d/www.conf
