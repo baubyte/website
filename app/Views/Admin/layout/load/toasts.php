@@ -14,5 +14,11 @@ if (!empty(session('success'))){
 if (!empty(session('error'))){
     echo "<script>toastr.error('".session('error')."')</script>";
 }
+if (!empty(session('info'))){
+    echo "<script>toastr.info('".session('info')."')</script>";
+}
+if (!empty(session('warning'))){
+    echo "<script>toastr.warning('".session('warning')."')</script>";
+}
 ?>
 <?= $this->endSection() ?>

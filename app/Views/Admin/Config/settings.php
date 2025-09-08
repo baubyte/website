@@ -45,11 +45,11 @@ Configuración
                                     </div>
                                     <div class="col-sm-12 col-md-4">
                                         <label for="status_es">Crear Enlace Simbólicos Website</label>
-                                        <button class="btn btn-sm btn-dark btn-block" id="symlink_create">Crear</button>
+                                        <button class="btn btn-sm btn-success btn-block" id="symlink_create">Crear</button>
                                     </div>
                                     <div class="col-sm-12 col-md-4">
                                         <label for="status_es">Limpiar Cache</label>
-                                        <button class="btn btn-sm btn-dark btn-block" id="cache_clean">Limpiar</button>
+                                        <button class="btn btn-sm btn-success btn-block" id="cache_clean">Limpiar</button>
                                     </div>
                                 </div>
                             </div>

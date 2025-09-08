@@ -57,6 +57,7 @@ writable/logs/*
 writable/session/*
 !writable/session/index.html
 
+
 !writable/uploads/index.html
 
 writable/debugbar/*
@@ -129,3 +130,5 @@ dB/baubyte_website.sql
 dB/website-db.sql
 prod.env
 public/uploads
+writable/uploads/profile/images/*
+!writable/uploads/profile/images/index.html
