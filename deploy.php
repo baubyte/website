@@ -37,8 +37,14 @@ host("production")
 
 // --- Tarea de Despliegue Personalizada ---
 desc('Construye y levanta los contenedores de Docker');
+task('docker:down', function () {
+    run('cd {{release_path}} && docker compose down');
+});
 task('deploy:docker', function () {
     run('cd {{release_path}} && docker compose up -d --build --remove-orphans');
+});
+task('copy:env', function () {
+    run('scp ./.env {{remote_user}}@{{hostname}}:{{deploy_path}}/shared/.env');
 });
 
 // --- Flujo de Despliegue ---
@@ -46,7 +52,9 @@ desc('Despliega la aplicación');
 task('deploy', [
     'deploy:prepare', // Prepara directorios, etc.
     'deploy:publish', // Publica la nueva versión
+    'docker:down',   // Nuestra tarea para bajar Docker
     'deploy:docker',  // Nuestra tarea para levantar Docker
+    'copy:env',      // Copia el archivo .env al servidor
 ]);
 
 // --- Hooks ---
