@@ -53,6 +53,82 @@ task('docker:status', function () {
     writeln('<info>Estado de los contenedores:</info>');
     writeln($result);
 });
+
+desc('Configura los directorios de uploads para Docker con volúmenes');
+task('docker:setup_uploads', function () {
+    // Obtener deploy_path que siempre existe
+    $deployPath = get('deploy_path');
+    
+    // Intentar obtener release_path de forma segura
+    try {
+        $releasePath = get('release_path');
+        $hasReleasePath = true;
+    } catch (\Exception $e) {
+        $releasePath = null;
+        $hasReleasePath = false;
+    }
+    
+    // Verificar si estamos en un despliegue completo
+    $isInDeployment = $hasReleasePath && test("[ -d '$releasePath' ]");
+    
+    if ($isInDeployment) {
+        $workPath = $releasePath;
+        writeln('<info>Usando release_path para configurar uploads...</info>');
+    } else {
+        $workPath = "$deployPath/current";
+        // Verificar que current existe
+        if (!test("[ -d '$deployPath/current' ]")) {
+            writeln('<error>✗ No hay una versión desplegada. Ejecuta primero: dep deploy production</error>');
+            return;
+        }
+        writeln('<info>Usando current para configurar uploads...</info>');
+    }
+    
+    writeln('<info>Configurando uploads para Docker con volúmenes mapeados...</info>');
+    
+    // Crear estructura completa de directorios uploads
+    run("mkdir -p '$workPath/writable/uploads/profile/images'");
+    run("chmod -R 755 '$workPath/writable/uploads'");
+    
+    // IMPORTANTE: Como public está mapeado como volumen, debemos crear el enlace en el HOST
+    // Verificar si el enlace simbólico ya existe en public (del host)
+    if (test("[ -L '$workPath/public/uploads' ]")) {
+        writeln('<info>✓ Enlace simbólico uploads ya existe en el host</info>');
+    } else {
+        // Eliminar directorio uploads si existe y no es un enlace
+        if (test("[ -d '$workPath/public/uploads' ] && [ ! -L '$workPath/public/uploads' ]")) {
+            run("rm -rf '$workPath/public/uploads'");
+            writeln('<info>✓ Directorio uploads removido para crear enlace simbólico</info>');
+        }
+        
+        // Crear enlace simbólico desde public/uploads a writable/uploads EN EL HOST
+        // Como public y writable están al mismo nivel, el enlace es correcto
+        run("ln -sf ../writable/uploads '$workPath/public/uploads'");
+        writeln('<info>✓ Enlace simbólico uploads creado en el host</info>');
+    }
+    
+    // Verificar que el enlace funciona y que la estructura de directorios es correcta
+    if (test("[ -d '$workPath/public/uploads' ]")) {
+        writeln('<info>✓ Directorio uploads accesible desde public (host)</info>');
+        
+        if (test("[ -d '$workPath/public/uploads/profile/images' ]")) {
+            writeln('<info>✓ Estructura uploads/profile/images existe y es accesible</info>');
+        } else {
+            writeln('<error>✗ Error: estructura uploads/profile/images no accesible</error>');
+        }
+        
+        // Verificar permisos
+        if (test("[ -w '$workPath/writable/uploads' ]")) {
+            writeln('<info>✓ Directorio uploads tiene permisos de escritura</info>');
+        } else {
+            writeln('<warning>⚠ Directorio uploads puede tener problemas de permisos</warning>');
+        }
+    } else {
+        writeln('<error>✗ Error: uploads no es accesible desde public</error>');
+    }
+    
+    writeln('<info>Nota: El enlace se creó en el host, por lo que será visible en ambos contenedores (PHP y Nginx)</info>');
+});
 task('copy:env', function () {
     // Subir el archivo al servidor
     upload('./prod.env', '{{deploy_path}}/shared/.env');
@@ -71,11 +147,12 @@ task('env:check', function () {
 // --- Flujo de Despliegue ---
 desc('Despliega la aplicación');
 task('deploy', [
-    'deploy:prepare',   // Prepara directorios, etc.
-    'copy:env',        // Copia el archivo .env al servidor (antes de publish)
-    'deploy:publish',   // Publica la nueva versión
-    'docker:down',     // Nuestra tarea para bajar Docker
-    'deploy:docker',   // Nuestra tarea para levantar Docker
+    'deploy:prepare',      // Prepara directorios, etc.
+    'copy:env',           // Copia el archivo .env al servidor (antes de publish)
+    'deploy:publish',     // Publica la nueva versión
+    'docker:setup_uploads', // Configura directorios de uploads
+    'docker:down',        // Detiene contenedores
+    'deploy:docker',      // Inicia contenedores
 ]);
 
 desc('Verifica el estado completo del despliegue');
