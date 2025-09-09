@@ -44,7 +44,7 @@ task('deploy:docker', function () {
     run('cd {{release_path}} && docker compose up -d --build --remove-orphans');
 });
 task('copy:env', function () {
-    run('scp ./.env {{remote_user}}@{{hostname}}:{{deploy_path}}/shared/.env');
+    run('scp ./prod.env {{remote_user}}@{{hostname}}:{{deploy_path}}/shared/.env');
 });
 
 // --- Flujo de Despliegue ---

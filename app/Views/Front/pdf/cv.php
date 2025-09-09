@@ -2,208 +2,444 @@
 <html lang="<?= session('locale') ?>">
 
 <head>
-    <title></title>
-    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title><?= $profile->fullName ?> - Curriculum Vitae</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 
 <style type="text/css">
     @page {
-        margin-left: 0.5cm;
-        margin-right: 0;
+        margin: 4cm;
+        size: A4;
     }
 
     * {
         margin: 0;
         padding: 0;
+        box-sizing: border-box;
     }
 
     body {
-        font: 16px Helvetica, Sans-Serif;
-        line-height: 24px;
+        font-family: 'DejaVu Sans', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        font-size: 14px;
+        line-height: 1.6;
+        color: #2c3e50;
+        background: #ffffff;
+    }
+
+    .container {
+        max-width: 100%;
+        position: relative;
+    }
+
+    /* Header Section */
+    .header {
+        background: #2c3e50;
+        color: white;
+        padding: 40px 30px;
+        margin-bottom: 30px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 150px;
+        height: 150px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        transform: translate(50%, -50%);
+    }
+
+    .profile-section {
+        position: relative;
+        z-index: 2;
+    }
+
+    .profile-photo {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        border: 4px solid rgba(255, 255, 255, 0.3);
+        float: right;
+        margin-left: 30px;
+        object-fit: cover;
+    }
+
+    .profile-info h1 {
+        font-size: 36px;
+        font-weight: 700;
+        margin-bottom: 8px;
+        letter-spacing: -0.5px;
+    }
+
+    .profile-info .title {
+        font-size: 18px;
+        font-weight: 400;
+        opacity: 0.9;
+        margin-bottom: 20px;
+    }
+
+    .contact-info {
+        display: block;
+        margin-top: 15px;
+    }
+
+    .contact-item {
+        display: inline-block;
+        margin-right: 25px;
+        margin-bottom: 8px;
+        font-size: 13px;
+        opacity: 0.9;
+    }
+
+    .contact-item a {
+        color: inherit;
+        text-decoration: none;
+        border-bottom: 1px dotted rgba(255, 255, 255, 0.5);
+    }
+
+    .contact-item a:hover {
+        border-bottom: 1px solid white;
     }
 
     .clear {
         clear: both;
     }
 
-    #page-wrap {
-        width: 800px;
-        margin: 40px auto 60px;
+    /* Main Content */
+    .main-content {
+        padding: 0 30px;
     }
 
-    #pic {
-        float: right;
-        margin: -30px 0 0 0;
-        width: 200px;
-        height: 200px;
+    /* Description Section */
+    .description {
+        background: #f8f9fa;
+        padding: 25px;
+        border-left: 4px solid #3498db;
+        margin-bottom: 35px;
+        border-radius: 0 8px 8px 0;
     }
 
-    h1 {
-        margin: 0 0 16px 0;
-        padding: 0 0 16px 0;
-        font-size: 42px;
-        font-weight: bold;
-        letter-spacing: -2px;
-        border-bottom: 1px solid #378C3F;
-    }
-
-    h2 {
-        font-size: 20px;
-        margin: 0 0 6px 0;
-        position: relative;
-        color: #378C3F;
-    }
-
-    h2 span {
-        font-style: italic;
-        font-family: Georgia, Serif;
-        font-size: 16px;
-        color: #378C3F;
-        font-weight: normal;
-    }
-
-    p {
-        margin: 0 0 16px 0;
-    }
-
-    a {
-        color: #378C3F;
-        text-decoration: none;
-        border-bottom: 1px dotted #378C3F;
-    }
-
-    a:hover {
-        border-bottom-style: solid;
-        color: black;
-    }
-
-    ul {
-        margin: 0 0 32px 17px;
-    }
-
-    #objective {
-        width: 500px;
-        float: left;
-    }
-
-    #objective p {
-        font-family: Georgia, Serif;
-        font-style: italic;
-        font-size: small;
-        color: #666;
+    .description p {
+        font-size: 15px;
+        line-height: 1.7;
+        color: #555;
         text-align: justify;
-    }
-
-    dt {
-        font-style: italic;
-        font-weight: bold;
-        font-size: 18px;
-        text-align: right;
-        padding: 0 26px 0 0;
-        width: 150px;
-        float: left;
-        height: 100px;
-        border-right: 1px solid #378C3F;
-        color: #378C3F;
-    }
-
-    dd ul {
-        font-size: 18px;
-        margin: 0 0 6px 0;
-        position: relative;
-        color: #378C3F;
-    }
-
-    li {
-        list-style: none;
-    }
-
-    ul {
-        column-count: 3;
-    }
-
-    dd {
-        width: 600px;
-        float: right;
-    }
-
-    dd.clear {
-        float: none;
         margin: 0;
-        height: 15px;
     }
 
-    .fn {
-        color: #378C3F;
+    /* Section Styles */
+    .section {
+        margin-bottom: 35px;
+        page-break-inside: avoid;
+    }
+
+    .section-title {
+        font-size: 20px;
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 20px;
+        padding-bottom: 8px;
+        border-bottom: 2px solid #3498db;
+        position: relative;
+    }
+
+    .section-title::after {
+        content: '';
+        position: absolute;
+        bottom: -2px;
+        left: 0;
+        width: 50px;
+        height: 2px;
+        background: #e74c3c;
+    }
+
+    /* Skills Section */
+    .skills-grid {
+        margin-top: 15px;
+    }
+
+    .skill-item {
+        background: white;
+        padding: 12px 18px;
+        margin-bottom: 8px;
+        border-radius: 6px;
+        border-left: 3px solid #3498db;
+        position: relative;
+        display: block;
+        width: 100%;
+        clear: both;
+    }
+
+    .skill-name {
+        font-weight: 500;
+        color: #2c3e50;
+        margin-bottom: 4px;
+    }
+
+    .skill-percentage {
+        font-size: 12px;
+        color: #7f8c8d;
+        font-weight: 600;
+    }
+
+    .skill-bar {
+        width: 100%;
+        height: 3px;
+        background: #ecf0f1;
+        border-radius: 2px;
+        margin-top: 6px;
+        position: relative;
+    }
+
+    .skill-progress {
+        height: 100%;
+        background: #3498db;
+        border-radius: 2px;
+        position: relative;
+    }
+
+    /* Experience Section */
+    .experience-item {
+        margin-bottom: 25px;
+        padding: 20px;
+        background: white;
+        border-radius: 8px;
+        border-left: 4px solid #2c3e50;
+        position: relative;
+    }
+
+    .experience-header {
+        margin-bottom: 12px;
+    }
+
+    .company-name {
+        font-size: 18px;
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 4px;
+    }
+
+    .position-duration {
+        font-size: 13px;
+        color: #7f8c8d;
+        font-weight: 500;
+    }
+
+    .position-title {
+        color: #3498db;
+        font-weight: 500;
+        margin-right: 10px;
+    }
+
+    .experience-description {
+        color: #555;
+        line-height: 1.6;
+        margin-top: 10px;
+    }
+
+    /* Education Section */
+    .education-item {
+        margin-bottom: 20px;
+        padding: 18px;
+        background: #f8f9fa;
+        border-radius: 6px;
+        border-left: 3px solid #e74c3c;
+    }
+
+    .education-institution {
+        font-size: 16px;
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 6px;
+    }
+
+    .education-degree {
+        color: #555;
+        font-weight: 500;
+        margin-bottom: 4px;
+    }
+
+    .education-duration {
+        font-size: 12px;
+        color: #7f8c8d;
+        font-weight: 600;
+    }
+
+    /* Social Links Section */
+    .social-links {
+        margin-top: 15px;
+    }
+
+    .social-link-item {
+        margin-bottom: 20px;
+        padding: 15px;
+        background: white;
+        border-radius: 6px;
+        border-left: 3px solid #3498db;
+    }
+
+    .social-link-item strong {
+        color: #2c3e50;
+        font-weight: 600;
+    }
+
+    .social-link-item a {
+        color: #3498db;
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+    .social-description {
+        margin-top: 5px;
+        font-size: 12px;
+        color: #7f8c8d;
+        font-style: italic;
+        margin-bottom: 0;
+    }
+
+    /* Utilities */
+    .text-center {
+        text-align: center;
+    }
+
+    .mb-large {
+        margin-bottom: 40px;
+    }
+
+    .mt-small {
+        margin-top: 10px;
+    }
+
+    .mt-medium {
+        margin-top: 20px;
+    }
+
+    .mt-large {
+        margin-top: 40px;
+    }
+
+    /* Print Optimizations */
+    @media print {
+        .header {
+            background: #2c3e50 !important;
+        }
+
+        .section {
+            page-break-inside: avoid;
+        }
+
+        .experience-item {
+            page-break-inside: avoid;
+        }
     }
 </style>
 
 <body>
-    <div id="page-wrap">
+    <div class="container">
+        <!-- Header Section -->
+        <div class="header">
+            <div class="profile-section">
+                <img src="<?php echo base_url('uploads/profile/images/' . $profile->avatar) ?>" alt="<?= $profile->fullName ?>" class="profile-photo" />
+                <div class="profile-info">
+                    <h1><?= $profile->fullName ?></h1>
+                    <div class="title"><?= $profile->{lang('App.specialty')} ?></div>
+                    <div class="contact-info">
+                        <span class="contact-item">Email: <a href="mailto:<?= $profile->email_contact ?>"><?= $profile->email_contact ?></a></span>
+                        <span class="contact-item"><?= lang('App.language_title') ?>: <?= $profile->{lang('App.language')} ?></span>
+                        <?php if (!empty($profile->github_url)): ?>
+                            <span class="contact-item"><a href="<?= $profile->github_url ?>" target="_blank">GitHub</a></span>
+                        <?php endif; ?>
+                        <?php if (!empty($profile->linkedin_url)): ?>
+                            <span class="contact-item"><a href="<?= $profile->linkedin_url ?>" target="_blank">LinkedIn</a></span>
+                        <?php endif; ?>
+                    </div>
+                </div>
 
-        <img src="<?php echo base_url('uploads/profile/images/' . $profile->avatar) ?>" alt="Photo of Cthulu" id="pic" />
-
-        <div id="contact-info" class="vcard">
-            <h1 class="fn"><?= $profile->fullName ?></h1>
-            <h2>
-                <?= $profile->{lang('App.specialty')} ?>
-            </h2>
-            <p>
-                Email: <a class="email" href="mailto:<?= $profile->email_contact ?>"><?= $profile->email_contact ?></a>
-            </p>
-            <p>
-                <?=lang('App.language_title')?>: <a class="email" href="#"><?= $profile->{lang('App.language')} ?></a>
-            </p> 
+                <div class="clear"></div>
+            </div>
         </div>
 
-            <div id="objective">
-                <p>
-                    <?= $profile->{lang('App.description')} ?>
-                </p>
+        <div class="main-content">
+            <!-- Description Section -->
+            <div class="description">
+                <p><?= $profile->{lang('App.description')} ?></p>
             </div>
 
-            <div class="clear"></div>
-
-            <dl>
-                <dd class="clear"></dd>
-
-                <dt>Skills</dt>
-                <dd>
-                    <ul>
-                        <?php foreach ($skills as $skill) : ?>
-                            <li><?= $skill->name ?> - <?= $skill->percentage ?>%</li>
-                        <?php endforeach; ?>
-                    </ul>
-
-                </dd>
-
-                <dd class="clear"></dd>
-
-                <dt><?= lang('App.experience') ?></dt>
-                <dd>
-                    <?php foreach ($experiences as $experience) : ?>
-                        <h2><?= ucwords(strtolower($experience->company)) ?> <span><?= $experience->{lang('App.specialty')} ?></span> <span> <?= $experience->start ?> - <?= $experience->end ?></span></h2>
-                        <p><?= $experience->{lang('App.description')} ?></p>
+            <!-- Skills Section -->
+            <div class="section">
+                <h2 class="section-title mt-medium">Skills</h2>
+                <div class="skills-grid">
+                    <?php foreach ($skills as $skill) : ?>
+                        <div class="skill-item">
+                            <div class="skill-name"><?= $skill->name ?></div>
+                            <div class="skill-percentage"><?= $skill->percentage ?>%</div>
+                            <div class="skill-bar">
+                                <div class="skill-progress" style="width: <?= $skill->percentage ?>%;"></div>
+                            </div>
+                        </div>
                     <?php endforeach; ?>
-                </dd>
-                <dd class="clear"></dd>
+                </div>
+            </div>
 
-                <dt><?=lang('App.education')?></dt>
-                <dd>
-                <?php foreach ($studies as $study):?>
-                    <h2><?=$study->entity?></h2>
-                    <p><strong><?=$study->{lang('App.education_title')}?></strong><br/>
-                        <strong><?=$study->start?> - <?=$study->end?></strong>
-                    </p>
-                <?php endforeach;?>
-                </dd>
-                <dd class="clear"></dd>
-            </dl>
+            <!-- Experience Section -->
+            <div class="section">
+                <h2 class="section-title mt-large"><?= lang('App.experience') ?></h2>
+                <?php foreach ($experiences as $experience) : ?>
+                    <div class="experience-item">
+                        <div class="experience-header">
+                            <div class="company-name"><?= ucwords(strtolower($experience->company)) ?></div>
+                            <div class="position-duration">
+                                <span class="position-title"><?= $experience->{lang('App.specialty')} ?></span>
+                                <span><?= $experience->start ?> - <?= $experience->end ?></span>
+                            </div>
+                        </div>
+                        <div class="experience-description">
+                            <?= $experience->{lang('App.description')} ?>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
 
-            <div class="clear"></div>
+            <!-- Education Section -->
+            <div class="section">
+                <h2 class="section-title mt-large"><?= lang('App.education') ?></h2>
+                <?php foreach ($studies as $study): ?>
+                    <div class="education-item">
+                        <div class="education-institution"><?= $study->entity ?></div>
+                        <div class="education-degree"><?= $study->{lang('App.education_title')} ?></div>
+                        <div class="education-duration"><?= $study->start ?> - <?= $study->end ?></div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
 
+            <!-- Social Links Section -->
+            <?php if (!empty($profile->github_url) || !empty($profile->linkedin_url)): ?>
+                <div class="section">
+                    <h2 class="section-title mt-large">Perfiles Profesionales</h2>
+                    <div class="social-links">
+                        <?php if (!empty($profile->github_url)): ?>
+                            <div class="social-link-item">
+                                <strong>GitHub:</strong> <a href="<?= $profile->github_url ?>" target="_blank"><?= $profile->github_url ?></a>
+                                <p class="social-description">Repositorios de código y proyectos de desarrollo</p>
+                            </div>
+                        <?php endif; ?>
+
+                        <?php if (!empty($profile->linkedin_url)): ?>
+                            <div class="social-link-item">
+                                <strong>LinkedIn:</strong> <a href="<?= $profile->linkedin_url ?>" target="_blank"><?= $profile->linkedin_url ?></a>
+                                <p class="social-description">Perfil profesional y red de contactos</p>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            <?php endif; ?>
         </div>
+    </div>
 </body>
 
 </html>

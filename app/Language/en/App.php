@@ -29,4 +29,9 @@ return [
     'success_contact' => 'The Message Was Sent Correctly.',
     'error_contact' => 'An Error occurred while trying to Send the Message. Please try again or Reload the web.',
     'end_date' =>'Present',
+    "profile_title" => 'Professional Profiles',
+    'download_cv' => 'Download CV',
+    'developed_by' => 'Developed by',
+    "all_rights" => 'All rights reserved.',
+    'version' => 'Version',
 ];

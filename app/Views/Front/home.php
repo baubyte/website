@@ -4,6 +4,10 @@
 <?= $this->section('title') ?>
 Developer
 <?= $this->endSection() ?>
+<?= $this->section('meta_tags') ?>
+<?= seo_meta_tags('home') ?>
+<?= ai_optimized_content_meta() ?>
+<?= $this->endSection() ?>
 <!-- Seccion Contenido -->
 <?= $this->section('content') ?>
 <div>

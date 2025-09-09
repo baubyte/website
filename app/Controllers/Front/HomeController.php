@@ -34,8 +34,27 @@ class HomeController extends BaseController
 		//Study Model
 		$studyModel = new StudyModel();
 		$studies = $studyModel->orderBy('start','DESC')->findAll();
+		
+		// Variables SEO para el layout
+		$seoData = [
+			'page_key' => 'home',
+			'seo_title' => 'Martín Parejas Baez - Desarrollador Full Stack Senior | CV Online',
+			'custom_seo' => [],
+			'ai_content' => [
+				'type' => 'portfolio',
+				'skills_count' => count($skills),
+				'experience_count' => count($experiences),
+				'education_count' => count($studies)
+			]
+		];
+		
 		//Cargamos la vista principal
-		return view('Front/home', ['profile' => $profile, 'skills' => $skills, 'experiences' => $experiences, 'studies' => $studies]);
+		return view('Front/home', array_merge([
+			'profile' => $profile, 
+			'skills' => $skills, 
+			'experiences' => $experiences, 
+			'studies' => $studies
+		], $seoData));
 	}
 	/**
 	 * Envió de Email de Contacto
@@ -92,11 +111,13 @@ class HomeController extends BaseController
 	{
 
 		$options = new Options();
-		$options->set('isRemoteEnabled',true);      
+		$options->set('isRemoteEnabled',true);
 		$options->set('defaultPaperSize','A4'); 
-		$options->set('defaultPaperOrientation','portrait'); 
-		$options->set('isHtml5ParserEnabled', true); 
-		$options->set('dpi', 120); 
+		$options->set('defaultPaperOrientation','portrait');
+		$options->set('isHtml5ParserEnabled', true);
+		$options->set('isRemoteEnabled', true);
+
+		$options->set('dpi', 120);
 		$dompdf = new Dompdf( $options );
 
 		$profileModel = new ProfileModel();
@@ -111,6 +132,8 @@ class HomeController extends BaseController
 		$studyModel = new StudyModel();
 		$studies = $studyModel->orderBy('start','DESC')->findAll();
 		$html = view('Front/pdf/cv', ['profile' => $profile, 'skills' => $skills, 'experiences' => $experiences, 'studies' => $studies]);
+		// Convertir encoding para caracteres especiales
+		//$html = mb_convert_encoding($html, 'HTML-ENTITIES', 'UTF-8');
 		$dompdf->loadHtml($html);
         $dompdf->render();
         $dompdf->stream('paredBaezMartinCV.pdf');

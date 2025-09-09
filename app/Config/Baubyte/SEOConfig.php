@@ -11,131 +11,145 @@ class SEOConfig extends BaseConfig
      */
     public array $pagesSEO = [
         'home' => [
-            'title' => 'Roma2 - Alquiler de Utilería y Props para Producciones Audiovisuales',
-            'description' => 'Roma2 - Alquiler de utilería y props para producciones audiovisuales en Buenos Aires. Elementos decorativos para cine, televisión, publicidad y fotografía. Catálogo online con más de 1000 productos disponibles.',
-            'keywords' => 'alquiler utilería, props cine, utilería televisión, decoración audiovisual, alquiler decoración, props publicidad, utilería argentina, roma2 rental, producción audiovisual, elementos decorativos, atrezzo, utilería Buenos Aires',
+            'title' => 'Martín Pared Baez - Desarrollador Full Stack Senior | CV Online',
+            'description' => 'Desarrollador Full Stack Senior con más de 8 años de experiencia en PHP, Laravel, CodeIgniter, JavaScript, React, Vue.js y bases de datos. Disponible para proyectos freelance y oportunidades laborales.',
+            'keywords' => 'martín Pared baez, desarrollador full stack, php developer, laravel developer, codeigniter, javascript, react, vue.js, mysql, postgresql, freelancer, argentina, buenos aires, curriculum vitae, cv online',
             'canonical' => '/'
         ],
-        'products' => [
-            'title' => 'Catálogo de Productos - Utilería y Props para Alquiler',
-            'description' => 'Explore nuestro catálogo completo de utilería y props para alquiler. Más de 1000 elementos organizados por categorías para producciones de cine, TV y publicidad.',
-            'keywords' => 'catálogo utilería, props alquiler, elementos decorativos, utilería cine, props televisión, decoración audiovisual, alquiler props Buenos Aires',
-            'canonical' => '/productos'
+        'about' => [
+            'title' => 'Acerca de Mí - Martín Pared Baez | Desarrollador Full Stack',
+            'description' => 'Conoce mi historia profesional como desarrollador Full Stack. Más de 8 años creando soluciones web innovadoras con tecnologías modernas y mejores prácticas de desarrollo.',
+            'keywords' => 'acerca de mi, biografia profesional, desarrollador php, experiencia desarrollo web, full stack developer argentina',
+            'canonical' => '/#about'
         ],
-        'rent_condition' => [
-            'title' => 'Condiciones de Alquiler - Términos y Proceso',
-            'description' => 'Condiciones generales para el alquiler de utilería y props. Proceso paso a paso, garantías, términos de devolución y políticas de pago para productoras.',
-            'keywords' => 'condiciones alquiler, términos utilería, proceso alquiler props, garantías alquiler, políticas alquiler audiovisual',
-            'canonical' => '/condiciones-alquiler'
+        'skills' => [
+            'title' => 'Habilidades Técnicas - Tecnologías y Herramientas',
+            'description' => 'Mis habilidades técnicas incluyen PHP, Laravel, CodeIgniter, JavaScript, React, Vue.js, MySQL, PostgreSQL, Git, Docker, y más. Experiencia en desarrollo frontend y backend.',
+            'keywords' => 'habilidades técnicas, php, laravel, codeigniter, javascript, react, vue.js, mysql, postgresql, git, docker, html, css, bootstrap, desarrollo web',
+            'canonical' => '/#skills'
+        ],
+        'experience' => [
+            'title' => 'Experiencia Profesional - Proyectos y Trabajos Realizados',
+            'description' => 'Mi experiencia profesional incluye desarrollo de aplicaciones web, sistemas de gestión, e-commerce, APIs REST, y soluciones personalizadas para diversos clientes y empresas.',
+            'keywords' => 'experiencia laboral, proyectos desarrollados, desarrollo web profesional, aplicaciones php, sistemas de gestión, e-commerce, apis rest',
+            'canonical' => '/#experience'
+        ],
+        'education' => [
+            'title' => 'Formación Académica y Certificaciones',
+            'description' => 'Mi formación incluye estudios en desarrollo de software, certificaciones en tecnologías web modernas y constante actualización en las últimas tendencias del desarrollo.',
+            'keywords' => 'formación académica, educación, certificaciones, estudios programación, desarrollo software, cursos online, capacitación técnica',
+            'canonical' => '/#education'
         ],
         'contact' => [
-            'title' => 'Contacto - Roma2 Rental',
-            'description' => 'Contacta con Roma2 para alquilar utilería y props audiovisuales. Ubicados en San Cristóbal, CABA. Email: roma2rental@gmail.com. Tel: (011) 1533398547.',
-            'keywords' => 'contacto roma2, alquiler utilería contacto, props buenos aires contacto, roma2rental email, utilería san cristóbal',
-            'canonical' => '/contacto'
+            'title' => 'Contacto - Martín Pared Baez | Desarrollador Full Stack',
+            'description' => 'Ponte en contacto conmigo para discutir proyectos de desarrollo web, oportunidades laborales o colaboraciones. Disponible para proyectos freelance y tiempo completo.',
+            'keywords' => 'contacto desarrollador, freelancer php, contratar desarrollador, proyectos web, colaboraciones, oportunidades laborales, martin Pared baez contacto',
+            'canonical' => '/#contact'
         ],
-        'terms_conditions' => [
-            'title' => 'Términos y Condiciones',
-            'description' => 'Términos y condiciones para el alquiler de utilería y props en Roma2.',
-            'keywords' => 'términos y condiciones, alquiler utilería, alquiler props, políticas de alquiler',
-            'canonical' => '/terminos-y-condiciones'
+        'download_cv' => [
+            'title' => 'Descargar CV PDF - Martín Pared Baez',
+            'description' => 'Descarga mi curriculum vitae en formato PDF con toda mi experiencia profesional, habilidades técnicas y formación académica actualizada.',
+            'keywords' => 'descargar cv, curriculum vitae pdf, cv desarrollador, resume download, martin Pared baez cv',
+            'canonical' => '/download-cv'
         ],
     ];
 
     /**
-     * Información de la empresa para Schema.org
+     * Información personal para Schema.org
      */
     public array $businessInfo = [
-        'name' => 'Roma2 Rental',
-        'description' => 'Alquiler de utilería y props para producciones audiovisuales, cine, televisión y publicidad',
-        'url' => 'https://roma2.com.ar',
-        'telephone' => '+54-11-3339-8547',
-        'email' => 'roma2rental@gmail.com',
+        'name' => 'Martín Pared Baez',
+        'description' => 'Desarrollador Full Stack Senior especializado en PHP, Laravel, CodeIgniter, JavaScript, React y Vue.js',
+        'url' => 'https://baubyte.ar',
+        'telephone' => '+54-11-XXXX-XXXX', // Actualizar con tu número real
+        'email' => 'paredbaez.martin@gmail.com',
         'address' => [
-            'streetAddress' => 'Alberti 707, Piso 3 Depto 7',
-            'addressLocality' => 'San Cristóbal',
+            'addressLocality' => 'Buenos Aires',
             'addressRegion' => 'CABA',
-            'postalCode' => 'C1223',
             'addressCountry' => 'AR'
         ],
         'geo' => [
             'latitude' => '-34.6118',
             'longitude' => '-58.3960'
         ],
-        'openingHours' => 'Mo-Fr 09:00-18:00',
+        'jobTitle' => 'Desarrollador Full Stack Senior',
+        'worksFor' => 'Freelancer',
         'socialMedia' => [
-            'instagram' => 'https://www.instagram.com/roma2rental/',
-            'whatsapp' => 'https://wa.me/5491133398547'
+            'github' => 'https://github.com/baubyte',
+            'linkedin' => 'https://www.linkedin.com/in/mparedbaez/',
+            'instagram' => 'https://instagram.com/baubyte' // Actualizar si tienes
         ],
-        'serviceType' => 'Alquiler de utilería audiovisual',
+        'skills' => [
+            'PHP', 'Laravel', 'CodeIgniter', 'JavaScript', 'React', 'Vue.js', 
+            'MySQL', 'PostgreSQL', 'Git', 'Docker', 'HTML5', 'CSS3', 'Bootstrap'
+        ],
+        'serviceType' => 'Desarrollo de Software',
         'areaServed' => [
-            'type' => 'GeoCircle',
-            'latitude' => '-34.6118',
-            'longitude' => '-58.3960',
-            'radius' => '50000'
+            'type' => 'Country',
+            'name' => 'Argentina'
         ],
-        'offerCatalog' => [
-            'name' => 'Catálogo de Utilería y Props',
-            'services' => [
-                [
-                    'name' => 'Alquiler de utilería para cine',
-                    'description' => 'Props y elementos decorativos para producciones cinematográficas'
-                ],
-                [
-                    'name' => 'Alquiler de utilería para televisión',
-                    'description' => 'Elementos decorativos para programas de TV y series'
-                ],
-                [
-                    'name' => 'Alquiler de utilería para publicidad',
-                    'description' => 'Props para comerciales y campañas publicitarias'
-                ]
-            ]
-        ]
+        'availability' => 'Disponible para proyectos freelance',
+        'experienceLevel' => 'Senior',
+        'yearsOfExperience' => '8+'
     ];
 
     /**
      * Configuración Open Graph por defecto
      */
     public array $defaultOG = [
-        'type' => 'website',
+        'type' => 'profile',
         'locale' => 'es_ES',
-        'site_name' => 'Roma2 Rental',
-        'image' => '/assets/web/meta/roma2icon.png',
+        'site_name' => 'Martín Pared Baez - Desarrollador Full Stack',
+        'image' => '/favicon.png', // Actualizar con tu imagen de perfil
         'image:width' => '1200',
-        'image:height' => '630'
+        'image:height' => '630',
+        'profile:first_name' => 'Martín',
+        'profile:last_name' => 'Pared Baez',
+        'profile:username' => 'baubyte',
+        'profile:gender' => 'male'
     ];
 
     /**
      * Palabras clave principales para IA y SEO
      */
     public array $primaryKeywords = [
-        'alquiler utilería',
-        'props audiovisuales',
-        'utilería cine',
-        'props televisión',
-        'decoración audiovisual',
-        'atrezzo alquiler',
-        'elementos decorativos',
-        'producción audiovisual',
-        'utilería Buenos Aires',
-        'props Argentina',
-        'alquiler decoración',
-        'utilería publicitaria'
+        'desarrollador full stack',
+        'php developer',
+        'laravel developer',
+        'codeigniter developer',
+        'javascript developer',
+        'react developer',
+        'vue.js developer',
+        'mysql developer',
+        'postgresql developer',
+        'freelancer argentina',
+        'desarrollador web',
+        'programador php',
+        'martín Pared baez',
+        'baubyte',
+        'desarrollo software',
+        'cv online',
+        'curriculum vitae'
     ];
 
     /**
      * Configuración para diferentes tipos de contenido
      */
     public array $contentTypes = [
-        'product_category' => [
-            'title_template' => 'Utilería y Props de {category} - Alquiler Roma2',
-            'description_template' => 'Alquiler de utilería y props de {category} para producciones audiovisuales. Elementos decorativos profesionales para cine, TV y publicidad en Buenos Aires.',
-            'keywords_template' => 'utilería {category}, props {category}, alquiler {category}, decoración {category}, elementos {category}'
+        'skill_category' => [
+            'title_template' => 'Habilidades en {category} - Martín Pared Baez',
+            'description_template' => 'Experiencia profesional en {category}. Conocimientos avanzados y proyectos realizados con estas tecnologías en desarrollo web full stack.',
+            'keywords_template' => '{category}, desarrollador {category}, programador {category}, experiencia {category}, proyectos {category}'
         ],
-        'product_subcategory' => [
-            'title_template' => '{subcategory} de {category} - Alquiler de Utilería Roma2',
-            'description_template' => 'Alquiler de {subcategory} de {category} para producciones audiovisuales. Props y elementos decorativos especializados disponibles en Buenos Aires.',
-            'keywords_template' => '{subcategory} {category}, alquiler {subcategory}, props {subcategory}, utilería {subcategory}'
+        'project_category' => [
+            'title_template' => 'Proyectos de {category} - Portfolio Desarrollador',
+            'description_template' => 'Portfolio de proyectos desarrollados en {category}. Soluciones web innovadoras y aplicaciones personalizadas para diversos clientes.',
+            'keywords_template' => 'proyectos {category}, portfolio {category}, desarrollo {category}, aplicaciones {category}'
+        ],
+        'experience_type' => [
+            'title_template' => 'Experiencia en {type} - Desarrollo Profesional',
+            'description_template' => 'Mi experiencia profesional en {type} incluye diversos proyectos y responsabilidades que han fortalecido mis habilidades técnicas.',
+            'keywords_template' => 'experiencia {type}, trabajo {type}, proyectos {type}, desarrollo {type}'
         ]
     ];
 }

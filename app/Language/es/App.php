@@ -30,4 +30,9 @@ return [
     'success_contact' => 'El Mensaje Fue Enviado Correctamente.',
     'error_contact' => 'Surgio un Error al intentar Enviar el Mensaje. Intente de nuevo o Recargue la Web.',
     'end_date' =>'Presente',
+    "profile_title" => 'Perfiles Profesionales',
+    'download_cv' => 'Descargar CV',
+    'developed_by' => 'Desarrollado por',
+    "all_rights" => 'Todos los derechos reservados.',
+    'version' => 'Versión',
 ];

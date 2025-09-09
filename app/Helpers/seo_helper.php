@@ -1,6 +1,6 @@
 <?php
 
-use Config\Roma2\SEOConfig;
+use Config\Baubyte\SEOConfig;
 
 if (!function_exists('seo_meta_tags')) {
     /**
@@ -58,109 +58,91 @@ if (!function_exists('seo_meta_tags')) {
     }
 }
 
-if (!function_exists('generate_category_seo')) {
+if (!function_exists('generate_skill_seo')) {
     /**
-     * Genera meta tags para páginas de categorías
+     * Genera meta tags para páginas de habilidades
      * 
-     * @param string $category_name Nombre de la categoría
-     * @param string $category_slug Slug de la categoría
-     * @param string $subcategory_name Nombre de subcategoría (opcional)
-     * @return array Datos SEO para la categoría
+     * @param string $skill_name Nombre de la habilidad
+     * @param string $skill_level Nivel de la habilidad
+     * @param string $experience_years Años de experiencia
+     * @return array Datos SEO para la habilidad
      */
-    function generate_category_seo(string $category_name, string $category_slug, string $subcategory_name = ''): array
+    function generate_skill_seo(string $skill_name, string $skill_level = '', string $experience_years = ''): array
     {
         /** @var SEOConfig $seoConfig */
         $seoConfig = config(SEOConfig::class);
-        if (!empty($subcategory_name)) {
-            // SEO para subcategoría
-            $template = $seoConfig->contentTypes['product_subcategory'];
-            $specificKeywords = str_replace(['{subcategory}', '{category}'], [strtolower($subcategory_name), strtolower($category_name)], $template['keywords_template']);
-            return [
-                'title' => str_replace(['{subcategory}', '{category}'], [$subcategory_name, $category_name], $template['title_template']),
-                'description' => str_replace(['{subcategory}', '{category}'], [$subcategory_name, $category_name], $template['description_template']),
-                'keywords' => generate_dynamic_keywords(explode(', ', $specificKeywords)),
-                'canonical' => '/productos/' . $category_slug . '/' . url_title($subcategory_name, '-', true)
-            ];
-        } else {
-            // SEO para categoría
-            $template = $seoConfig->contentTypes['product_category'];
-            $specificKeywords = str_replace('{category}', strtolower($category_name), $template['keywords_template']);
-            return [
-                'title' => str_replace('{category}', $category_name, $template['title_template']),
-                'description' => str_replace('{category}', $category_name, $template['description_template']),
-                'keywords' => generate_dynamic_keywords(explode(', ', $specificKeywords)),
-                'canonical' => '/productos/' . $category_slug
-            ];
-        }
+        $template = $seoConfig->contentTypes['skill_category'];
+        
+        $specificKeywords = str_replace('{category}', strtolower($skill_name), $template['keywords_template']);
+        
+        return [
+            'title' => str_replace('{category}', $skill_name, $template['title_template']),
+            'description' => str_replace('{category}', $skill_name, $template['description_template']),
+            'keywords' => generate_dynamic_keywords(explode(', ', $specificKeywords)),
+            'canonical' => '/#skills'
+        ];
     }
 }
 
-if (!function_exists('schema_org_business')) {
+if (!function_exists('schema_org_person')) {
     /**
-     * Genera el schema.org para LocalBusiness completo
+     * Genera el schema.org para Person completo (desarrollador)
      *
      * @return string JSON-LD estructurado
      */
-    function schema_org_business(): string
+    function schema_org_person(): string
     {
         /** @var SEOConfig $seoConfig */
         $seoConfig = config(SEOConfig::class);
-        $business = $seoConfig->businessInfo;
+        $person = $seoConfig->businessInfo;
+        
         $schema = [
             "@context" => "https://schema.org",
-            "@type" => "LocalBusiness",
-            "name" => $business['name'],
-            "description" => $business['description'],
-            "url" => $business['url'],
-            "telephone" => $business['telephone'],
-            "email" => $business['email'],
+            "@type" => "Person",
+            "name" => $person['name'],
+            "description" => $person['description'],
+            "url" => $person['url'],
+            "email" => $person['email'],
+            "telephone" => $person['telephone'],
+            "jobTitle" => $person['jobTitle'],
+            "worksFor" => [
+                "@type" => "Organization",
+                "name" => $person['worksFor']
+            ],
             "address" => [
                 "@type" => "PostalAddress",
-                "streetAddress" => $business['address']['streetAddress'],
-                "addressLocality" => $business['address']['addressLocality'],
-                "addressRegion" => $business['address']['addressRegion'],
-                "postalCode" => $business['address']['postalCode'],
-                "addressCountry" => $business['address']['addressCountry']
+                "addressLocality" => $person['address']['addressLocality'],
+                "addressRegion" => $person['address']['addressRegion'],
+                "addressCountry" => $person['address']['addressCountry']
             ],
             "geo" => [
                 "@type" => "GeoCoordinates",
-                "latitude" => $business['geo']['latitude'],
-                "longitude" => $business['geo']['longitude']
+                "latitude" => $person['geo']['latitude'],
+                "longitude" => $person['geo']['longitude']
             ],
-            "openingHours" => $business['openingHours'],
-            "sameAs" => array_values($business['socialMedia']),
-            "serviceType" => $business['serviceType'],
-            "areaServed" => [
-                "@type" => "GeoCircle",
-                "geoMidpoint" => [
-                    "@type" => "GeoCoordinates",
-                    "latitude" => $business['geo']['latitude'],
-                    "longitude" => $business['geo']['longitude']
+            "sameAs" => array_values($person['socialMedia']),
+            "knowsAbout" => $person['skills'],
+            "hasOccupation" => [
+                "@type" => "Occupation",
+                "name" => $person['jobTitle'],
+                "description" => $person['description'],
+                "occupationLocation" => [
+                    "@type" => "Country",
+                    "name" => $person['areaServed']['name']
                 ],
-                "geoRadius" => $business['areaServed']['radius']
+                "skills" => implode(', ', $person['skills'])
             ],
-            "hasOfferCatalog" => [
-                "@type" => "OfferCatalog",
-                "name" => $business['offerCatalog']['name'],
-                "itemListElement" => array_map(function($service) {
-                    return [
-                        "@type" => "Offer",
-                        "itemOffered" => [
-                            "@type" => "Service",
-                            "name" => $service['name'],
-                            "description" => $service['description']
-                        ]
-                    ];
-                }, $business['offerCatalog']['services'])
-            ]
+            "alumniOf" => "Universidad/Institución Educativa", // Actualizar según corresponda
+            "award" => "Certificaciones y logros profesionales" // Actualizar según corresponda
         ];
+        
         return json_encode($schema, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     }
 }
 
 if (!function_exists('ai_optimized_content_meta')) {
     /**
-     * Genera meta tags específicos para optimización con IA
+     * Genera meta tags específicos para optimización con IA (desarrollador)
      * 
      * @param array $content_data Datos del contenido
      * @return string HTML con meta tags para IA
@@ -171,18 +153,22 @@ if (!function_exists('ai_optimized_content_meta')) {
         
         // Meta tags específicos para IA y búsquedas semánticas
         $ai_metas = [
-            'content:type' => $content_data['type'] ?? 'catalog',
-            'content:industry' => 'audiovisual production, entertainment, advertising',
-            'content:service' => 'rental, props, production equipment',
+            'content:type' => $content_data['type'] ?? 'portfolio',
+            'content:industry' => 'software development, web development, technology',
+            'content:service' => 'full stack development, web applications, software solutions',
             'content:location' => 'Buenos Aires, Argentina, CABA',
-            'content:language' => 'spanish',
-            'content:target_audience' => 'film producers, TV directors, advertising agencies, photographers',
-            'business:category' => 'equipment rental, audiovisual services, production support',
-            'search:intent' => 'commercial, rental services, equipment search'
+            'content:language' => 'spanish, english',
+            'content:target_audience' => 'recruiters, companies, startups, entrepreneurs',
+            'developer:category' => 'full stack developer, php developer, javascript developer',
+            'developer:experience_level' => 'senior',
+            'developer:availability' => 'freelance, remote work',
+            'search:intent' => 'hiring, recruitment, freelance projects, collaboration'
         ];
+        
         foreach ($ai_metas as $name => $content) {
             $html .= '<meta name="' . $name . '" content="' . esc($content) . '">' . "\n    ";
         }
+        
         return rtrim($html);
     }
 }
@@ -195,7 +181,7 @@ if (!function_exists('schema_org_script')) {
      */
     function schema_org_script(): string
     {
-        return '<script type="application/ld+json">' . "\n" . schema_org_business() . "\n" . '</script>';
+        return '<script type="application/ld+json">' . "\n" . schema_org_person() . "\n" . '</script>';
     }
 }
 
