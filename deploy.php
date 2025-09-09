@@ -39,22 +39,49 @@ host("production")
 desc('Construye y levanta los contenedores de Docker');
 task('docker:down', function () {
     run('cd {{release_path}} && docker compose down');
+    writeln('<info>✓ Contenedores Docker detenidos</info>');
 });
+
 task('deploy:docker', function () {
     run('cd {{release_path}} && docker compose up -d --build --remove-orphans');
+    writeln('<info>✓ Contenedores Docker iniciados en modo daemon</info>');
+});
+
+desc('Verifica el estado de los contenedores Docker');
+task('docker:status', function () {
+    $result = run('cd {{release_path}} && docker compose ps');
+    writeln('<info>Estado de los contenedores:</info>');
+    writeln($result);
 });
 task('copy:env', function () {
-    run('scp ./prod.env {{remote_user}}@{{hostname}}:{{deploy_path}}/shared/.env');
+    // Subir el archivo al servidor
+    upload('./prod.env', '{{deploy_path}}/shared/.env');
+    writeln('<info>✓ Archivo .env copiado correctamente al servidor</info>');
+});
+
+desc('Verifica la configuración del entorno');
+task('env:check', function () {
+    if (test('[ -f {{deploy_path}}/shared/.env ]')) {
+        writeln('<info>✓ Archivo .env existe en el servidor</info>');
+    } else {
+        writeln('<error>✗ Archivo .env no encontrado en el servidor</error>');
+    }
 });
 
 // --- Flujo de Despliegue ---
 desc('Despliega la aplicación');
 task('deploy', [
-    'deploy:prepare', // Prepara directorios, etc.
-    'deploy:publish', // Publica la nueva versión
-    'docker:down',   // Nuestra tarea para bajar Docker
-    'deploy:docker',  // Nuestra tarea para levantar Docker
-    'copy:env',      // Copia el archivo .env al servidor
+    'deploy:prepare',   // Prepara directorios, etc.
+    'copy:env',        // Copia el archivo .env al servidor (antes de publish)
+    'deploy:publish',   // Publica la nueva versión
+    'docker:down',     // Nuestra tarea para bajar Docker
+    'deploy:docker',   // Nuestra tarea para levantar Docker
+]);
+
+desc('Verifica el estado completo del despliegue');
+task('deploy:verify', [
+    'env:check',       // Verifica que el .env existe
+    'docker:status',   // Verifica estado de Docker
 ]);
 
 // --- Hooks ---
