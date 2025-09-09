@@ -38,7 +38,7 @@ class HomeController extends BaseController
 		// Variables SEO para el layout
 		$seoData = [
 			'page_key' => 'home',
-			'seo_title' => 'Martín Parejas Baez - Desarrollador Full Stack Senior | CV Online',
+			'seo_title' => 'Martín Pared Baez - Desarrollador Full Stack Senior | CV Online',
 			'custom_seo' => [],
 			'ai_content' => [
 				'type' => 'portfolio',
