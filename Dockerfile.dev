@@ -1,0 +1,96 @@
+############################################
+# Imagen optimizada para DESARROLLO con serversideup/php
+############################################
+
+FROM serversideup/php:8.2-fpm-nginx AS base
+
+# Cambiar a root para instalar extensiones PHP adicionales
+USER root
+
+# Instalar extensiones PHP requeridas por CodeIgniter 4 que podrían no estar incluidas por defecto
+# Nota: serversideup ya incluye muchas extensiones, pero vamos a asegurar que estén todas
+RUN install-php-extensions \
+    intl \
+    zip \
+    gd \
+    mysqli \
+    pdo_mysql \
+    bcmath \
+    bz2 \
+    calendar \
+    opcache \
+    xdebug
+
+# Instalar herramientas útiles para desarrollo
+RUN apt-get update && apt-get install -y \
+    curl \
+    wget \
+    vim \
+    nano \
+    git \
+    unzip \
+    && rm -rf /var/lib/apt/lists/*
+
+############################################
+# Configuración de desarrollo
+############################################
+
+# Argumentos para el usuario (compatible con tu configuración actual)
+ARG UID=1001
+ARG GID=1001
+
+# Configurar el usuario www-data con los IDs correctos del host
+RUN docker-php-serversideup-set-id www-data $UID:$GID && \
+    docker-php-serversideup-set-file-permissions --owner $UID:$GID --service nginx
+
+# Crear configuración personalizada de nginx para puerto 80
+RUN echo 'listen 80 default_server;' > /etc/nginx/site-opts.d/http-dev.conf && \
+    echo 'listen [::]:80 default_server;' >> /etc/nginx/site-opts.d/http-dev.conf && \
+    echo '' >> /etc/nginx/site-opts.d/http-dev.conf && \
+    echo 'root /var/www/html/public;' >> /etc/nginx/site-opts.d/http-dev.conf && \
+    echo '' >> /etc/nginx/site-opts.d/http-dev.conf && \
+    echo '# Set allowed "index" files' >> /etc/nginx/site-opts.d/http-dev.conf && \
+    echo 'index index.html index.htm index.php;' >> /etc/nginx/site-opts.d/http-dev.conf && \
+    echo '' >> /etc/nginx/site-opts.d/http-dev.conf && \
+    echo 'server_name _;' >> /etc/nginx/site-opts.d/http-dev.conf && \
+    echo '' >> /etc/nginx/site-opts.d/http-dev.conf && \
+    echo 'charset utf-8;' >> /etc/nginx/site-opts.d/http-dev.conf && \
+    echo '' >> /etc/nginx/site-opts.d/http-dev.conf && \
+    echo '# Set max upload to 2048M' >> /etc/nginx/site-opts.d/http-dev.conf && \
+    echo 'client_max_body_size 2048M;' >> /etc/nginx/site-opts.d/http-dev.conf && \
+    echo '' >> /etc/nginx/site-opts.d/http-dev.conf && \
+    echo '# Have NGINX try searching for PHP files as well' >> /etc/nginx/site-opts.d/http-dev.conf && \
+    echo 'location / {' >> /etc/nginx/site-opts.d/http-dev.conf && \
+    echo '    try_files $uri $uri/ /index.php?$query_string;' >> /etc/nginx/site-opts.d/http-dev.conf && \
+    echo '}' >> /etc/nginx/site-opts.d/http-dev.conf && \
+    echo '' >> /etc/nginx/site-opts.d/http-dev.conf && \
+    echo '# Pass "*.php" files to PHP-FPM' >> /etc/nginx/site-opts.d/http-dev.conf && \
+    echo 'location ~ \.php$ {' >> /etc/nginx/site-opts.d/http-dev.conf && \
+    echo '    fastcgi_pass   127.0.0.1:9000;' >> /etc/nginx/site-opts.d/http-dev.conf && \
+    echo '    fastcgi_index  index.php;' >> /etc/nginx/site-opts.d/http-dev.conf && \
+    echo '    fastcgi_param  SCRIPT_FILENAME  $document_root$fastcgi_script_name;' >> /etc/nginx/site-opts.d/http-dev.conf && \
+    echo '    include        fastcgi_params;' >> /etc/nginx/site-opts.d/http-dev.conf && \
+    echo '    fastcgi_buffers 8 8k;' >> /etc/nginx/site-opts.d/http-dev.conf && \
+    echo '    fastcgi_buffer_size 8k;' >> /etc/nginx/site-opts.d/http-dev.conf && \
+    echo '    fastcgi_read_timeout 99;' >> /etc/nginx/site-opts.d/http-dev.conf && \
+    echo '}' >> /etc/nginx/site-opts.d/http-dev.conf && \
+    rm -f /etc/nginx/sites-available/ssl-off && \
+    echo 'server { include /etc/nginx/site-opts.d/http-dev.conf; }' > /etc/nginx/sites-available/ssl-off
+
+# Configuración de Xdebug para desarrollo (opcional)
+RUN echo "xdebug.mode=develop,debug" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini && \
+    echo "xdebug.start_with_request=yes" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini && \
+    echo "xdebug.client_host=host.docker.internal" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini && \
+    echo "xdebug.client_port=9003" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini && \
+    echo "xdebug.log=/var/log/xdebug.log" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
+
+# Configurar directorio de trabajo (serversideup ya lo tiene en /var/www/html)
+WORKDIR /var/www/html
+
+# Volver al usuario sin privilegios
+USER www-data
+
+# Exponer puerto 80 (nginx integrado en serversideup)
+EXPOSE 80
+
+# El CMD por defecto de serversideup/php ya está configurado para iniciar nginx + php-fpm

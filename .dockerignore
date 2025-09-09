@@ -1,6 +1,42 @@
-docker/
-baubyte.ar/
+# Archivos y directorios que no necesitan estar en la imagen Docker
 .git
+.gitignore
+README.md
+LICENSE
+*.md
+
+# Dependencias que se instalan en el contenedor (Composer las instalará)
+node_modules/
+
+# Nota: vendor/ se puede excluir opcionalmente ya que Composer lo regenerará,
+# pero para acelerar builds consecutivos, mantenemos el cache si existe
+
+# Logs y archivos temporales
+writable/logs/
+writable/cache/
+writable/session/
+writable/debugbar/
+
+# Archivos de entorno (se mapean como volúmenes)
+.env
+prod.env
+
+# Configuración de deploy
+deploy.php
+builds/
+
+# Archivos del host de Docker
+docker-compose.yaml
+Dockerfile
+.dockerignore
+
+# Backups y archivos de base de datos
 dB/
-nginx/
-vendor/
+baubyte.ar/
+*.sql
+
+# Archivos temporales del sistema
+.DS_Store
+Thumbs.db
+*.tmp
+*.temp

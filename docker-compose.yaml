@@ -1,37 +1,26 @@
 name: 'baubyte-website'
 services:
-  # Servicio de la Aplicación PHP
   baubyte-website:
     build:
       context: .
-      dockerfile: ./docker/Dockerfile
+      dockerfile: Dockerfile
       args:
         UID: 1001
         GID: 1001
     container_name: baubyte-website
     restart: unless-stopped
+    environment:
+      # Variables de entorno de serversideup
+      SSL_MODE: "off"  # Traefik maneja SSL
+      LOG_OUTPUT_LEVEL: "warn"
+      PHP_OPCACHE_ENABLE: "1"
+      PHP_OPCACHE_REVALIDATE_FREQ: "0"
+      NGINX_WEBROOT: "/var/www/html/public"  # Variable correcta según documentación oficial
     volumes:
-     # Mapea el directorio 'writable' desde el host al contenedor
-      - ./writable:/var/www/html/writable
-      # Mapea el archivo '.env' desde el host al contenedor (solo lectura)
-      - ./.env:/var/www/html/.env
-      - ./public:/var/www/html/public
-    networks:
-      - baubyte-website-net
-      - traefik-proxy # Red compartida con Traefik
-
-  # Servicio del Servidor Web Nginx
-  baubyte-website-nginx:
-    build:
-      context: .
-      dockerfile: ./docker/nginx.Dockerfile
-    container_name: baubyte-website-nginx
-    restart: unless-stopped
-    volumes:
-      - ./public:/var/www/html/public:ro
-      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
-    depends_on:
-      - baubyte-website
+      # Solo mapear directorios que necesitan persistir entre despliegues
+      - ./writable:/var/www/html/writable:rw  # Logs, cache, sesiones, uploads
+      - ./.env:/var/www/html/.env:ro          # Configuración del entorno
+      - ./public:/var/www/html/public:rw      # Archivos públicos
     networks:
       - baubyte-website-net
       - traefik-proxy # Red compartida con Traefik
@@ -41,7 +30,7 @@ services:
       - "traefik.http.routers.baubyte.rule=Host(`baubyte.com.ar`, `www.baubyte.com.ar`)"
       - "traefik.http.routers.baubyte.entrypoints=websecure" # Escuchar en el punto de entrada HTTPS
       - "traefik.http.routers.baubyte.tls.certresolver=letsencrypt" # Usar Let's Encrypt para el certificado
-      - "traefik.http.services.baubyte.loadbalancer.server.port=80" # El puerto interno del servicio (nginx escucha en el 80)
+      - "traefik.http.services.baubyte.loadbalancer.server.port=80" # Puerto donde nginx escucha en serversideup
       - "traefik.docker.network=traefik-proxy"
 
 networks:
@@ -51,8 +40,6 @@ networks:
     external: true # Usar la red externa creada para Traefik
 volumes:
   writable:
-    driver: local
-  env:
     driver: local
   public:
     driver: local

@@ -1,0 +1,52 @@
+name: 'baubyte-website-dev'
+services:
+  # Servicio de la Aplicación PHP con serversideup/php para DESARROLLO
+  baubyte-website-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+      args:
+        UID: 1000
+        GID: 1000
+    container_name: baubyte-website-dev
+    restart: unless-stopped
+    environment:
+      # Variables de entorno optimizadas para DESARROLLO
+      SSL_MODE: "off"  # Sin SSL en desarrollo
+      LOG_OUTPUT_LEVEL: "info"  # Más verbose para debugging
+      PHP_OPCACHE_ENABLE: "0"  # OPCache deshabilitado para desarrollo
+      PHP_OPCACHE_REVALIDATE_FREQ: "0"
+      NGINX_WEBROOT: "/var/www/html/public"
+      # Variables adicionales para desarrollo
+      PHP_DISPLAY_ERRORS: "On"  # Mostrar errores PHP
+      PHP_DISPLAY_STARTUP_ERRORS: "On"
+      PHP_ERROR_REPORTING: "32767"  # Reportar todos los errores
+      SHOW_WELCOME_MESSAGE: "true"  # Mostrar mensaje de bienvenida
+      AUTORUN_ENABLED: "false"  # Deshabilitar autoruns de Laravel (no aplica a CodeIgniter pero mejor dejarlo limpio)
+    volumes:
+      # Mapea todo el proyecto para desarrollo activo
+      - .:/var/www/html
+      # Mapea específicamente writable para permisos
+      - ./writable:/var/www/html/writable:rw
+      # Mapea el archivo .env
+      - ./.env:/var/www/html/.env:ro
+      # Mapea public (donde están los assets y uploads via symlink)
+      - ./public:/var/www/html/public:rw
+    ports:
+      # Exponer puerto 80 interno en puerto 8080 externo para desarrollo
+      - "8080:80"
+    networks:
+      - baubyte-website-dev-net
+    # Health check para verificar que la aplicación esté funcionando
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+networks:
+  baubyte-website-dev-net:
+    driver: bridge
+
+# No necesitamos volúmenes externos en desarrollo
