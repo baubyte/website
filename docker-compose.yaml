@@ -15,6 +15,7 @@ services:
       - ./writable:/var/www/html/writable
       # Mapea el archivo '.env' desde el host al contenedor (solo lectura)
       - ./.env:/var/www/html/.env
+      - ./public:/var/www/html/public
     networks:
       - baubyte-website-net
       - traefik-proxy # Red compartida con Traefik
@@ -27,6 +28,7 @@ services:
     container_name: baubyte-website-nginx
     restart: unless-stopped
     volumes:
+      - ./public:/var/www/html/public:ro
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
     depends_on:
       - baubyte-website
@@ -51,4 +53,6 @@ volumes:
   writable:
     driver: local
   env:
+    driver: local
+  public:
     driver: local
