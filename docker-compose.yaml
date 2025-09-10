@@ -10,14 +10,12 @@ services:
     container_name: baubyte-website
     restart: unless-stopped
     environment:
-      # Variables de entorno de serversideup
-      SSL_MODE: "off"  # Traefik maneja SSL
+      SSL_MODE: "mixed"  # Escucha tanto HTTP (80) como HTTPS (443)
       LOG_OUTPUT_LEVEL: "warn"
       PHP_OPCACHE_ENABLE: "1"
       PHP_OPCACHE_REVALIDATE_FREQ: "0"
-      NGINX_WEBROOT: "/var/www/html/public"  # Variable correcta según documentación oficial
+      NGINX_WEBROOT: "/var/www/html/public"
     volumes:
-      # Solo mapear directorios que necesitan persistir entre despliegues
       - ./writable:/var/www/html/writable:rw  # Logs, cache, sesiones, uploads
       - ./.env:/var/www/html/.env:ro          # Configuración del entorno
       - ./public:/var/www/html/public:rw      # Archivos públicos
@@ -26,18 +24,18 @@ services:
       - traefik-proxy # Red compartida con Traefik
     labels:
       # --- Etiquetas para Traefik ---
-      - "traefik.enable=true" # Habilitar Traefik para este servicio
+      - "traefik.enable=true"
       - "traefik.http.routers.baubyte.rule=Host(`baubyte.com.ar`, `www.baubyte.com.ar`)"
-      - "traefik.http.routers.baubyte.entrypoints=websecure" # Escuchar en el punto de entrada HTTPS
-      - "traefik.http.routers.baubyte.tls.certresolver=letsencrypt" # Usar Let's Encrypt para el certificado
-      - "traefik.http.services.baubyte.loadbalancer.server.port=80" # Puerto donde nginx escucha en serversideup
+      - "traefik.http.routers.baubyte.entrypoints=websecure"
+      - "traefik.http.routers.baubyte.tls.certresolver=letsencrypt" 
+      - "traefik.http.services.baubyte.loadbalancer.server.port=8080"
       - "traefik.docker.network=traefik-proxy"
 
 networks:
   baubyte-website-net:
     driver: bridge
   traefik-proxy:
-    external: true # Usar la red externa creada para Traefik
+    external: true #
 volumes:
   writable:
     driver: local

@@ -48,22 +48,11 @@ RUN composer install --no-dev --optimize-autoloader --no-interaction --no-progre
 # Copiar todo el código de la aplicación
 COPY --chown=www-data:www-data . .
 
-# Asegurar que el directorio writable/uploads existe
-RUN mkdir -p /var/www/html/writable/uploads
-
-# Crear el enlace simbólico para uploads (usando ruta relativa)
-RUN ln -sf ../writable/uploads /var/www/html/public/uploads
-
-# Asegurar permisos correctos en directorios críticos
-RUN chown -R www-data:www-data /var/www/html/writable && \
-    chmod -R 755 /var/www/html/writable && \
-    chown -R www-data:www-data /var/www/html/public && \
+# Asegurar permisos correctos solo en public (writable lo maneja Deployer)
+RUN chown -R www-data:www-data /var/www/html/public && \
     chmod -R 755 /var/www/html/public
 
 # Volver al usuario sin privilegios
 USER www-data
-
-# Exponer puerto 80 (nginx integrado en serversideup)
-EXPOSE 80
 
 # El CMD por defecto de serversideup/php ya está configurado para iniciar nginx + php-fpm
