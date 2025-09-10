@@ -25,7 +25,7 @@ services:
     labels:
       # --- Etiquetas para Traefik ---
       - "traefik.enable=true"
-      - "traefik.http.routers.baubyte.rule=Host(`baubyte.com.ar`, `www.baubyte.com.ar`)"
+      - "traefik.http.routers.baubyte.rule=Host(`baubyte.com.ar`) || Host(`www.baubyte.com.ar`)"
       - "traefik.http.routers.baubyte.entrypoints=websecure"
       - "traefik.http.routers.baubyte.tls.certresolver=letsencrypt" 
       - "traefik.http.services.baubyte.loadbalancer.server.port=8080"

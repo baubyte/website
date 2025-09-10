@@ -1,7 +1,7 @@
 name: 'traefik'
 services:
   traefik:
-    image: traefik:v2.10
+    image: traefik:v3.5
     container_name: traefik
     restart: unless-stopped
     # Comandos para activar el modo DEBUG y el Dashboard
