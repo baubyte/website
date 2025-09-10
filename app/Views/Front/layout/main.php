@@ -57,6 +57,7 @@
   <link href="<?= base_url('/assets/front/css/aos.css?ver=1.2.0') ?>" rel="stylesheet">
   <link href="<?= base_url('/assets/front/css/bootstrap.min.css?ver=1.2.0') ?>" rel="stylesheet">
   <link href="<?= base_url('/assets/front/css/main.css?ver=1.2.0') ?>" rel="stylesheet">
+  <link href="<?= base_url('/assets/front/css/simple-dark-mode.css?ver=1.0.0') ?>" rel="stylesheet">
 
   <!-- Estilos adicionales por página -->
   <?= $this->renderSection('css') ?>
@@ -89,6 +90,7 @@
   <script src="<?= base_url('/assets/front/js/now-ui-kit.js?ver=1.2.0') ?>"></script>
   <script src="<?= base_url('/assets/front/js/aos.js?ver=1.2.0') ?>"></script>
   <script src="<?= base_url('/assets/front/scripts/main.js?ver=1.2.0') ?>"></script>
+  <script src="<?= base_url('/assets/front/js/simple-dark-mode.js?ver=1.0.0') ?>"></script>
 
   <!-- JavaScript adicional por página -->
   <?= $this->renderSection('js') ?>

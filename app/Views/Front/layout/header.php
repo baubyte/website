@@ -15,7 +15,12 @@
               <li class="nav-item"><a class="nav-link smooth-scroll" href="#skill"><?=lang('App.skills')?></a></li>
               <li class="nav-item"><a class="nav-link smooth-scroll" href="#experience"><?=lang('App.experience')?></a></li>
               <li class="nav-item"><a class="nav-link smooth-scroll" href="#contact"><?=lang('App.contact')?></a></li>
-              <li class="nav-item"><a class="nav-link smooth-scroll" href="<?=(session('locale') == 'es') ? site_url(route_to('locale', 'en')) : site_url(route_to('locale', 'es'))?>"><i class="fa fa-language"></i></a></li>  
+              <li class="nav-item"><a class="nav-link smooth-scroll" href="<?=(session('locale') == 'es') ? site_url(route_to('locale', 'en')) : site_url(route_to('locale', 'es'))?>"><i class="fa fa-language"></i></a></li>
+              <li class="nav-item">
+                <a class="nav-link" href="#" onclick="toggleDarkMode()" title="Toggle Dark Mode">
+                  <i id="dark-mode-icon" class="fa fa-moon-o"></i>
+                </a>
+              </li>  
             </ul>
           </div>
         </div>

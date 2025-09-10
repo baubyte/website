@@ -37,10 +37,6 @@ Developer
                     title="<?=lang('App.tooltip_linkedin')?>" target="_blank">
                     <i class="fa fa-linkedin"></i>
                   </a>
-                  <a class="btn btn-default btn-round btn-lg btn-icon" href="<?=$profile->instagram_url?>" rel="tooltip"
-                    title="<?=lang('App.tooltip_instagram')?>" target="_blank">
-                    <i class="fa fa-instagram"></i>
-                  </a>
                   </div>
               </div>
             </div>
@@ -195,18 +191,16 @@ Developer
                             </div>
                             <div class="row mb-3">
                               <div class="col">
-                                <div class="form-group">
-                                <div class="input-group"><span class="input-group-addon"><i class="fa fa-file-text"></i></span>
-                                  <textarea rows="3" class="form-control  <?= session('errors.message') ? 'is-invalid' : '' ?>" name="message" placeholder="<?=lang('App.messagePlaceHolder')?>"
-                                    required><?=old('message')?></textarea>
-                                </div>
+                                <div class="input-group">
+                                  <span class="input-group-addon"><i class="fa fa-file-text"></i></span>
+                                  <textarea rows="3" class="form-control  <?= session('errors.message') ? 'is-invalid' : '' ?>" name="message" placeholder="<?=lang('App.messagePlaceHolder')?>" required><?=old('message')?></textarea>
                                 </div>
                               </div>
                             </div>
                             <div class="row mb-3">
                               <div class="col">
                                 <div class="form-group">
-                                  <?=reCaptcha2('reCaptcha2',['id' => 'reCaptcha_v2'],['theme' => 'light'])?>
+                                  <?=reCaptcha2('reCaptcha2',['id' => 'reCaptcha_v2'],['theme' => 'dark'])?>
                                 </div>
                               </div>
                             </div>
@@ -224,8 +218,7 @@ Developer
                           <p><?=$profile->email_contact?></p>
                           <p class="mb-0"><strong><a href="<?=$profile->linkedin_url?>" target="_blank">Linkedin</a></strong></p>
                           <p></p>
-                          <p class="mb-0"><strong><a href="<?=$profile->instagram_url?>" target="_blank">Instagram</a></strong> </p>
-                              <!-- Incluimos Mensajes -->
+                            <!-- Incluimos Mensajes -->
                             <?= $this->include('Front/layout/message_block') ?>
                         </div>
                       </div>
