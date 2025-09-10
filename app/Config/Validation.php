@@ -42,7 +42,7 @@ class Validation extends BaseConfig
     // Rules
     // --------------------------------------------------------------------
 
-    public $contact = [
+    public $contactEmail = [
         'email' => [
             'label'  => 'Correo Electrónico',
             'rules'  => 'required|valid_email'

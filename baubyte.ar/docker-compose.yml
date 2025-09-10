@@ -4,21 +4,22 @@ services:
     image: traefik:v3.5
     container_name: traefik
     restart: unless-stopped
-    # Comandos para activar el modo DEBUG y el Dashboard
-    command:
-      - "--log.level=DEBUG"
-      - "--api.insecure=true"
-      - "--providers.docker=true"
-      - "--providers.docker.exposedbydefault=false"
-
     ports:
       - "80:80"
       - "443:443"
-      # Puerto para acceder al Dashboard
-      - "8080:8080"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro # Para que Traefik escuche a Docker
       - ./traefik.yml:/traefik.yml:ro # Archivo de configuración estática
       - ./acme.json:/acme.json # Para guardar los certificados SSL -> touch acme.json chmod 600 acme.json
     networks:
       - traefik-proxy
+    labels:
+      - "traefik.enable=true"
+      # Router para el Dashboard
+      - "traefik.http.routers.dashboard.rule=Host(`traefik.baubyte.com.ar`)"
+      - "traefik.http.routers.dashboard.entrypoints=websecure"
+      - "traefik.http.routers.dashboard.service=api@internal"
+      - "traefik.http.routers.dashboard.tls.certresolver=letsencrypt"
+      # Middleware de Autenticación
+      - "traefik.http.routers.dashboard.middlewares=auth"
+      - "traefik.http.middlewares.auth.basicauth.users=asdasd:asdsad"

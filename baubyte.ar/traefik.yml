@@ -1,3 +1,7 @@
+log:
+  level: INFO
+api:
+  dashboard: true
 entryPoints:
   web:
     address: ":80"
@@ -8,7 +12,6 @@ entryPoints:
           scheme: https
   websecure:
     address: ":443"
-
 providers:
   docker:
     exposedByDefault: false
