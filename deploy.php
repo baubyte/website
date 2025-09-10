@@ -43,7 +43,7 @@ task('docker:down', function () {
 });
 
 task('deploy:docker', function () {
-    run('cd {{release_path}} && docker compose up -d --remove-orphans');
+    run('cd {{release_path}} && docker compose build && docker compose up -d --remove-orphans');
     writeln('<info>✓ Contenedores Docker iniciados en modo daemon</info>');
 });
 
