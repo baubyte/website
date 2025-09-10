@@ -48,8 +48,11 @@ RUN composer install --no-dev --optimize-autoloader --no-interaction --no-progre
 # Copiar todo el código de la aplicación
 COPY --chown=www-data:www-data . .
 
-# Crear el enlace simbólico para uploads
-RUN ln -sf /var/www/html/writable/uploads /var/www/html/public/uploads
+# Asegurar que el directorio writable/uploads existe
+RUN mkdir -p /var/www/html/writable/uploads
+
+# Crear el enlace simbólico para uploads (usando ruta relativa)
+RUN ln -sf ../writable/uploads /var/www/html/public/uploads
 
 # Asegurar permisos correctos en directorios críticos
 RUN chown -R www-data:www-data /var/www/html/writable && \
