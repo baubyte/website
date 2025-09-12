@@ -27,8 +27,11 @@ builds/
 
 # Archivos del host de Docker
 docker-compose.yaml
+docker-compose.dev.yaml
 Dockerfile
+Dockerfile.dev
 .dockerignore
+dev.sh
 
 # Backups y archivos de base de datos
 dB/
@@ -40,3 +43,8 @@ baubyte.ar/
 Thumbs.db
 *.tmp
 *.temp
+
+# Otros archivos innecesarios
+.ddev/
+.idea/
+.vscode/

@@ -7,6 +7,7 @@ use CodeIgniter\Validation\StrictRules\CreditCardRules;
 use CodeIgniter\Validation\StrictRules\FileRules;
 use CodeIgniter\Validation\StrictRules\FormatRules;
 use CodeIgniter\Validation\StrictRules\Rules;
+use Denis303\ReCaptcha\Validation\ReCaptchaRules;
 
 class Validation extends BaseConfig
 {
@@ -25,6 +26,7 @@ class Validation extends BaseConfig
         FormatRules::class,
         FileRules::class,
         CreditCardRules::class,
+        ReCaptchaRules::class,
     ];
 
     /**
@@ -83,19 +85,19 @@ class Validation extends BaseConfig
         ],
         'start' => [
             'label'  => 'Fecha de Inicio',
-            'rules'  => 'required|valid_date'
+            'rules'  => 'required|valid_date[d/m/Y]'
         ],
         'end' => [
             'label'  => 'Fecha de Fin',
-            'rules'  => 'required|valid_date'
+            'rules'  => 'required|valid_date[d/m/Y]'
         ],
         'description_es' => [
             'label'  => 'Descripción (ES)',
-            'rules'  => 'required|min_length[3]'
+            'rules'  => 'permit_empty|min_length[3]'
         ],
         'description_en' => [
             'label'  => 'Description (EN)',
-            'rules'  => 'required|min_length[3]'
+            'rules'  => 'permit_empty|min_length[3]'
         ],
     ];
     public $experienceUpdate = [
@@ -117,19 +119,19 @@ class Validation extends BaseConfig
         ],
         'start' => [
             'label'  => 'Fecha de Inicio',
-            'rules'  => 'required|valid_date'
+            'rules'  => 'required|valid_date[d/m/Y]'
         ],
         'end' => [
             'label'  => 'Fecha de Fin',
-            'rules'  => 'permit_empty|valid_date'
+            'rules'  => 'permit_empty|valid_date[d/m/Y]'
         ],
         'description_es' => [
             'label'  => 'Descripción (ES)',
-            'rules'  => 'required|min_length[3]'
+            'rules'  => 'permit_empty|min_length[3]'
         ],
         'description_en' => [
             'label'  => 'Description (EN)',
-            'rules'  => 'required|min_length[3]'
+            'rules'  => 'permit_empty|min_length[3]'
         ],
     ];
     public $profileStore = [
@@ -143,7 +145,7 @@ class Validation extends BaseConfig
         ],
         'avatar' => [
             'label'  => 'Avatar',
-            'rules'  => 'uploaded[avatar]|is_image[avatar]|max_size[avatar,2048]|mime_in[avatar,image/jpg,image/jpeg,image/png]|ext_in[avatar,jpg,jpeg,png]'
+            'rules'  => 'uploaded[avatar]|is_image[avatar]|max_size[avatar,2048]|mime_in[avatar,image/jpg,image/jpeg,image/png,image/webp]|ext_in[avatar,jpg,jpeg,png,webp]'
         ],
         'email_contact' => [
             'label'  => 'Correo Electrónico',
@@ -201,7 +203,7 @@ class Validation extends BaseConfig
         ],
         'avatar' => [
             'label'  => 'Avatar',
-            'rules'  => 'is_image[avatar]|max_size[avatar,2048]|mime_in[avatar,image/jpg,image/jpeg,image/png]|ext_in[avatar,jpg,jpeg,png]'
+            'rules'  => 'uploaded[avatar]|is_image[avatar]|max_size[avatar,2048]|mime_in[avatar,image/jpg,image/jpeg,image/png,image/webp]|ext_in[avatar,jpg,jpeg,png,webp]'
         ],
         'email_contact' => [
             'label'  => 'Correo Electrónico',
@@ -283,11 +285,11 @@ class Validation extends BaseConfig
         ],
         'start' => [
             'label'  => 'Fecha de Inicio',
-            'rules'  => 'required|valid_date'
+            'rules'  => 'required|valid_date[d/m/Y]'
         ],
         'end' => [
             'label'  => 'Fecha de Fin',
-            'rules'  => 'permit_empty|valid_date'
+            'rules'  => 'permit_empty|valid_date[d/m/Y]'
         ],
         'description_es' => [
             'label'  => 'Descripción (ES)',
@@ -317,11 +319,11 @@ class Validation extends BaseConfig
         ],
         'start' => [
             'label'  => 'Fecha de Inicio',
-            'rules'  => 'required|valid_date'
+            'rules'  => 'required|valid_date[d/m/Y]'
         ],
         'end' => [
             'label'  => 'Fecha de Fin',
-            'rules'  => 'permit_empty|valid_date'
+            'rules'  => 'permit_empty|valid_date[d/m/Y]'
         ],
         'description_es' => [
             'label'  => 'Descripción (ES)',
