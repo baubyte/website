@@ -94,7 +94,41 @@ describe('scrollReveal', () => {
             observedCallback([{ isIntersecting: true, target: node }]);
         }).not.toThrow();
 
-        expect(unobserveCalled).toBe(true);
+        // Deliberately NOT a one-shot reveal: the observer must keep
+        // watching (never unobserve) so leaving and re-entering the
+        // viewport can re-trigger the animation.
+        expect(unobserveCalled).toBe(false);
+
+        action?.destroy?.();
+    });
+
+    test('re-hides on exit and re-animates on re-entry, instead of only revealing once', async () => {
+        window.matchMedia = vi.fn().mockReturnValue({ matches: false });
+
+        let observedCallback;
+        window.IntersectionObserver = class {
+            constructor(callback) {
+                observedCallback = callback;
+            }
+            observe() {}
+            unobserve() {}
+            disconnect() {}
+        };
+
+        const { scrollReveal } = await import('./scrollReveal.js');
+        const node = document.createElement('section');
+
+        const action = scrollReveal(node);
+
+        observedCallback([{ isIntersecting: true, target: node }]);
+        // Leaving the viewport resets to the hidden starting state...
+        observedCallback([{ isIntersecting: false, target: node }]);
+        expect(node.style.opacity).toBe('0');
+
+        // ...so re-entering can genuinely animate again, not silently no-op.
+        expect(() => {
+            observedCallback([{ isIntersecting: true, target: node }]);
+        }).not.toThrow();
 
         action?.destroy?.();
     });
