@@ -351,6 +351,10 @@ class LegacyImportCommand extends Command
 
     private function syncAutoIncrement(string $table): void
     {
+        if (DB::connection()->getDriverName() !== 'mysql') {
+            return;
+        }
+
         $max = (int) DB::table($table)->max('id');
         DB::statement("ALTER TABLE `{$table}` AUTO_INCREMENT = ".($max + 1));
     }
