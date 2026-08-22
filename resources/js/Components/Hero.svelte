@@ -116,7 +116,7 @@
         -->
         {#if profile?.avatar || fullName}
             <div
-                class="atropos relative mx-auto h-[280px] w-[280px] sm:h-[340px] sm:w-[340px]"
+                class="atropos group relative mx-auto h-[280px] w-[280px] sm:h-[340px] sm:w-[340px]"
                 use:tilt
             >
                 <div class="atropos-scale h-full w-full">
@@ -201,11 +201,15 @@
                     expands to show a text label on hover) — the label span
                     is `max-w-0 opacity-0` by default and grows on
                     `:hover`/`:focus-within` so keyboard focus reveals it
-                    too, not just a mouse hover.
+                    too, not just a mouse hover. `group` lives on the outer
+                    `.atropos` frame (not on each badge) so moving the mouse
+                    anywhere over the triangle/photo reveals every badge at
+                    once, not just when the cursor lands on a specific
+                    badge's small icon box.
                 -->
                 {#if topBackendSkill}
                     <div
-                        class="group absolute -left-4 -top-2 flex h-11 items-center gap-2 overflow-hidden rounded-lg border border-primary/40 bg-base-100 px-2.5 text-primary shadow-lg transition-[width] duration-300 ease-out sm:-left-8 sm:-top-4"
+                        class="absolute -left-4 -top-2 flex h-11 items-center gap-2 overflow-hidden rounded-lg border border-primary/40 bg-base-100 px-2.5 text-primary shadow-lg transition-[width] duration-300 ease-out sm:-left-8 sm:-top-4"
                         data-atropos-offset="4"
                         tabindex="0"
                     >
@@ -219,7 +223,7 @@
                 {/if}
                 {#if topIaSkill}
                     <div
-                        class="group absolute -right-4 -top-2 flex h-11 items-center gap-2 overflow-hidden rounded-lg border border-primary/40 bg-base-100 px-2.5 text-primary shadow-lg transition-[width] duration-300 ease-out sm:-right-8 sm:-top-4"
+                        class="absolute -right-4 -top-2 flex h-11 items-center gap-2 overflow-hidden rounded-lg border border-primary/40 bg-base-100 px-2.5 text-primary shadow-lg transition-[width] duration-300 ease-out sm:-right-8 sm:-top-4"
                         data-atropos-offset="6"
                         tabindex="0"
                     >
@@ -233,7 +237,7 @@
                 {/if}
                 {#if yearsOfExperience}
                     <div
-                        class="group absolute -right-4 bottom-8 flex h-11 items-center gap-2 overflow-hidden rounded-lg border border-primary/40 bg-base-100 px-2.5 text-primary shadow-lg transition-[width] duration-300 ease-out sm:-right-8"
+                        class="absolute -right-4 bottom-8 flex h-11 items-center gap-2 overflow-hidden rounded-lg border border-primary/40 bg-base-100 px-2.5 text-primary shadow-lg transition-[width] duration-300 ease-out sm:-right-8"
                         data-atropos-offset="9"
                         tabindex="0"
                     >
