@@ -47,8 +47,10 @@ describe('Home', () => {
     test('renders the real profile name from props', () => {
         render(Home, { props: baseProps });
 
-        expect(
-            screen.getByText('Martín Pared Baez'),
-        ).toBeInTheDocument();
+        // The full name now legitimately appears twice (Hero + the About
+        // sidebar's "Details" block, PR8d) — asserting at least one match
+        // instead of a single exact node, since both occurrences are
+        // correct by design, not a regression.
+        expect(screen.getAllByText('Martín Pared Baez').length).toBeGreaterThan(0);
     });
 });

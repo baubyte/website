@@ -31,7 +31,7 @@
 
                     <div class="rounded-box border border-base-300 bg-base-100 p-5 shadow-sm">
                         <div class="text-xs font-medium uppercase tracking-wide text-primary">
-                            {formatMonthYear(experience.start_date)} &mdash; {formatMonthYear(experience.end_date) ?? 'Present'}
+                            {formatMonthYear(experience.start_date)} &mdash; {formatMonthYear(experience.end_date) ?? 'Presente'}
                         </div>
                         <h3 class="mt-1 font-display text-lg font-semibold text-base-content">
                             {experience.company}
