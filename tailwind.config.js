@@ -10,7 +10,16 @@ export default {
     theme: {
         extend: {
             fontFamily: {
-                sans: ['Figtree', ...defaultTheme.fontFamily.sans],
+                // Cuerpo: sans-serif humanista, limpia — deliberadamente
+                // NO Inter/Space Grotesk (el default genérico de todo sitio
+                // hecho con IA). Servida vía Google Fonts CDN + `preconnect`
+                // (ver `resources/views/app.blade.php`) — autohospedar los
+                // woff2 quedó fuera de esta unidad por tiempo/complejidad.
+                sans: ['Public Sans', ...defaultTheme.fontFamily.sans],
+                // Display/títulos: serif variable cálida con carácter,
+                // combina con el verde sage orgánico de la paleta
+                // `baubyte-*` de abajo.
+                display: ['Fraunces', ...defaultTheme.fontFamily.serif],
             },
         },
     },

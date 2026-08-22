@@ -1,4 +1,7 @@
 <script>
+    import { scrollReveal } from '../lib/scrollReveal.js';
+    import { formatMonthYear } from '../lib/formatDate.js';
+
     /**
      * `experiences` is already ordered by `start_date desc` server-side
      * (see `HomeController@index`) and each item's `specialty`/
@@ -9,19 +12,35 @@
     let { experiences } = $props();
 </script>
 
-<section id="experience" class="container mx-auto px-4 py-12">
-    <h2 class="mb-8 text-center text-2xl font-bold">Experience</h2>
+<section id="experience" class="py-20 sm:py-28" use:scrollReveal>
+    <div class="container mx-auto max-w-3xl px-4">
+        <h2 class="mb-12 text-center font-display text-3xl font-semibold text-base-content sm:text-4xl">
+            Experience
+        </h2>
 
-    <ol class="space-y-8 border-l border-base-300 pl-6">
-        {#each experiences as experience (experience.id)}
-            <li>
-                <div class="text-sm text-base-content/60">
-                    {experience.start_date} &mdash; {experience.end_date ?? 'Present'}
-                </div>
-                <h3 class="text-lg font-semibold">{experience.company}</h3>
-                <p class="text-base-content/70">{experience.specialty}</p>
-                <p class="mt-1">{experience.description}</p>
-            </li>
-        {/each}
-    </ol>
+        <ol class="relative space-y-10 border-l-2 border-base-300 pl-8">
+            {#each experiences as experience, index (experience.id)}
+                <li
+                    class="relative"
+                    use:scrollReveal={{ delay: index * 100, distance: 16 }}
+                >
+                    <span
+                        class="absolute -left-[calc(2rem+5px)] top-1.5 h-3 w-3 rounded-full border-2 border-base-100 bg-primary"
+                        aria-hidden="true"
+                    ></span>
+
+                    <div class="rounded-box border border-base-300 bg-base-100 p-5 shadow-sm">
+                        <div class="text-xs font-medium uppercase tracking-wide text-primary">
+                            {formatMonthYear(experience.start_date)} &mdash; {formatMonthYear(experience.end_date) ?? 'Present'}
+                        </div>
+                        <h3 class="mt-1 font-display text-lg font-semibold text-base-content">
+                            {experience.company}
+                        </h3>
+                        <p class="text-sm text-base-content/70">{experience.specialty}</p>
+                        <p class="mt-2 text-base-content/80">{experience.description}</p>
+                    </div>
+                </li>
+            {/each}
+        </ol>
+    </div>
 </section>

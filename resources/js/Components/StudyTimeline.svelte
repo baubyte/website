@@ -1,4 +1,7 @@
 <script>
+    import { scrollReveal } from '../lib/scrollReveal.js';
+    import { formatMonthYear } from '../lib/formatDate.js';
+
     /**
      * Same ordered-list pattern as `ExperienceTimeline.svelte`; `studies`
      * arrives already ordered by `start_date desc` from `HomeController`,
@@ -8,19 +11,35 @@
     let { studies } = $props();
 </script>
 
-<section id="studies" class="container mx-auto px-4 py-12">
-    <h2 class="mb-8 text-center text-2xl font-bold">Studies</h2>
+<section id="studies" class="bg-base-200 py-20 sm:py-28" use:scrollReveal>
+    <div class="container mx-auto max-w-3xl px-4">
+        <h2 class="mb-12 text-center font-display text-3xl font-semibold text-base-content sm:text-4xl">
+            Studies
+        </h2>
 
-    <ol class="space-y-8 border-l border-base-300 pl-6">
-        {#each studies as study (study.id)}
-            <li>
-                <div class="text-sm text-base-content/60">
-                    {study.start_date} &mdash; {study.end_date ?? 'Present'}
-                </div>
-                <h3 class="text-lg font-semibold">{study.title}</h3>
-                <p class="text-base-content/70">{study.entity}</p>
-                <p class="mt-1">{study.description}</p>
-            </li>
-        {/each}
-    </ol>
+        <ol class="relative space-y-10 border-l-2 border-base-300 pl-8">
+            {#each studies as study, index (study.id)}
+                <li
+                    class="relative"
+                    use:scrollReveal={{ delay: index * 100, distance: 16 }}
+                >
+                    <span
+                        class="absolute -left-[calc(2rem+5px)] top-1.5 h-3 w-3 rounded-full border-2 border-base-200 bg-secondary"
+                        aria-hidden="true"
+                    ></span>
+
+                    <div class="rounded-box border border-base-300 bg-base-100 p-5 shadow-sm">
+                        <div class="text-xs font-medium uppercase tracking-wide text-secondary">
+                            {formatMonthYear(study.start_date)} &mdash; {formatMonthYear(study.end_date) ?? 'Present'}
+                        </div>
+                        <h3 class="mt-1 font-display text-lg font-semibold text-base-content">
+                            {study.title}
+                        </h3>
+                        <p class="text-sm text-base-content/70">{study.entity}</p>
+                        <p class="mt-2 text-base-content/80">{study.description}</p>
+                    </div>
+                </li>
+            {/each}
+        </ol>
+    </div>
 </section>

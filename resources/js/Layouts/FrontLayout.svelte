@@ -13,10 +13,10 @@
     let { children, locale = 'es' } = $props();
 </script>
 
-<div class="min-h-screen bg-base-200 text-base-content">
-    <header class="navbar border-b border-base-300 bg-base-100 px-4">
+<div class="min-h-screen bg-base-100 text-base-content">
+    <header class="navbar sticky top-0 z-50 border-b border-base-300 bg-base-100/80 px-4 backdrop-blur">
         <div class="flex-1">
-            <span class="text-lg font-semibold">Baubyte</span>
+            <span class="font-display text-lg font-semibold">Baubyte</span>
         </div>
         <div class="flex-none gap-2">
             <LocaleSwitcher currentLocale={locale} />
