@@ -7,6 +7,7 @@ use App\Services\MaintenanceToggler;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Notifications\Notification;
@@ -50,16 +51,19 @@ class ManageProfile extends Page implements HasForms
     {
         return $schema
             ->components([
+                FileUpload::make('avatar')
+                    ->avatar()
+                    ->helperText('Filename/path of the profile avatar image.')
+                    ->required()
+                    ->disk('public')
+                    ->directory('profiles')
+                    ->visibility('public'),
                 TextInput::make('name')
                     ->required()
                     ->maxLength(120),
                 TextInput::make('surname')
                     ->required()
                     ->maxLength(120),
-                TextInput::make('avatar')
-                    ->helperText('Filename/path of the profile avatar image.')
-                    ->required()
-                    ->maxLength(64),
                 TextInput::make('email_contact')
                     ->label('Contact email')
                     ->email()
