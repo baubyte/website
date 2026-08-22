@@ -114,6 +114,21 @@
                 <div class="border-primary bg-primary/20"></div>
             </div>
         </div>
+        {{--
+            Safety net, independent of app.js: if the JS bundle ever fails
+            to load/execute for any reason, app.js's own removal
+            (`document.getElementById('pre-hydration-loader')?.remove()`)
+            never runs and this would otherwise sit on screen forever. Force
+            it gone after 5s regardless — by then either the real page
+            already mounted over it, or something is broken and a stuck
+            loader is strictly worse than an unstyled page.
+        --}}
+        <script>
+            setTimeout(function () {
+                var el = document.getElementById('pre-hydration-loader');
+                if (el) el.remove();
+            }, 5000);
+        </script>
 
         @inertia
     </body>
