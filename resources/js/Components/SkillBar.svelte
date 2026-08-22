@@ -16,10 +16,10 @@
     const meta = $derived(getSkillMeta(skill.name));
 </script>
 
-<div class="w-full">
+<div class="group w-full rounded-lg p-1.5 transition-colors duration-200 hover:bg-base-200/60">
     <div class="mb-1.5 flex items-center gap-2">
         <span
-            class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-base-200 text-2xl"
+            class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-base-200 text-2xl transition-transform duration-200 group-hover:scale-110 group-hover:bg-primary/15"
             aria-hidden="true"
         >
             <Icon icon={meta.icon} width="20" height="20" />

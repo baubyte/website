@@ -25,9 +25,13 @@ describe('Hero', () => {
         render(Hero, { props: { profile } });
 
         expect(screen.getByText('Martín Pared Baez')).toBeInTheDocument();
+        // Specialty legitimately renders twice: the visible tagline, and
+        // the hover-reveal label inside the floating badge (PR8, real
+        // interaction added at the owner's request) — not a duplication
+        // bug.
         expect(
-            screen.getByText('Desarrollador Full Stack Senior'),
-        ).toBeInTheDocument();
+            screen.getAllByText('Desarrollador Full Stack Senior').length,
+        ).toBeGreaterThanOrEqual(2);
     });
 
     test('uses a responsive grid that collapses to a single column on small viewports', () => {

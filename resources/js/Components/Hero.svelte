@@ -161,20 +161,37 @@
                     `childrenRootEl = el`, the root itself, not
                     `.atropos-inner`), so these still get the same
                     parallax depth as siblings of `.atropos-scale`.
+
+                    Hover-reveal label, same interaction pattern as the
+                    reference's `.popup` badges (icon-only chip that
+                    expands to show a text label on hover) — the label span
+                    is `max-w-0 opacity-0` by default and grows on
+                    `:hover`/`:focus-within` so keyboard focus reveals it
+                    too, not just a mouse hover.
                 -->
                 <div
-                    class="pointer-events-none absolute -left-4 -top-2 flex h-11 w-11 items-center justify-center rounded-lg border border-primary/40 bg-base-100 text-primary shadow-lg sm:-left-8 sm:-top-4"
-                    aria-hidden="true"
+                    class="group absolute -left-4 -top-2 flex h-11 items-center gap-2 overflow-hidden rounded-lg border border-primary/40 bg-base-100 px-2.5 text-primary shadow-lg transition-[width] duration-300 ease-out sm:-left-8 sm:-top-4"
                     data-atropos-offset="5"
+                    tabindex="0"
                 >
-                    <Icon icon={iconCodeTags} width="20" height="20" />
+                    <Icon icon={iconCodeTags} width="20" height="20" class="shrink-0" />
+                    <span
+                        class="max-w-0 overflow-hidden text-ellipsis whitespace-nowrap text-xs font-medium opacity-0 transition-all duration-300 ease-out group-hover:max-w-[11rem] group-hover:opacity-100 group-focus-within:max-w-[11rem] group-focus-within:opacity-100"
+                    >
+                        {profile?.specialty ?? 'Full Stack'}
+                    </span>
                 </div>
                 <div
-                    class="pointer-events-none absolute -right-4 bottom-8 flex h-11 w-11 items-center justify-center rounded-lg border border-primary/40 bg-base-100 text-primary shadow-lg sm:-right-8"
-                    aria-hidden="true"
+                    class="group absolute -right-4 bottom-8 flex h-11 items-center gap-2 overflow-hidden rounded-lg border border-primary/40 bg-base-100 px-2.5 text-primary shadow-lg transition-[width] duration-300 ease-out sm:-right-8"
                     data-atropos-offset="8"
+                    tabindex="0"
                 >
-                    <Icon icon={iconCreation} width="20" height="20" />
+                    <Icon icon={iconCreation} width="20" height="20" class="shrink-0" />
+                    <span
+                        class="max-w-0 overflow-hidden text-ellipsis whitespace-nowrap text-xs font-medium opacity-0 transition-all duration-300 ease-out group-hover:max-w-[11rem] group-hover:opacity-100 group-focus-within:max-w-[11rem] group-focus-within:opacity-100"
+                    >
+                        +10 años de experiencia
+                    </span>
                 </div>
             </div>
         {/if}
