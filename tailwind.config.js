@@ -16,10 +16,15 @@ export default {
                 // (ver `resources/views/app.blade.php`) — autohospedar los
                 // woff2 quedó fuera de esta unidad por tiempo/complejidad.
                 sans: ['Public Sans', ...defaultTheme.fontFamily.sans],
-                // Display/títulos: serif variable cálida con carácter,
-                // combina con el verde sage orgánico de la paleta
-                // `baubyte-*` de abajo.
-                display: ['Fraunces', ...defaultTheme.fontFamily.serif],
+                // Display/títulos: Orbitron — la MISMA fuente que usa el
+                // sitio de referencia (gustavomorinaga.dev, confirmado
+                // contra su HTML real) para su título con glow. Se copia
+                // la fuente tal cual, coloreada con la paleta sage propia
+                // en vez del neón de la referencia.
+                display: ['Orbitron', ...defaultTheme.fontFamily.sans],
+                // Eyebrow estilo código (`const developer = "...";` en
+                // Hero.svelte): Fira Code, también tomada de la referencia.
+                mono: ['Fira Code', ...defaultTheme.fontFamily.mono],
             },
         },
     },
