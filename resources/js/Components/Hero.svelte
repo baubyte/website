@@ -5,6 +5,7 @@
     import {
         iconCodeTags,
         iconCreation,
+        iconCalendarClock,
         iconChevronDown,
         iconDownload,
         iconGithub,
@@ -12,7 +13,22 @@
         iconLinkedin,
     } from '../lib/icons.js';
 
-    let { profile, yearsOfExperience = null } = $props();
+    let { profile, skills = [], yearsOfExperience = null } = $props();
+
+    /**
+     * Badge labels are the real, highest-`percentage` skill within each
+     * category (as set from Filament, see `skills.category`) — not
+     * hardcoded strings. A category with no skills yet simply hides its
+     * badge (`{#if}` below) rather than showing empty/fake content.
+     */
+    const topSkillIn = (category) =>
+        skills
+            .filter((skill) => skill.category === category)
+            .slice()
+            .sort((a, b) => (b.percentage ?? 0) - (a.percentage ?? 0))[0] ?? null;
+
+    const topBackendSkill = $derived(topSkillIn('Backend'));
+    const topIaSkill = $derived(topSkillIn('IA'));
 
     const fullName = $derived(
         `${profile?.name ?? ''} ${profile?.surname ?? ''}`.trim(),
@@ -105,47 +121,65 @@
             >
                 <div class="atropos-scale h-full w-full">
                     <div class="atropos-rotate h-full w-full">
-                        <div class="atropos-inner relative flex h-full w-full items-center justify-center">
-                            <svg
-                                class="pointer-events-none absolute inset-0 h-full w-full text-primary"
-                                viewBox="0 0 200 200"
-                                fill="none"
-                                aria-hidden="true"
-                                data-atropos-offset="0"
-                            >
-                                <polygon points="100,4 196,178 4,178" stroke="currentColor" stroke-width="1.25" opacity="0.5" />
-                            </svg>
-
-                            <!--
-                                The triangle's visual centroid (points
-                                100,4 / 196,178 / 4,178 in a 200x200 box)
-                                sits at y=120 -- 10% lower than the
-                                container's geometric center (y=100) that
-                                flex `items-center` aligns to by default.
-                                Left uncorrected, the avatar reads as
-                                floating near the apex instead of resting
-                                inside the triangle's visual mass.
-                            -->
-                            <div
-                                class="avatar translate-y-[10%]"
-                                class:placeholder={!profile?.avatar || avatarFailed}
-                                data-atropos-offset="2"
-                            >
-                                <div
-                                    class="w-36 rounded-full bg-base-100 p-1.5 shadow-xl ring-4 ring-primary/30 ring-offset-4 ring-offset-base-100 sm:w-44"
+                        <!--
+                            Atropos' own stylesheet (`atropos/css`) declares
+                            `.atropos-inner { display: block; }`. That rule
+                            and Tailwind's `.flex` utility have equal
+                            specificity, so whichever loads last in the
+                            final CSS wins the cascade -- in this build
+                            Atropos wins, silently turning off flex centering
+                            (the avatar rendered flush at the container's
+                            top-left corner, not centered, in both axes).
+                            Centering now lives on a plain nested div that
+                            shares no class name with Atropos, so this
+                            collision can't touch it again.
+                        -->
+                        <div class="atropos-inner">
+                            <div class="relative flex h-full w-full items-center justify-center">
+                                <svg
+                                    class="pointer-events-none absolute inset-0 h-full w-full text-primary"
+                                    viewBox="0 0 200 200"
+                                    fill="none"
+                                    aria-hidden="true"
+                                    data-atropos-offset="0"
                                 >
-                                    {#if profile?.avatar && !avatarFailed}
-                                        <img
-                                            class="rounded-full object-cover"
-                                            src={`/storage/${profile.avatar}`}
-                                            alt={fullName}
-                                            onerror={() => (avatarFailed = true)}
-                                        />
-                                    {:else}
-                                        <div class="flex items-center justify-center rounded-full bg-primary/15">
-                                            <span class="font-display text-4xl font-semibold text-primary">{initials}</span>
-                                        </div>
-                                    {/if}
+                                    <polygon points="100,4 196,178 4,178" stroke="currentColor" stroke-width="1.25" opacity="0.5" />
+                                </svg>
+
+                                <!--
+                                    The triangle's visual centroid (points
+                                    100,4 / 196,178 / 4,178 in a 200x200 box)
+                                    sits at y=120 -- 10% lower than the
+                                    container's geometric center (y=100) that
+                                    flex `items-center` aligns to by default.
+                                    Left uncorrected, the avatar reads as
+                                    floating near the apex instead of resting
+                                    inside the triangle's visual mass. Its
+                                    x-centroid (100+196+4)/3=100 already
+                                    matches center exactly, so no horizontal
+                                    nudge is needed.
+                                -->
+                                <div
+                                    class="avatar translate-y-[10%]"
+                                    class:placeholder={!profile?.avatar || avatarFailed}
+                                    data-atropos-offset="2"
+                                >
+                                    <div
+                                        class="w-36 rounded-full bg-base-100 p-1.5 shadow-xl ring-4 ring-primary/30 ring-offset-4 ring-offset-base-100 sm:w-44"
+                                    >
+                                        {#if profile?.avatar && !avatarFailed}
+                                            <img
+                                                class="rounded-full object-cover"
+                                                src={`/storage/${profile.avatar}`}
+                                                alt={fullName}
+                                                onerror={() => (avatarFailed = true)}
+                                            />
+                                        {:else}
+                                            <div class="flex items-center justify-center rounded-full bg-primary/15">
+                                                <span class="font-display text-4xl font-semibold text-primary">{initials}</span>
+                                            </div>
+                                        {/if}
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -169,25 +203,41 @@
                     `:hover`/`:focus-within` so keyboard focus reveals it
                     too, not just a mouse hover.
                 -->
-                <div
-                    class="group absolute -left-4 -top-2 flex h-11 items-center gap-2 overflow-hidden rounded-lg border border-primary/40 bg-base-100 px-2.5 text-primary shadow-lg transition-[width] duration-300 ease-out sm:-left-8 sm:-top-4"
-                    data-atropos-offset="5"
-                    tabindex="0"
-                >
-                    <Icon icon={iconCodeTags} width="20" height="20" class="shrink-0" />
-                    <span
-                        class="max-w-0 overflow-hidden text-ellipsis whitespace-nowrap text-xs font-medium opacity-0 transition-all duration-300 ease-out group-hover:max-w-[11rem] group-hover:opacity-100 group-focus-within:max-w-[11rem] group-focus-within:opacity-100"
-                    >
-                        {profile?.specialty ?? 'Full Stack'}
-                    </span>
-                </div>
-                {#if yearsOfExperience}
+                {#if topBackendSkill}
                     <div
-                        class="group absolute -right-4 bottom-8 flex h-11 items-center gap-2 overflow-hidden rounded-lg border border-primary/40 bg-base-100 px-2.5 text-primary shadow-lg transition-[width] duration-300 ease-out sm:-right-8"
-                        data-atropos-offset="8"
+                        class="group absolute -left-4 -top-2 flex h-11 items-center gap-2 overflow-hidden rounded-lg border border-primary/40 bg-base-100 px-2.5 text-primary shadow-lg transition-[width] duration-300 ease-out sm:-left-8 sm:-top-4"
+                        data-atropos-offset="4"
+                        tabindex="0"
+                    >
+                        <Icon icon={iconCodeTags} width="20" height="20" class="shrink-0" />
+                        <span
+                            class="max-w-0 overflow-hidden text-ellipsis whitespace-nowrap text-xs font-medium opacity-0 transition-all duration-300 ease-out group-hover:max-w-[11rem] group-hover:opacity-100 group-focus-within:max-w-[11rem] group-focus-within:opacity-100"
+                        >
+                            {topBackendSkill.name}
+                        </span>
+                    </div>
+                {/if}
+                {#if topIaSkill}
+                    <div
+                        class="group absolute -right-4 -top-2 flex h-11 items-center gap-2 overflow-hidden rounded-lg border border-primary/40 bg-base-100 px-2.5 text-primary shadow-lg transition-[width] duration-300 ease-out sm:-right-8 sm:-top-4"
+                        data-atropos-offset="6"
                         tabindex="0"
                     >
                         <Icon icon={iconCreation} width="20" height="20" class="shrink-0" />
+                        <span
+                            class="max-w-0 overflow-hidden text-ellipsis whitespace-nowrap text-xs font-medium opacity-0 transition-all duration-300 ease-out group-hover:max-w-[11rem] group-hover:opacity-100 group-focus-within:max-w-[11rem] group-focus-within:opacity-100"
+                        >
+                            {topIaSkill.name}
+                        </span>
+                    </div>
+                {/if}
+                {#if yearsOfExperience}
+                    <div
+                        class="group absolute -right-4 bottom-8 flex h-11 items-center gap-2 overflow-hidden rounded-lg border border-primary/40 bg-base-100 px-2.5 text-primary shadow-lg transition-[width] duration-300 ease-out sm:-right-8"
+                        data-atropos-offset="9"
+                        tabindex="0"
+                    >
+                        <Icon icon={iconCalendarClock} width="20" height="20" class="shrink-0" />
                         <span
                             class="max-w-0 overflow-hidden text-ellipsis whitespace-nowrap text-xs font-medium opacity-0 transition-all duration-300 ease-out group-hover:max-w-[11rem] group-hover:opacity-100 group-focus-within:max-w-[11rem] group-focus-within:opacity-100"
                         >

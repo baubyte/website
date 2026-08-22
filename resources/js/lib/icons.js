@@ -15,6 +15,7 @@ export { default as iconDownload } from '@iconify-icons/mdi/download';
 // Small floating badges on the Hero's decorative avatar frame (PR8c).
 export { default as iconCodeTags } from '@iconify-icons/mdi/code-tags';
 export { default as iconCreation } from '@iconify-icons/mdi/creation';
+export { default as iconCalendarClock } from '@iconify-icons/mdi/calendar-clock';
 // About sidebar ("Details") icon+data rows (PR8d).
 export { default as iconAccount } from '@iconify-icons/mdi/account';
 export { default as iconBriefcase } from '@iconify-icons/mdi/briefcase-outline';

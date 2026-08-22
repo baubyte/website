@@ -25,13 +25,35 @@ describe('Hero', () => {
         render(Hero, { props: { profile } });
 
         expect(screen.getByText('Martín Pared Baez')).toBeInTheDocument();
-        // Specialty legitimately renders twice: the visible tagline, and
-        // the hover-reveal label inside the floating badge (PR8, real
-        // interaction added at the owner's request) — not a duplication
-        // bug.
         expect(
-            screen.getAllByText('Desarrollador Full Stack Senior').length,
-        ).toBeGreaterThanOrEqual(2);
+            screen.getByText('Desarrollador Full Stack Senior'),
+        ).toBeInTheDocument();
+    });
+
+    test('the frame badges show the real top skill per category, not the specialty text', () => {
+        // Real bug the owner caught: the floating badges only ever
+        // duplicated `profile.specialty` text instead of surfacing real
+        // per-category skill data — fixed by deriving each badge's label
+        // from the highest-`percentage` skill in its category.
+        const skills = [
+            { name: 'PHP & Laravel', category: 'Backend', percentage: 90 },
+            { name: 'Node.js & NestJS', category: 'Backend', percentage: 70 },
+            { name: 'IA, RAG & Vector Stores', category: 'IA', percentage: 60 },
+        ];
+
+        render(Hero, { props: { profile, skills, yearsOfExperience: 16 } });
+
+        expect(screen.getByText('PHP & Laravel')).toBeInTheDocument();
+        expect(screen.getByText('IA, RAG & Vector Stores')).toBeInTheDocument();
+        expect(screen.getByText('+16 años de experiencia')).toBeInTheDocument();
+        expect(screen.queryByText('Node.js & NestJS')).not.toBeInTheDocument();
+    });
+
+    test('hides a category badge entirely when no skill exists for it, instead of showing empty content', () => {
+        render(Hero, { props: { profile, skills: [] } });
+
+        expect(screen.queryByText('PHP & Laravel')).not.toBeInTheDocument();
+        expect(screen.queryByText('IA, RAG & Vector Stores')).not.toBeInTheDocument();
     });
 
     test('uses a responsive grid that collapses to a single column on small viewports', () => {

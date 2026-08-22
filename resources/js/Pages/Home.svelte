@@ -32,7 +32,7 @@
         The CV download CTA now lives inside `Hero`'s left column (PR8c),
         alongside the social icons — it used to be a standalone block here.
     -->
-    <Hero {profile} {yearsOfExperience} />
+    <Hero {profile} {skills} {yearsOfExperience} />
 
     <About {profile} />
     <Skills {skills} />
