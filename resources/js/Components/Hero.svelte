@@ -1,5 +1,7 @@
 <script>
+    import 'atropos/css';
     import Icon from '@iconify/svelte';
+    import { tilt } from '../lib/tilt.js';
     import {
         iconCodeTags,
         iconCreation,
@@ -87,48 +89,68 @@
             </div>
         </div>
 
-        <!-- Right column: avatar inside a decorative geometric frame + floating badges. -->
+        <!--
+            Right column: avatar inside a decorative geometric frame +
+            floating badges, tilted via Atropos on mouse move — the same
+            library gustavomorinaga.dev uses for this exact composition
+            (confirmed by reading its real source: `atropos/svelte` wrapping
+            a triangle + cropped photo + floating "popup" badges). Atropos
+            requires this exact nested class structure (it queries for these
+            classes rather than creating them) — see `lib/tilt.js`.
+        -->
         {#if profile?.avatar || fullName}
-            <div class="relative mx-auto flex h-[280px] w-[280px] items-center justify-center sm:h-[340px] sm:w-[340px]">
-                <svg
-                    class="pointer-events-none absolute inset-0 h-full w-full text-primary"
-                    viewBox="0 0 200 200"
-                    fill="none"
-                    aria-hidden="true"
-                >
-                    <polygon points="100,4 196,178 4,178" stroke="currentColor" stroke-width="1.25" opacity="0.5" />
-                </svg>
+            <div
+                class="atropos relative mx-auto h-[280px] w-[280px] sm:h-[340px] sm:w-[340px]"
+                use:tilt
+            >
+                <div class="atropos-scale h-full w-full">
+                    <div class="atropos-rotate h-full w-full">
+                        <div class="atropos-inner relative flex h-full w-full items-center justify-center">
+                            <svg
+                                class="pointer-events-none absolute inset-0 h-full w-full text-primary"
+                                viewBox="0 0 200 200"
+                                fill="none"
+                                aria-hidden="true"
+                                data-atropos-offset="0"
+                            >
+                                <polygon points="100,4 196,178 4,178" stroke="currentColor" stroke-width="1.25" opacity="0.5" />
+                            </svg>
 
-                <div class="avatar" class:placeholder={!profile?.avatar || avatarFailed}>
-                    <div
-                        class="w-36 rounded-full bg-base-100 p-1.5 shadow-xl ring-4 ring-primary/30 ring-offset-4 ring-offset-base-100 sm:w-44"
-                    >
-                        {#if profile?.avatar && !avatarFailed}
-                            <img
-                                class="rounded-full object-cover"
-                                src={`/storage/${profile.avatar}`}
-                                alt={fullName}
-                                onerror={() => (avatarFailed = true)}
-                            />
-                        {:else}
-                            <div class="flex items-center justify-center rounded-full bg-primary/15">
-                                <span class="font-display text-4xl font-semibold text-primary">{initials}</span>
+                            <div class="avatar" class:placeholder={!profile?.avatar || avatarFailed} data-atropos-offset="2">
+                                <div
+                                    class="w-36 rounded-full bg-base-100 p-1.5 shadow-xl ring-4 ring-primary/30 ring-offset-4 ring-offset-base-100 sm:w-44"
+                                >
+                                    {#if profile?.avatar && !avatarFailed}
+                                        <img
+                                            class="rounded-full object-cover"
+                                            src={`/storage/${profile.avatar}`}
+                                            alt={fullName}
+                                            onerror={() => (avatarFailed = true)}
+                                        />
+                                    {:else}
+                                        <div class="flex items-center justify-center rounded-full bg-primary/15">
+                                            <span class="font-display text-4xl font-semibold text-primary">{initials}</span>
+                                        </div>
+                                    {/if}
+                                </div>
                             </div>
-                        {/if}
-                    </div>
-                </div>
 
-                <div
-                    class="absolute -left-3 top-4 flex h-11 w-11 items-center justify-center rounded-lg border border-primary/40 bg-base-100 text-primary shadow-lg sm:-left-6"
-                    aria-hidden="true"
-                >
-                    <Icon icon={iconCodeTags} width="20" height="20" />
-                </div>
-                <div
-                    class="absolute -right-3 bottom-6 flex h-11 w-11 items-center justify-center rounded-lg border border-primary/40 bg-base-100 text-primary shadow-lg sm:-right-6"
-                    aria-hidden="true"
-                >
-                    <Icon icon={iconCreation} width="20" height="20" />
+                            <div
+                                class="absolute -left-3 top-4 flex h-11 w-11 items-center justify-center rounded-lg border border-primary/40 bg-base-100 text-primary shadow-lg sm:-left-6"
+                                aria-hidden="true"
+                                data-atropos-offset="5"
+                            >
+                                <Icon icon={iconCodeTags} width="20" height="20" />
+                            </div>
+                            <div
+                                class="absolute -right-3 bottom-6 flex h-11 w-11 items-center justify-center rounded-lg border border-primary/40 bg-base-100 text-primary shadow-lg sm:-right-6"
+                                aria-hidden="true"
+                                data-atropos-offset="8"
+                            >
+                                <Icon icon={iconCreation} width="20" height="20" />
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         {/if}
