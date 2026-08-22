@@ -1,24 +1,24 @@
 <script>
     import { scrollReveal } from '../lib/scrollReveal.js';
-    import { getSkillMeta } from '../lib/skillIcons.js';
     import SkillBar from './SkillBar.svelte';
 
     /**
      * `skills` arrives already ordered by `name` server-side (see
-     * `HomeController@index`). This component groups them by
-     * `getSkillMeta().category` for display only — the category itself is
-     * derived (from `skillIcons.js`'s map, "Otros" as fallback), not
-     * something stored on the `Skill` model. With today's real data every
-     * skill falls under "Lenguajes"; the grouping stays ready for future
-     * categories (frameworks, databases, etc.) added later via Filament.
+     * `HomeController@index`). Grouped by `skill.category` — a REAL column
+     * on the `skills` table, editable from Filament — not derived from
+     * `skillIcons.js`'s map. `skillIcons.js` only resolves the per-name
+     * icon now; category is entirely the owner's to organize from the
+     * admin (any string, any grouping) without a code change.
      */
     let { skills = [] } = $props();
+
+    const FALLBACK_CATEGORY = 'Otros';
 
     const groups = $derived.by(() => {
         const byCategory = new Map();
 
         for (const skill of skills) {
-            const category = getSkillMeta(skill.name).category;
+            const category = skill.category?.trim() || FALLBACK_CATEGORY;
 
             if (!byCategory.has(category)) {
                 byCategory.set(category, []);

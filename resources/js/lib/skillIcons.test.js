@@ -9,13 +9,11 @@ describe('getSkillMeta', () => {
         expect(getSkillMeta('JAVA')).toEqual({
             icon: expect.anything(),
             label: 'Java',
-            category: 'Lenguajes',
         });
 
         expect(getSkillMeta('PYTHON')).toEqual({
             icon: expect.anything(),
             label: 'Python',
-            category: 'Lenguajes',
         });
     });
 
@@ -31,17 +29,20 @@ describe('getSkillMeta', () => {
         expect(getSkillMeta('Java')).toEqual(getSkillMeta('JAVA'));
     });
 
-    test('falls back to a generic icon and "Otros" category for an unmapped skill, without hiding it', () => {
+    test('falls back to a generic icon for an unmapped skill, without hiding it', () => {
         const meta = getSkillMeta('Kubernetes');
 
         expect(meta.icon).toBeTruthy();
-        expect(meta.category).toBe('Otros');
         expect(meta.label).toBe('Kubernetes');
     });
 
     test('never throws for an empty or missing skill name', () => {
         expect(() => getSkillMeta('')).not.toThrow();
         expect(() => getSkillMeta(undefined)).not.toThrow();
-        expect(getSkillMeta('').category).toBe('Otros');
+    });
+
+    test('does not resolve category — that lives on skills.category, not this map', () => {
+        expect(getSkillMeta('JAVA').category).toBeUndefined();
+        expect(getSkillMeta('Kubernetes').category).toBeUndefined();
     });
 });

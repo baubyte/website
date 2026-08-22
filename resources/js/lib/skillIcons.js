@@ -19,31 +19,30 @@ import { iconCodeBraces, iconDatabase } from './icons.js';
  * consistent casing rule, so a per-entry label is more correct than a
  * blanket title-case transform.
  *
- * `category` groups skills for display (`Skills.svelte`). With today's real
- * data every entry falls under "Lenguajes" — this is expected, not a
- * shortcut: the map stays extensible for when frameworks/databases/tools
- * are added later from Filament (e.g. `{ FRAMEWORKS... category: 'Frameworks' }`).
+ * This map ONLY resolves icon + display label — grouping/category lives on
+ * `skills.category`, a real editable column (see the `add_category_to_skills`
+ * migration and `SkillResource`), not here. The owner explicitly wants to
+ * reorganize categories from the admin without a code change, so this file
+ * must never be the source of truth for category.
  *
  * The stored `Skill.name` value itself is NEVER mutated — this only affects
  * what is rendered.
  */
 const SKILL_META = {
-    'C#': { icon: iconCsharp, label: 'C#', category: 'Lenguajes' },
-    'C++': { icon: iconCplusplus, label: 'C++', category: 'Lenguajes' },
-    CSS: { icon: iconCss3, label: 'CSS', category: 'Lenguajes' },
-    HTML: { icon: iconHtml5, label: 'HTML', category: 'Lenguajes' },
-    JAVA: { icon: iconJava, label: 'Java', category: 'Lenguajes' },
-    PHP: { icon: iconPhp, label: 'PHP', category: 'Lenguajes' },
-    PYTHON: { icon: iconPython, label: 'Python', category: 'Lenguajes' },
-    SASS: { icon: iconSass, label: 'Sass', category: 'Lenguajes' },
+    'C#': { icon: iconCsharp, label: 'C#' },
+    'C++': { icon: iconCplusplus, label: 'C++' },
+    CSS: { icon: iconCss3, label: 'CSS' },
+    HTML: { icon: iconHtml5, label: 'HTML' },
+    JAVA: { icon: iconJava, label: 'Java' },
+    PHP: { icon: iconPhp, label: 'PHP' },
+    PYTHON: { icon: iconPython, label: 'Python' },
+    SASS: { icon: iconSass, label: 'Sass' },
     // No dedicated generic "SQL" logo exists in `devicon` (only per-vendor
     // ones like `mysql`/`postgresql`) and the stored skill is the generic
     // "SQL" acronym, not a specific vendor — using a generic database icon
     // rather than guessing/inventing a specific database product.
-    SQL: { icon: iconDatabase, label: 'SQL', category: 'Lenguajes' },
+    SQL: { icon: iconDatabase, label: 'SQL' },
 };
-
-const FALLBACK_CATEGORY = 'Otros';
 
 function toTitleCase(value) {
     return value
@@ -54,10 +53,9 @@ function toTitleCase(value) {
 }
 
 /**
- * Resolves display metadata (icon + label + category) for a skill name.
- * Never throws and never hides a skill: an unrecognized name still renders
- * with a generic code icon under the "Otros" category, title-cased as a
- * best-effort display label.
+ * Resolves display metadata (icon + label) for a skill name. Never throws
+ * and never hides a skill: an unrecognized name still renders with a
+ * generic code icon, title-cased as a best-effort display label.
  */
 export function getSkillMeta(name) {
     const trimmed = (name ?? '').trim();
@@ -70,6 +68,5 @@ export function getSkillMeta(name) {
     return {
         icon: iconCodeBraces,
         label: toTitleCase(trimmed),
-        category: FALLBACK_CATEGORY,
     };
 }

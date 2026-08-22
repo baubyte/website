@@ -31,6 +31,11 @@ class SkillResource extends Resource
                     ->maxValue(100)
                     ->suffix('%')
                     ->required(),
+                Forms\Components\TextInput::make('category')
+                    ->label('Category')
+                    ->helperText('How this skill groups on the public site. Free text — group them however makes sense, e.g. "Lenguajes", "Frameworks", "Bases de datos".')
+                    ->datalist(fn () => Skill::query()->whereNotNull('category')->distinct()->orderBy('category')->pluck('category')->all())
+                    ->maxLength(60),
             ]);
     }
 
@@ -41,12 +46,16 @@ class SkillResource extends Resource
                 Tables\Columns\TextColumn::make('name')
                     ->searchable()
                     ->sortable(),
+                Tables\Columns\TextColumn::make('category')
+                    ->badge()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('percentage')
                     ->suffix('%')
                     ->sortable(),
             ])
             ->filters([
-                //
+                Tables\Filters\SelectFilter::make('category')
+                    ->options(fn () => Skill::query()->whereNotNull('category')->distinct()->orderBy('category')->pluck('category', 'category')->all()),
             ])
             ->recordActions([
                 Actions\EditAction::make(),
