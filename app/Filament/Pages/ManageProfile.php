@@ -9,9 +9,9 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
-use Filament\Forms\Form;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
+use Filament\Schemas\Schema;
 
 /**
  * `profiles` is a singleton-in-practice table (see `Profile` model
@@ -23,9 +23,9 @@ class ManageProfile extends Page implements HasForms
 {
     use InteractsWithForms;
 
-    protected static ?string $navigationIcon = 'heroicon-o-user-circle';
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-user-circle';
 
-    protected static string $view = 'filament.pages.manage-profile';
+    protected string $view = 'filament.pages.manage-profile';
 
     protected static ?string $navigationLabel = 'Profile';
 
@@ -46,10 +46,10 @@ class ManageProfile extends Page implements HasForms
         return Profile::query()->firstOrNew();
     }
 
-    public function form(Form $form): Form
+    public function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
+        return $schema
+            ->components([
                 TextInput::make('name')
                     ->required()
                     ->maxLength(120),
