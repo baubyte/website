@@ -161,6 +161,27 @@ class LegacyImportCommandTest extends TestCase
         Storage::disk('public')->assertExists('profiles/'.$avatar);
     }
 
+    public function test_imported_profile_avatar_column_resolves_to_where_the_file_was_actually_copied(): void
+    {
+        // Real bug, found by hand after re-importing a fresh production
+        // dump: legacy CI4 stores the bare filename (e.g. "x.png"), but
+        // copyAvatarIfPresent() always copies into storage/app/public/
+        // profiles/ (matching Filament's own FileUpload::directory
+        // ('profiles') convention). If `profiles.avatar` isn't stored with
+        // that same prefix, Hero.svelte's `/storage/${profile.avatar}`
+        // points at a file that doesn't exist -- a real 404 in production,
+        // not a hypothetical.
+        Storage::fake('public');
+
+        Artisan::call('legacy:import', ['--only' => 'profiles']);
+
+        $legacyAvatar = DB::connection('legacy')->table('profiles')->value('avatar');
+        $storedAvatar = Profile::first()->avatar;
+
+        $this->assertSame('profiles/'.$legacyAvatar, $storedAvatar);
+        Storage::disk('public')->assertExists($storedAvatar);
+    }
+
     public function test_auto_increment_is_synced_after_import(): void
     {
         Artisan::call('legacy:import', ['--only' => 'skills']);

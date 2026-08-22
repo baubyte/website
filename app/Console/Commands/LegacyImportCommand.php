@@ -208,7 +208,15 @@ class LegacyImportCommand extends Command
         $this->upsertPreservingTimestamps(Profile::class, (int) $row->id, [
             'name' => $row->name,
             'surname' => $row->surname,
-            'avatar' => $row->avatar,
+            // Legacy CI4 stores the bare filename (its own upload path was
+            // implied/fixed); `copyAvatarIfPresent()` below always copies
+            // into `storage/app/public/profiles/`, matching where
+            // Filament's own `FileUpload::directory('profiles')` puts a
+            // manually-uploaded avatar too. Store the SAME `profiles/`
+            // prefix here so both paths resolve identically via
+            // `/storage/{avatar}` — without this, a re-import silently
+            // points the avatar at a file that doesn't exist at that URL.
+            'avatar' => $row->avatar ? 'profiles/'.$row->avatar : $row->avatar,
             'email_contact' => $row->email_contact,
             'description_es' => $row->description_es,
             'description_en' => $row->description_en,
