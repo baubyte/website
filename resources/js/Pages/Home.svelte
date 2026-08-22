@@ -17,7 +17,14 @@
      * `profile` is also forwarded to `FrontLayout` (PR8c) purely for the
      * nav's specialty tagline under the "Baubyte" wordmark.
      */
-    let { profile, skills = [], experiences = [], studies = [], locale = 'es' } = $props();
+    let {
+        profile,
+        skills = [],
+        experiences = [],
+        studies = [],
+        locale = 'es',
+        yearsOfExperience = null,
+    } = $props();
 </script>
 
 <FrontLayout {locale} {profile}>
@@ -25,7 +32,7 @@
         The CV download CTA now lives inside `Hero`'s left column (PR8c),
         alongside the social icons — it used to be a standalone block here.
     -->
-    <Hero {profile} />
+    <Hero {profile} {yearsOfExperience} />
 
     <About {profile} />
     <Skills {skills} />

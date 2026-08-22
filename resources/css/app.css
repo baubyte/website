@@ -3,6 +3,17 @@
 @tailwind utilities;
 
 @layer base {
+    /*
+     * Bumps every rem-based Tailwind size (type scale, spacing, component
+     * sizing) up ~12.5% site-wide — the owner found body text/descriptions
+     * reading too small specifically on a high-resolution monitor. A
+     * root-level bump scales consistently everywhere instead of hunting
+     * down individual text-size classes one component at a time.
+     */
+    html {
+        font-size: 112.5%;
+    }
+
     body {
         @apply font-sans;
     }

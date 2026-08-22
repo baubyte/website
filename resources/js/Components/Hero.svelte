@@ -12,7 +12,7 @@
         iconLinkedin,
     } from '../lib/icons.js';
 
-    let { profile } = $props();
+    let { profile, yearsOfExperience = null } = $props();
 
     const fullName = $derived(
         `${profile?.name ?? ''} ${profile?.surname ?? ''}`.trim(),
@@ -181,18 +181,20 @@
                         {profile?.specialty ?? 'Full Stack'}
                     </span>
                 </div>
-                <div
-                    class="group absolute -right-4 bottom-8 flex h-11 items-center gap-2 overflow-hidden rounded-lg border border-primary/40 bg-base-100 px-2.5 text-primary shadow-lg transition-[width] duration-300 ease-out sm:-right-8"
-                    data-atropos-offset="8"
-                    tabindex="0"
-                >
-                    <Icon icon={iconCreation} width="20" height="20" class="shrink-0" />
-                    <span
-                        class="max-w-0 overflow-hidden text-ellipsis whitespace-nowrap text-xs font-medium opacity-0 transition-all duration-300 ease-out group-hover:max-w-[11rem] group-hover:opacity-100 group-focus-within:max-w-[11rem] group-focus-within:opacity-100"
+                {#if yearsOfExperience}
+                    <div
+                        class="group absolute -right-4 bottom-8 flex h-11 items-center gap-2 overflow-hidden rounded-lg border border-primary/40 bg-base-100 px-2.5 text-primary shadow-lg transition-[width] duration-300 ease-out sm:-right-8"
+                        data-atropos-offset="8"
+                        tabindex="0"
                     >
-                        +10 años de experiencia
-                    </span>
-                </div>
+                        <Icon icon={iconCreation} width="20" height="20" class="shrink-0" />
+                        <span
+                            class="max-w-0 overflow-hidden text-ellipsis whitespace-nowrap text-xs font-medium opacity-0 transition-all duration-300 ease-out group-hover:max-w-[11rem] group-hover:opacity-100 group-focus-within:max-w-[11rem] group-focus-within:opacity-100"
+                        >
+                            +{yearsOfExperience} años de experiencia
+                        </span>
+                    </div>
+                {/if}
             </div>
         {/if}
     </div>

@@ -28,7 +28,7 @@
                         aria-hidden="true"
                     ></span>
 
-                    <div class="rounded-box border border-base-300 bg-base-100 p-5 shadow-sm transition-all duration-300 ease-out hover:-translate-y-1 hover:border-secondary/50 hover:shadow-md">
+                    <div class="rounded-box border border-base-content/15 bg-base-100 p-5 shadow-sm transition-all duration-300 ease-out hover:-translate-y-1 hover:border-secondary/50 hover:shadow-md">
                         <div class="text-xs font-medium uppercase tracking-wide text-secondary">
                             {formatMonthYear(study.start_date)} &mdash; {formatMonthYear(study.end_date) ?? 'Presente'}
                         </div>
@@ -36,7 +36,7 @@
                             {study.title}
                         </h3>
                         <p class="text-sm text-base-content/70">{study.entity}</p>
-                        <p class="mt-2 text-base-content/80">{study.description}</p>
+                        <p class="mt-2 text-base text-base-content/80 sm:text-lg">{study.description}</p>
                     </div>
                 </li>
             {/each}

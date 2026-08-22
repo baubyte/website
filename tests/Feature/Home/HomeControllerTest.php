@@ -6,6 +6,7 @@ use App\Models\Experience;
 use App\Models\Profile;
 use App\Models\Skill;
 use App\Models\Study;
+use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
@@ -81,6 +82,55 @@ class HomeControllerTest extends TestCase
             ->has('studies', 1)
             ->where('studies.0.id', $study->id)
             ->where('studies.0.title', 'Ingeniería en Sistemas')
+            // Computed relative to "now" rather than a hardcoded number so
+            // this assertion never silently drifts wrong as real time
+            // passes — same formula the controller itself uses.
+            ->where('yearsOfExperience', (int) Carbon::parse('2020-01-01')->diffInYears(now()))
+        );
+    }
+
+    public function test_years_of_experience_is_computed_from_the_earliest_experience_start_date_not_hardcoded(): void
+    {
+        // Real bug the owner caught: the Hero badge showed a hardcoded
+        // "+10 años de experiencia" string that had no connection to the
+        // actual data and was already wrong once real experience rows
+        // existed. This must be computed from the DB, not authored text.
+        Experience::create([
+            'company' => 'Older Co',
+            'specialty_es' => 'Dev',
+            'specialty_en' => 'Dev',
+            'description_es' => '',
+            'description_en' => '',
+            'start_date' => now()->subYears(8)->toDateString(),
+            'end_date' => now()->subYears(6)->toDateString(),
+        ]);
+        Experience::create([
+            'company' => 'Current Co',
+            'specialty_es' => 'Dev',
+            'specialty_en' => 'Dev',
+            'description_es' => '',
+            'description_en' => '',
+            'start_date' => now()->subYears(3)->toDateString(),
+            'end_date' => null,
+        ]);
+
+        $response = $this->get('/');
+
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('Home', shouldExist: false)
+            // Must count from the EARLIEST experience (8 years ago), not
+            // the most recent one (3 years ago).
+            ->where('yearsOfExperience', 8)
+        );
+    }
+
+    public function test_years_of_experience_is_null_when_there_are_no_experiences(): void
+    {
+        $response = $this->get('/');
+
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('Home', shouldExist: false)
+            ->where('yearsOfExperience', null)
         );
     }
 
