@@ -14,3 +14,21 @@
         @apply font-display;
     }
 }
+
+@layer utilities {
+    /*
+     * Subtle glow on the Hero title (PR8c) — a discreet accent-colored
+     * resplandor, not a neon sign. `--p` is DaisyUI's own primary color
+     * custom property for the active theme (sage green in both
+     * `baubyte-light`/`baubyte-dark`); consuming it with `oklch(var(--p) / a)`
+     * keeps the glow color in sync with light/dark mode automatically,
+     * instead of hardcoding a color that would look wrong in one of them.
+     * Verified DaisyUI 4.12.24 emits `--p` as OKLCH components (not HSL) by
+     * inspecting this project's own compiled CSS output before using it.
+     */
+    .text-glow {
+        text-shadow:
+            0 0 14px oklch(var(--p) / 0.35),
+            0 0 36px oklch(var(--p) / 0.2);
+    }
+}

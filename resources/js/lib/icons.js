@@ -12,3 +12,6 @@ export { default as iconInstagram } from '@iconify-icons/mdi/instagram';
 export { default as iconChevronDown } from '@iconify-icons/mdi/chevron-down';
 export { default as iconEmailOutline } from '@iconify-icons/mdi/email-outline';
 export { default as iconDownload } from '@iconify-icons/mdi/download';
+// Small floating badges on the Hero's decorative avatar frame (PR8c).
+export { default as iconCodeTags } from '@iconify-icons/mdi/code-tags';
+export { default as iconCreation } from '@iconify-icons/mdi/creation';

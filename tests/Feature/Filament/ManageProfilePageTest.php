@@ -6,6 +6,8 @@ use App\Filament\Pages\ManageProfile;
 use App\Models\Profile;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
 use Tests\TestCase;
 
@@ -49,12 +51,25 @@ class ManageProfilePageTest extends TestCase
             ]);
     }
 
+    /**
+     * `avatar` became a required `FileUpload` field (out-of-scope
+     * concurrent change on `pr8b-visual-design`, see this branch's
+     * apply-progress notes) after this test was originally written for a
+     * plain `TextInput`. Since `fillForm` now re-validates every required
+     * field on save, a real fake uploaded file is needed to keep this test
+     * green — the assertion itself (that `specialty_es` persists) is
+     * unchanged.
+     */
     public function test_it_can_update_the_existing_profile(): void
     {
+        Storage::fake('public');
         $profile = $this->makeProfile();
 
         Livewire::test(ManageProfile::class)
-            ->fillForm(['specialty_es' => 'Desarrollador Full Stack'])
+            ->fillForm([
+                'avatar' => UploadedFile::fake()->image('avatar.jpg'),
+                'specialty_es' => 'Desarrollador Full Stack',
+            ])
             ->call('save')
             ->assertHasNoFormErrors();
 

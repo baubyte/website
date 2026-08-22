@@ -1,6 +1,14 @@
 <script>
     import Icon from '@iconify/svelte';
-    import { iconChevronDown, iconGithub, iconInstagram, iconLinkedin } from '../lib/icons.js';
+    import {
+        iconCodeTags,
+        iconCreation,
+        iconChevronDown,
+        iconDownload,
+        iconGithub,
+        iconInstagram,
+        iconLinkedin,
+    } from '../lib/icons.js';
 
     let { profile } = $props();
 
@@ -32,57 +40,95 @@
     );
 </script>
 
-<section class="hero relative min-h-[90vh] overflow-hidden bg-base-100">
+<section class="relative overflow-hidden bg-base-100 py-20 sm:py-28">
     <!-- Soft decorative wash behind the composition — pure CSS blur, no JS. -->
     <div
-        class="pointer-events-none absolute left-1/2 top-0 h-96 w-96 -translate-x-1/2 rounded-full bg-primary/15 blur-3xl"
+        class="pointer-events-none absolute right-0 top-0 h-96 w-96 translate-x-1/3 -translate-y-1/3 rounded-full bg-primary/15 blur-3xl"
         aria-hidden="true"
     ></div>
 
-    <div class="hero-content relative z-10 flex-col gap-8 py-24 text-center">
-        {#if profile?.avatar || fullName}
-            <div class="avatar" class:placeholder={!profile?.avatar || avatarFailed}>
-                <div
-                    class="w-36 rounded-full bg-base-100 p-1.5 shadow-xl ring-4 ring-primary/30 ring-offset-4 ring-offset-base-100 sm:w-44"
-                >
-                    {#if profile?.avatar && !avatarFailed}
-                        <img
-                            class="rounded-full object-cover"
-                            src={`/uploads/profile/images/${profile.avatar}`}
-                            alt={fullName}
-                            onerror={() => (avatarFailed = true)}
-                        />
-                    {:else}
-                        <div class="flex items-center justify-center rounded-full bg-primary/15">
-                            <span class="font-display text-4xl font-semibold text-primary">{initials}</span>
-                        </div>
-                    {/if}
-                </div>
-            </div>
-        {/if}
+    <div class="container relative z-10 mx-auto grid grid-cols-1 items-center gap-14 px-4 md:grid-cols-2 md:gap-16">
+        <!-- Left column: eyebrow, glowing title, tagline, CTA row. -->
+        <div class="text-center md:text-left">
+            <p class="mb-4 font-mono text-sm text-base-content/60">
+                <span class="text-primary">const</span> developer = <span class="text-secondary">"{fullName}"</span>;
+            </p>
 
-        <div class="max-w-3xl">
-            <h1 class="font-display text-5xl font-semibold leading-tight tracking-tight text-base-content sm:text-6xl md:text-7xl">
+            <h1 class="text-glow font-display text-5xl font-semibold leading-tight tracking-tight text-base-content sm:text-6xl md:text-7xl">
                 {fullName}
             </h1>
-            <p class="mt-4 text-lg text-base-content/70 sm:text-xl">
+
+            <p class="mx-auto mt-4 max-w-md text-lg text-base-content/70 sm:text-xl md:mx-0">
                 {profile?.specialty ?? ''}
             </p>
+
+            <div class="mt-8 flex flex-col items-center gap-4 sm:flex-row md:justify-start">
+                <a href="/download-cv" class="btn btn-primary gap-2">
+                    <Icon icon={iconDownload} width="18" height="18" aria-hidden="true" />
+                    Download CV
+                </a>
+
+                {#if socials.length > 0}
+                    <div class="flex gap-2">
+                        {#each socials as social (social.url)}
+                            <a
+                                class="btn btn-circle btn-outline btn-sm border-base-300 text-base-content/70 hover:border-primary hover:bg-primary hover:text-primary-content"
+                                href={social.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                aria-label={social.label}
+                            >
+                                <Icon icon={social.icon} width="18" height="18" />
+                            </a>
+                        {/each}
+                    </div>
+                {/if}
+            </div>
         </div>
 
-        {#if socials.length > 0}
-            <div class="flex gap-3">
-                {#each socials as social (social.url)}
-                    <a
-                        class="btn btn-circle btn-outline btn-sm border-base-300 text-base-content/70 hover:border-primary hover:bg-primary hover:text-primary-content sm:btn-md"
-                        href={social.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        aria-label={social.label}
+        <!-- Right column: avatar inside a decorative geometric frame + floating badges. -->
+        {#if profile?.avatar || fullName}
+            <div class="relative mx-auto flex h-[280px] w-[280px] items-center justify-center sm:h-[340px] sm:w-[340px]">
+                <svg
+                    class="pointer-events-none absolute inset-0 h-full w-full text-primary"
+                    viewBox="0 0 200 200"
+                    fill="none"
+                    aria-hidden="true"
+                >
+                    <polygon points="100,4 196,178 4,178" stroke="currentColor" stroke-width="1.25" opacity="0.5" />
+                </svg>
+
+                <div class="avatar" class:placeholder={!profile?.avatar || avatarFailed}>
+                    <div
+                        class="w-36 rounded-full bg-base-100 p-1.5 shadow-xl ring-4 ring-primary/30 ring-offset-4 ring-offset-base-100 sm:w-44"
                     >
-                        <Icon icon={social.icon} width="20" height="20" />
-                    </a>
-                {/each}
+                        {#if profile?.avatar && !avatarFailed}
+                            <img
+                                class="rounded-full object-cover"
+                                src={`/uploads/profile/images/${profile.avatar}`}
+                                alt={fullName}
+                                onerror={() => (avatarFailed = true)}
+                            />
+                        {:else}
+                            <div class="flex items-center justify-center rounded-full bg-primary/15">
+                                <span class="font-display text-4xl font-semibold text-primary">{initials}</span>
+                            </div>
+                        {/if}
+                    </div>
+                </div>
+
+                <div
+                    class="absolute -left-3 top-4 flex h-11 w-11 items-center justify-center rounded-lg border border-primary/40 bg-base-100 text-primary shadow-lg sm:-left-6"
+                    aria-hidden="true"
+                >
+                    <Icon icon={iconCodeTags} width="20" height="20" />
+                </div>
+                <div
+                    class="absolute -right-3 bottom-6 flex h-11 w-11 items-center justify-center rounded-lg border border-primary/40 bg-base-100 text-primary shadow-lg sm:-right-6"
+                    aria-hidden="true"
+                >
+                    <Icon icon={iconCreation} width="20" height="20" />
+                </div>
             </div>
         {/if}
     </div>
