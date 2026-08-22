@@ -116,7 +116,21 @@
                                 <polygon points="100,4 196,178 4,178" stroke="currentColor" stroke-width="1.25" opacity="0.5" />
                             </svg>
 
-                            <div class="avatar" class:placeholder={!profile?.avatar || avatarFailed} data-atropos-offset="2">
+                            <!--
+                                The triangle's visual centroid (points
+                                100,4 / 196,178 / 4,178 in a 200x200 box)
+                                sits at y=120 -- 10% lower than the
+                                container's geometric center (y=100) that
+                                flex `items-center` aligns to by default.
+                                Left uncorrected, the avatar reads as
+                                floating near the apex instead of resting
+                                inside the triangle's visual mass.
+                            -->
+                            <div
+                                class="avatar translate-y-[10%]"
+                                class:placeholder={!profile?.avatar || avatarFailed}
+                                data-atropos-offset="2"
+                            >
                                 <div
                                     class="w-36 rounded-full bg-base-100 p-1.5 shadow-xl ring-4 ring-primary/30 ring-offset-4 ring-offset-base-100 sm:w-44"
                                 >
@@ -134,23 +148,33 @@
                                     {/if}
                                 </div>
                             </div>
-
-                            <div
-                                class="absolute -left-3 top-4 flex h-11 w-11 items-center justify-center rounded-lg border border-primary/40 bg-base-100 text-primary shadow-lg sm:-left-6"
-                                aria-hidden="true"
-                                data-atropos-offset="5"
-                            >
-                                <Icon icon={iconCodeTags} width="20" height="20" />
-                            </div>
-                            <div
-                                class="absolute -right-3 bottom-6 flex h-11 w-11 items-center justify-center rounded-lg border border-primary/40 bg-base-100 text-primary shadow-lg sm:-right-6"
-                                aria-hidden="true"
-                                data-atropos-offset="8"
-                            >
-                                <Icon icon={iconCreation} width="20" height="20" />
-                            </div>
                         </div>
                     </div>
+                </div>
+
+                <!--
+                    Atropos' own `.atropos-inner` sets `overflow: hidden`
+                    (it clips the tilting card) — badges meant to float
+                    OUTSIDE that card's edge get clipped if placed inside
+                    it. Atropos looks for `[data-atropos-offset]` anywhere
+                    under the `.atropos` root (confirmed in its source:
+                    `childrenRootEl = el`, the root itself, not
+                    `.atropos-inner`), so these still get the same
+                    parallax depth as siblings of `.atropos-scale`.
+                -->
+                <div
+                    class="pointer-events-none absolute -left-4 -top-2 flex h-11 w-11 items-center justify-center rounded-lg border border-primary/40 bg-base-100 text-primary shadow-lg sm:-left-8 sm:-top-4"
+                    aria-hidden="true"
+                    data-atropos-offset="5"
+                >
+                    <Icon icon={iconCodeTags} width="20" height="20" />
+                </div>
+                <div
+                    class="pointer-events-none absolute -right-4 bottom-8 flex h-11 w-11 items-center justify-center rounded-lg border border-primary/40 bg-base-100 text-primary shadow-lg sm:-right-8"
+                    aria-hidden="true"
+                    data-atropos-offset="8"
+                >
+                    <Icon icon={iconCreation} width="20" height="20" />
                 </div>
             </div>
         {/if}
