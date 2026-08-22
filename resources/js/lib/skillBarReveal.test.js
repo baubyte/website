@@ -87,7 +87,39 @@ describe('skillBarReveal', () => {
             observedCallback([{ isIntersecting: true, target: node }]);
         }).not.toThrow();
 
-        expect(unobserveCalled).toBe(true);
+        // Deliberately NOT a one-shot reveal: must keep observing (never
+        // unobserve) so scrolling away and back can re-trigger the fill.
+        expect(unobserveCalled).toBe(false);
+
+        action?.destroy?.();
+    });
+
+    test('resets to 0% on exit and can animate again on re-entry, instead of only filling once', async () => {
+        window.matchMedia = vi.fn().mockReturnValue({ matches: false });
+
+        let observedCallback;
+        window.IntersectionObserver = class {
+            constructor(callback) {
+                observedCallback = callback;
+            }
+            observe() {}
+            unobserve() {}
+            disconnect() {}
+        };
+
+        const { skillBarReveal } = await import('./skillBarReveal.js');
+        const node = document.createElement('div');
+        node.style.width = '55%';
+
+        const action = skillBarReveal(node, { percentage: 55 });
+
+        observedCallback([{ isIntersecting: true, target: node }]);
+        observedCallback([{ isIntersecting: false, target: node }]);
+        expect(node.style.width).toBe('0%');
+
+        expect(() => {
+            observedCallback([{ isIntersecting: true, target: node }]);
+        }).not.toThrow();
 
         action?.destroy?.();
     });
