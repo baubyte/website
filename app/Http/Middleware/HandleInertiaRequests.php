@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Support\Locale\Locale;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -37,7 +38,10 @@ class HandleInertiaRequests extends Middleware
     {
         return [
             ...parent::share($request),
-            //
+            // Shared globally (not just on `HomeController`) so
+            // `LocaleSwitcher.svelte` can highlight the active language
+            // from any future Inertia page, per PR9.
+            'locale' => Locale::current(),
         ];
     }
 }

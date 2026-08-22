@@ -4,6 +4,7 @@ namespace App\Support\Seo;
 
 use App\Models\Profile;
 use App\Models\Skill;
+use App\Support\Locale\Locale;
 use Illuminate\Support\Collection;
 
 /**
@@ -11,7 +12,9 @@ use Illuminate\Support\Collection;
  * data, semantically equivalent to the legacy CodeIgniter app's
  * `schema_org_person()` helper (`app/Helpers/seo_helper.php`), but sourced
  * from the migrated database instead of a static config class so it always
- * reflects the current profile.
+ * reflects the current profile. `description`/`jobTitle` are resolved to
+ * the given locale (PR9) since `Profile` carries real `_es`/`_en` data,
+ * unlike the static page-metadata copy in `config/seo.php`.
  */
 class PersonSchema
 {
@@ -19,7 +22,7 @@ class PersonSchema
      * @param  Collection<int, Skill>  $skills
      * @return array<string, mixed>
      */
-    public static function build(?Profile $profile, Collection $skills): array
+    public static function build(?Profile $profile, Collection $skills, string $locale = Locale::DEFAULT): array
     {
         if ($profile === null) {
             return [
@@ -29,24 +32,25 @@ class PersonSchema
             ];
         }
 
-        $name = trim("{$profile->name} {$profile->surname}");
+        $localized = $profile->toLocalizedArray($locale);
+        $name = trim("{$localized['name']} {$localized['surname']}");
 
         $schema = [
             '@context' => 'https://schema.org',
             '@type' => 'Person',
             'name' => $name,
-            'description' => $profile->description_es,
+            'description' => $localized['description'],
             'url' => config('app.url'),
-            'email' => $profile->email_contact,
-            'jobTitle' => $profile->specialty_es,
+            'email' => $localized['email_contact'],
+            'jobTitle' => $localized['specialty'],
             'worksFor' => [
                 '@type' => 'Organization',
                 'name' => 'Freelancer',
             ],
             'sameAs' => array_values(array_filter([
-                $profile->github_url,
-                $profile->linkedin_url,
-                $profile->instagram_url,
+                $localized['github_url'],
+                $localized['linkedin_url'],
+                $localized['instagram_url'],
             ])),
             'knowsAbout' => $skills->pluck('name')->values()->all(),
         ];

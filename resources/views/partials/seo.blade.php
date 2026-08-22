@@ -16,6 +16,12 @@
     $seoPage = config('seo.pages.'.($seoPageKey ?? 'home'), config('seo.pages.home'));
     $keywords = $seoPage['keywords'] ?: implode(', ', config('seo.primary_keywords', []));
     $defaultOg = config('seo.default_og', []);
+    $locale = \App\Support\Locale\Locale::current();
+    // The legacy `SEOConfig`'s page metadata (title/description/keywords)
+    // never had an English variant to begin with — only the JSON-LD
+    // Person schema below is built from live, genuinely bilingual `Profile`
+    // data, so only `og:locale` reflects the session here (PR9).
+    $ogLocale = $locale === 'en' ? 'en_US' : ($defaultOg['locale'] ?? 'es_ES');
 @endphp
 
 <title inertia>{{ $seoPage['title'] }}</title>
@@ -25,7 +31,7 @@
 
 {{-- Open Graph --}}
 <meta property="og:type" content="{{ $defaultOg['type'] ?? 'website' }}">
-<meta property="og:locale" content="{{ $defaultOg['locale'] ?? 'es_ES' }}">
+<meta property="og:locale" content="{{ $ogLocale }}">
 <meta property="og:site_name" content="{{ $defaultOg['site_name'] ?? config('app.name') }}">
 <meta property="og:title" content="{{ $seoPage['title'] }}">
 <meta property="og:description" content="{{ $seoPage['description'] }}">
@@ -45,6 +51,7 @@
 {!! \App\Support\Seo\PersonSchema::toJsonLdScript(
     \App\Support\Seo\PersonSchema::build(
         \App\Models\Profile::first(),
-        \App\Models\Skill::orderBy('name')->get()
+        \App\Models\Skill::orderBy('name')->get(),
+        $locale
     )
 ) !!}

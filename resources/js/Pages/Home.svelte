@@ -9,13 +9,20 @@
     /**
      * Real props sent by `HomeController@index`: `profile` (single object),
      * `skills`/`experiences`/`studies` (collections, already ordered
-     * server-side).
+     * server-side). `locale` is shared globally on every Inertia response
+     * by `HandleInertiaRequests::share()` (PR9) — forwarded straight
+     * through to `FrontLayout` for `LocaleSwitcher`'s active-language state.
      */
-    let { profile, skills = [], experiences = [], studies = [] } = $props();
+    let { profile, skills = [], experiences = [], studies = [], locale = 'es' } = $props();
 </script>
 
-<FrontLayout>
+<FrontLayout {locale}>
     <Hero {profile} />
+
+    <div class="container mx-auto px-4 text-center">
+        <a href="/download-cv" class="btn btn-primary btn-sm">Download CV</a>
+    </div>
+
     <About {profile} />
 
     <section id="skills" class="container mx-auto px-4 py-12">

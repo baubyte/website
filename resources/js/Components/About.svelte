@@ -1,8 +1,9 @@
 <script>
     /**
-     * Renders the profile description. Only the `_es` field is rendered for
-     * now — the real language selector (which would switch to `_en`) is
-     * PR9 scope.
+     * `profile.description`/`profile.language` arrive already resolved to
+     * the active session locale (see `HomeController@index` / PR9's
+     * `ResolvesLocalizedFields`) — this component never touches the raw
+     * `_es`/`_en` fields.
      */
     let { profile } = $props();
 </script>
@@ -12,7 +13,7 @@
 
     <div class="grid gap-8 md:grid-cols-2">
         <p class="whitespace-pre-line text-base-content/80">
-            {profile?.description_es ?? ''}
+            {profile?.description ?? ''}
         </p>
 
         <dl class="space-y-2">
@@ -22,10 +23,10 @@
                     <dd>{profile.email_contact}</dd>
                 </div>
             {/if}
-            {#if profile?.language_es}
+            {#if profile?.language}
                 <div>
                     <dt class="text-sm font-semibold uppercase text-base-content/60">Language</dt>
-                    <dd>{profile.language_es}</dd>
+                    <dd>{profile.language}</dd>
                 </div>
             {/if}
         </dl>

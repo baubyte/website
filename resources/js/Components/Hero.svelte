@@ -17,7 +17,7 @@
         {/if}
 
         <h1 class="mt-4 text-3xl font-bold">{fullName}</h1>
-        <p class="text-lg text-base-content/70">{profile?.specialty_es ?? ''}</p>
+        <p class="text-lg text-base-content/70">{profile?.specialty ?? ''}</p>
 
         <div class="mt-4 flex gap-2">
             {#if profile?.github_url}

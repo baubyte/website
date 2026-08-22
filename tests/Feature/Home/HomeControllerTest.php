@@ -64,12 +64,79 @@ class HomeControllerTest extends TestCase
             ->has('profile')
             ->where('profile.id', $profile->id)
             ->where('profile.name', 'Martín')
+            // Default locale is `es` (session-based, see PR9's
+            // `App\Support\Locale\Locale`): props arrive already resolved
+            // to a single language — `description`/`specialty`/`language`,
+            // never the raw `_es`/`_en` pair — so Svelte components never
+            // need to know about locale suffixes.
+            ->where('profile.description', 'Desarrollador Full Stack Senior.')
+            ->where('profile.specialty', 'Desarrollador Full Stack Senior')
+            ->missing('profile.description_es')
+            ->missing('profile.description_en')
             ->has('skills', 1)
             ->where('skills.0.id', $skill->id)
             ->has('experiences', 1)
             ->where('experiences.0.id', $experience->id)
+            ->where('experiences.0.specialty', 'Desarrollo Full Stack')
             ->has('studies', 1)
             ->where('studies.0.id', $study->id)
+            ->where('studies.0.title', 'Ingeniería en Sistemas')
+        );
+    }
+
+    public function test_home_route_resolves_props_to_english_when_the_session_locale_is_english(): void
+    {
+        Profile::create([
+            'name' => 'Martín',
+            'surname' => 'Pared Baez',
+            'avatar' => 'avatar.webp',
+            'email_contact' => 'paredbaez.martin@gmail.com',
+            'description_es' => 'Desarrollador Full Stack Senior.',
+            'description_en' => 'Senior Full Stack Developer.',
+            'specialty_es' => 'Desarrollador Full Stack Senior',
+            'specialty_en' => 'Senior Full Stack Developer',
+        ]);
+
+        Experience::create([
+            'company' => 'Baubyte',
+            'specialty_es' => 'Desarrollo Full Stack',
+            'specialty_en' => 'Full Stack Development',
+            'description_es' => 'Desarrollo de aplicaciones web.',
+            'description_en' => 'Web application development.',
+            'start_date' => '2020-01-01',
+            'end_date' => null,
+        ]);
+
+        // `studies.title_en`/`experiences.specialty_en` are NOT NULL at the
+        // schema level (verified in `database/migrations/*_create_studies_
+        // table.php` / `*_create_experiences_table.php` — a factual
+        // correction to this task's premise that every `_en` column is
+        // nullable; only the `description_en` columns and `profiles.
+        // specialty_en`/`description_en` actually are). `description_en` is
+        // left `null` here on purpose to exercise the real fallback path.
+        Study::create([
+            'entity' => 'UTN',
+            'title_es' => 'Ingeniería en Sistemas',
+            'title_en' => 'Systems Engineering',
+            'description_es' => 'Carrera de grado.',
+            'description_en' => null,
+            'start_date' => '2015-01-01',
+            'end_date' => '2020-12-31',
+        ]);
+
+        $this->get('/locale/en');
+
+        $response = $this->get('/');
+
+        $response->assertOk();
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('Home', shouldExist: false)
+            ->where('profile.description', 'Senior Full Stack Developer.')
+            ->where('profile.specialty', 'Senior Full Stack Developer')
+            ->where('experiences.0.specialty', 'Full Stack Development')
+            ->where('studies.0.title', 'Systems Engineering')
+            // Fallback to Spanish when the real record has no `_en` value.
+            ->where('studies.0.description', 'Carrera de grado.')
         );
     }
 

@@ -2,16 +2,18 @@ import { describe, expect, test } from 'vitest';
 import { render, screen } from '@testing-library/svelte';
 import Home from './Home.svelte';
 
+// Real props sent by `HomeController@index` (PR9): already resolved to a
+// single language — `description`/`specialty`/`title`, never the raw
+// `_es`/`_en` pair — since `Home.svelte` and its child components never
+// need to know about locale suffixes.
 const baseProps = {
     profile: {
         name: 'Martín',
         surname: 'Pared Baez',
         avatar: 'avatar.webp',
         email_contact: 'paredbaez.martin@gmail.com',
-        description_es: 'Desarrollador Full Stack Senior.',
-        description_en: 'Senior Full Stack Developer.',
-        specialty_es: 'Desarrollador Full Stack Senior',
-        specialty_en: 'Senior Full Stack Developer',
+        description: 'Desarrollador Full Stack Senior.',
+        specialty: 'Desarrollador Full Stack Senior',
         github_url: 'https://github.com/baubyte',
         linkedin_url: 'https://www.linkedin.com/in/mparedbaez/',
     },
@@ -23,8 +25,8 @@ const baseProps = {
         {
             id: 1,
             company: 'Baubyte',
-            specialty_es: 'Desarrollador Full Stack',
-            description_es: 'Desarrollo de aplicaciones web.',
+            specialty: 'Desarrollador Full Stack',
+            description: 'Desarrollo de aplicaciones web.',
             start_date: '2020-01-01',
             end_date: null,
         },
@@ -33,8 +35,8 @@ const baseProps = {
         {
             id: 1,
             entity: 'UTN',
-            title_es: 'Ingeniería en Sistemas',
-            description_es: 'Carrera de grado.',
+            title: 'Ingeniería en Sistemas',
+            description: 'Carrera de grado.',
             start_date: '2015-03-01',
             end_date: '2021-12-01',
         },

@@ -52,6 +52,33 @@ class HomeSeoTest extends TestCase
         $this->assertStringContainsString('Laravel', $html);
     }
 
+    public function test_home_html_json_ld_reflects_the_english_session_locale(): void
+    {
+        Profile::create([
+            'name' => 'Martín',
+            'surname' => 'Pared Baez',
+            'avatar' => 'avatar.webp',
+            'email_contact' => 'paredbaez.martin@gmail.com',
+            'description_es' => 'Desarrollador Full Stack Senior.',
+            'description_en' => 'Senior Full Stack Developer.',
+            'specialty_es' => 'Desarrollador Full Stack Senior',
+            'specialty_en' => 'Senior Full Stack Developer',
+        ]);
+
+        Skill::create(['name' => 'Laravel', 'percentage' => 90]);
+
+        $this->get('/locale/en');
+
+        $html = $this->get('/')->getContent();
+
+        $this->assertStringContainsString('"jobTitle": "Senior Full Stack Developer"', $html);
+        $this->assertStringContainsString('"description": "Senior Full Stack Developer."', $html);
+        // The dynamic OG locale mirrors the session (title/description copy
+        // itself stays Spanish-only — the legacy `SEOConfig` never had an
+        // English variant for page metadata, see PR9's apply-progress).
+        $this->assertStringContainsString('property="og:locale" content="en_US"', $html);
+    }
+
     public function test_home_html_title_and_meta_description_match_seo_config_for_the_home_page(): void
     {
         $seoHome = config('seo.pages.home');

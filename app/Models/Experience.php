@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\ResolvesLocalizedFields;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Experience extends Model
 {
-    use SoftDeletes;
+    use ResolvesLocalizedFields, SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
@@ -35,5 +36,13 @@ class Experience extends Model
             'start_date' => 'date',
             'end_date' => 'date',
         ];
+    }
+
+    /**
+     * @return list<string>
+     */
+    protected function localizedFields(): array
+    {
+        return ['specialty', 'description'];
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\ResolvesLocalizedFields;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -13,7 +14,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  */
 class Profile extends Model
 {
-    use SoftDeletes;
+    use ResolvesLocalizedFields, SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
@@ -35,4 +36,17 @@ class Profile extends Model
         'linkedin_url',
         'instagram_url',
     ];
+
+    /**
+     * `name`/`surname`/`avatar`/etc stay as-is; `description`/`specialty`/
+     * `language` are resolved to a single language for the given locale
+     * (see `ResolvesLocalizedFields::toLocalizedArray()`) so Inertia/Svelte
+     * props never carry the raw `_es`/`_en` pair.
+     *
+     * @return list<string>
+     */
+    protected function localizedFields(): array
+    {
+        return ['description', 'specialty', 'language'];
+    }
 }
