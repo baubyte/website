@@ -21,13 +21,14 @@
     );
 
     /**
-     * `profile.avatar` points at `/uploads/profile/images/{avatar}`, a
-     * legacy-migrated (PR3) upload path. In this dev environment that
-     * directory/file doesn't actually exist yet (a pre-existing data/asset
-     * gap from the legacy import, not introduced by this unit) — without a
-     * fallback, a broken `<img>` renders its `alt` text visibly inside the
-     * frame, which looks worse than no photo at all. `avatarFailed` lets
-     * the frame degrade to a simple initials badge instead.
+     * `profile.avatar` stores a path relative to the `public` storage disk
+     * (e.g. `profiles/xxxx.png`), served through the `storage:link` symlink
+     * at `/storage/...` — NOT the legacy CI4 `/uploads/profile/images/...`
+     * path, which was a real bug (fixed after the owner uploaded a real
+     * photo and it still 404'd). `avatarFailed` still guards against a
+     * broken/missing file: a broken `<img>` renders its `alt` text visibly
+     * inside the frame, which looks worse than no photo at all, so it
+     * degrades to a simple initials badge instead.
      */
     let avatarFailed = $state(false);
 
@@ -105,7 +106,7 @@
                         {#if profile?.avatar && !avatarFailed}
                             <img
                                 class="rounded-full object-cover"
-                                src={`/uploads/profile/images/${profile.avatar}`}
+                                src={`/storage/${profile.avatar}`}
                                 alt={fullName}
                                 onerror={() => (avatarFailed = true)}
                             />
