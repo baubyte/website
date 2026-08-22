@@ -71,7 +71,7 @@ class MaintenanceModeTest extends TestCase
         $response = $this->get('/admin');
 
         $response->assertStatus(302);
-        $response->assertRedirect(route('login'));
+        $response->assertRedirect(route('filament.admin.auth.login'));
     }
 
     public function test_up_route_is_never_503_during_maintenance(): void

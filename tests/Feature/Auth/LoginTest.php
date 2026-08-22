@@ -3,21 +3,23 @@
 namespace Tests\Feature\Auth;
 
 use App\Models\User;
+use Filament\Pages\Auth\Login;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Livewire\Livewire;
 use Tests\TestCase;
 
 /**
- * Exercises the native Laravel login/logout scaffold introduced in this
- * work unit. The fixture user is inserted the same way `legacy:import`
- * (PR3) leaves a migrated user: a raw bcrypt hash written directly via the
- * query builder, bypassing the `hashed` Eloquent cast entirely, at a cost
- * factor (10) that intentionally does NOT match this app's testing
- * `BCRYPT_ROUNDS` (4). This proves login authenticates against the
- * imported hash exactly as stored, with no forced reset/rehash gate —
- * `Hash::check()` (via `Auth::attempt()`) works across differing bcrypt
- * cost factors by design.
+ * PR6 replaces the PR4 Blade login fallback (`/login`, `LoginController`,
+ * `resources/views/auth/login.blade.php`) with Filament's own panel login
+ * screen at `/admin/login`. This suite exercises that Filament login page
+ * directly instead of the deleted Blade form/controller, but keeps the same
+ * fixture-user convention as the original PR4 suite: a raw bcrypt hash
+ * written directly via the query builder, exactly like `legacy:import`
+ * (PR3) leaves a migrated user, at a cost factor (10) that intentionally
+ * does NOT match this app's testing `BCRYPT_ROUNDS` (4) — proving login
+ * authenticates against the imported hash exactly as stored.
  */
 class LoginTest extends TestCase
 {
@@ -34,16 +36,18 @@ class LoginTest extends TestCase
         ]);
     }
 
-    public function test_migrated_user_can_login_with_their_legacy_password_hash_unchanged(): void
+    public function test_migrated_user_can_login_via_the_filament_panel_with_their_legacy_password_hash_unchanged(): void
     {
         $this->createLegacyStyleUser('legacy-fixture@example.test', 'LegacyPlain123!');
 
-        $response = $this->post('/login', [
-            'email' => 'legacy-fixture@example.test',
-            'password' => 'LegacyPlain123!',
-        ]);
+        Livewire::test(Login::class)
+            ->fillForm([
+                'email' => 'legacy-fixture@example.test',
+                'password' => 'LegacyPlain123!',
+            ])
+            ->call('authenticate')
+            ->assertHasNoFormErrors();
 
-        $response->assertRedirect();
         $this->assertAuthenticated();
     }
 
@@ -51,24 +55,25 @@ class LoginTest extends TestCase
     {
         $this->createLegacyStyleUser('legacy-fixture@example.test', 'LegacyPlain123!');
 
-        $response = $this->from('/login')->post('/login', [
-            'email' => 'legacy-fixture@example.test',
-            'password' => 'wrong-password',
-        ]);
+        Livewire::test(Login::class)
+            ->fillForm([
+                'email' => 'legacy-fixture@example.test',
+                'password' => 'wrong-password',
+            ])
+            ->call('authenticate')
+            ->assertHasFormErrors();
 
-        $response->assertRedirect('/login');
-        $response->assertSessionHasErrors('email');
         $this->assertGuest();
     }
 
-    public function test_unauthenticated_request_to_admin_route_redirects_to_login(): void
+    public function test_unauthenticated_visitor_requesting_admin_is_redirected_to_the_filament_login_page(): void
     {
         $response = $this->get('/admin');
 
-        $response->assertRedirect(route('login'));
+        $response->assertRedirect(route('filament.admin.auth.login'));
     }
 
-    public function test_authenticated_user_can_access_admin_route(): void
+    public function test_authenticated_user_can_access_the_admin_dashboard(): void
     {
         $this->createLegacyStyleUser('legacy-fixture@example.test', 'LegacyPlain123!');
         $user = User::where('email', 'legacy-fixture@example.test')->firstOrFail();
@@ -78,14 +83,14 @@ class LoginTest extends TestCase
         $response->assertOk();
     }
 
-    public function test_authenticated_user_can_logout(): void
+    public function test_authenticated_user_can_logout_via_the_filament_panel(): void
     {
         $this->createLegacyStyleUser('legacy-fixture@example.test', 'LegacyPlain123!');
         $user = User::where('email', 'legacy-fixture@example.test')->firstOrFail();
 
-        $response = $this->actingAs($user)->post('/logout');
+        $response = $this->actingAs($user)->post(route('filament.admin.auth.logout'));
 
-        $response->assertRedirect(route('login'));
+        $response->assertRedirect();
         $this->assertGuest();
     }
 }
