@@ -1,0 +1,57 @@
+# Archivos y directorios que no necesitan estar en el build context
+.git
+.gitignore
+README.md
+LICENSE
+*.md
+
+# Dependencias: cada stage del Dockerfile las instala desde cero
+# (`npm ci` / `composer install`) -- copiar las locales sería exactamente
+# el tipo de build no reproducible que PR10 busca evitar (binarios nativos
+# compilados para el host, no para node:24-alpine/serversideup/php).
+node_modules/
+vendor/
+
+# Artefactos de build locales -- los genera el propio Dockerfile
+public/build/
+bootstrap/ssr/
+
+# Entorno y estado local (se mapea como volumen / nunca debe viajar en la imagen)
+.env
+.env.backup
+.env.production
+storage/*.key
+storage/pail
+storage/logs/
+storage/framework/cache/
+storage/framework/sessions/
+storage/framework/views/
+
+# Tests y tooling que no corren en producción
+tests/
+.phpunit.cache/
+.phpunit.result.cache
+node_modules/.vite/
+
+# Archivos de deploy del host de Docker
+docker-compose.yaml
+docker-compose.override.yaml
+Dockerfile
+.dockerignore
+
+# DDEV / editores / IDE
+.ddev/
+.idea/
+.vscode/
+.fleet/
+.nova/
+.zed/
+
+# Estado local de tooling AI
+.atl/
+
+# Archivos temporales del sistema
+.DS_Store
+Thumbs.db
+*.tmp
+*.temp
