@@ -8,18 +8,19 @@
             Blocking dark-mode script. Must run before anything else in
             <head> so `data-theme` is set on <html> before first paint,
             avoiding a light-mode flash. Reads `localStorage['theme']`
-            ('light'|'dark'); falls back to the OS preference via
-            `prefers-color-scheme`. The interactive toggle UI is added in
-            PR8 alongside the Svelte components; this script only owns the
-            initial, pre-paint state.
+            ('baubyte-light'|'baubyte-dark' — the DaisyUI theme names
+            configured in tailwind.config.js); falls back to the OS
+            preference via `prefers-color-scheme`. `ThemeToggle.svelte`
+            (PR8) reads/writes these exact same values in `onMount`, never
+            duplicating this pre-paint logic.
         --}}
         <script>
             (function () {
                 try {
                     var stored = localStorage.getItem('theme');
-                    var theme = (stored === 'light' || stored === 'dark')
+                    var theme = (stored === 'baubyte-light' || stored === 'baubyte-dark')
                         ? stored
-                        : (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+                        : (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'baubyte-dark' : 'baubyte-light');
                     document.documentElement.setAttribute('data-theme', theme);
                 } catch (e) {}
             })();
@@ -27,7 +28,7 @@
 
         @include('partials.seo', ['seoPageKey' => $seoPageKey ?? 'home'])
 
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
+        @vite('resources/js/app.js')
         @inertiaHead
     </head>
     <body>
