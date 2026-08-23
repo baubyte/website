@@ -26,3 +26,5 @@ export { default as iconCodeBraces } from '@iconify-icons/mdi/code-braces';
 // Generic database glyph used for the "SQL" skill (no vendor-neutral logo
 // exists in `devicon` — see `skillIcons.js`).
 export { default as iconDatabase } from '@iconify-icons/mdi/database';
+// `ChatWidget`'s send button (PR12).
+export { default as iconSend } from '@iconify-icons/mdi/send';

@@ -27,6 +27,13 @@
         "title": "Contacto",
         "subtitle": "Hablemos de tu próximo proyecto."
     },
+    "chat": {
+        "input_label": "Escribí tu mensaje",
+        "input_placeholder": "Escribí tu mensaje...",
+        "send": "Enviar",
+        "messages_label": "Historial de la conversación",
+        "network_error": "No pudimos enviar tu mensaje. Revisá tu conexión e intentá de nuevo."
+    },
     "footer": {
         "rights_reserved": "Todos los derechos reservados."
     },

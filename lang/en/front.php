@@ -29,6 +29,13 @@ return [
         'title' => 'Contact',
         'subtitle' => "Let's talk about your next project.",
     ],
+    'chat' => [
+        'input_label' => 'Type your message',
+        'input_placeholder' => 'Type your message...',
+        'send' => 'Send',
+        'messages_label' => 'Conversation history',
+        'network_error' => "We couldn't send your message. Check your connection and try again.",
+    ],
     'footer' => [
         'rights_reserved' => 'All rights reserved.',
     ],

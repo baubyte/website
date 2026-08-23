@@ -13,7 +13,9 @@
      * `skills`/`experiences`/`studies` (collections, already ordered
      * server-side). `locale` is shared globally on every Inertia response
      * by `HandleInertiaRequests::share()` (PR9) — forwarded straight
-     * through to `FrontLayout` for `LocaleSwitcher`'s active-language state.
+     * through to `FrontLayout` for `LocaleSwitcher`'s active-language
+     * state, and to `Contact` (PR12) so `ChatWidget` sends the visitor's
+     * current locale to `POST /api/chat`.
      * `profile` is also forwarded to `FrontLayout` (PR8c) purely for the
      * nav's specialty tagline under the "Baubyte" wordmark.
      */
@@ -38,7 +40,7 @@
     <Skills {skills} />
     <ExperienceTimeline {experiences} />
     <StudyTimeline {studies} />
-    <Contact {profile} />
+    <Contact {locale} />
 
     <Footer {profile} />
 </FrontLayout>
