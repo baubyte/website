@@ -2,6 +2,7 @@
     import Icon from '@iconify/svelte';
     import { scrollReveal } from '../lib/scrollReveal.js';
     import { iconEmailOutline } from '../lib/icons.js';
+    import { t } from '../lib/i18n.js';
 
     /**
      * Real contact form/chat widget is out of scope for this unit (the
@@ -13,8 +14,8 @@
 
 <section id="contact" class="py-20 sm:py-28" use:scrollReveal>
     <div class="container mx-auto max-w-xl px-4 text-center">
-        <h2 class="font-display text-3xl font-semibold text-base-content sm:text-4xl">Contact</h2>
-        <p class="mt-3 text-base-content/70">Let's talk about your next project.</p>
+        <h2 class="font-display text-3xl font-semibold text-base-content sm:text-4xl">{t('contact.title')}</h2>
+        <p class="mt-3 text-base-content/70">{t('contact.subtitle')}</p>
 
         {#if profile?.email_contact}
             <a

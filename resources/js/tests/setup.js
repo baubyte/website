@@ -1,6 +1,18 @@
 import '@testing-library/jest-dom/vitest';
-import { afterEach } from 'vitest';
+import { afterEach, beforeEach } from 'vitest';
 import { cleanup } from '@testing-library/svelte';
+import { page } from '@inertiajs/svelte';
+
+import esFront from '../lang/es/front.json';
+
+beforeEach(() => {
+    page.props = {
+        locale: 'es',
+        lang: {
+            front: esFront,
+        },
+    };
+});
 
 // Global auto-cleanup between tests. Every pre-PR9 component test file only
 // ever rendered once per file, so this gap was latent until

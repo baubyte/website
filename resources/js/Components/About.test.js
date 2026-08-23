@@ -18,7 +18,6 @@ const profile = {
     language: 'Español, Inglés',
     github_url: 'https://github.com/baubyte',
     linkedin_url: 'https://www.linkedin.com/in/mparedbaez/',
-    instagram_url: 'https://instagram.com/baubyte',
 };
 
 describe('About', () => {
@@ -31,7 +30,7 @@ describe('About', () => {
         expect(screen.getByText('Español, Inglés')).toBeInTheDocument();
     });
 
-    test('renders the social links reused from Hero (github/linkedin/instagram)', () => {
+    test('renders the social links reused from Hero (github/linkedin)', () => {
         render(About, { props: { profile } });
 
         expect(screen.getByRole('link', { name: /github/i })).toHaveAttribute(
@@ -41,10 +40,6 @@ describe('About', () => {
         expect(screen.getByRole('link', { name: /linkedin/i })).toHaveAttribute(
             'href',
             profile.linkedin_url,
-        );
-        expect(screen.getByRole('link', { name: /instagram/i })).toHaveAttribute(
-            'href',
-            profile.instagram_url,
         );
     });
 
@@ -63,6 +58,6 @@ describe('About', () => {
 
         render(About, { props: { profile: withoutLanguage } });
 
-        expect(screen.queryByText(/languages/i)).not.toBeInTheDocument();
+        expect(screen.queryByText(/idiomas/i)).not.toBeInTheDocument();
     });
 });

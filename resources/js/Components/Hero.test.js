@@ -79,7 +79,7 @@ describe('Hero', () => {
         render(Hero, { props: { profile } });
 
         expect(
-            screen.getByRole('link', { name: /download cv/i }),
+            screen.getByRole('link', { name: /(download|descargar) cv/i }),
         ).toHaveAttribute('href', '/download-cv');
     });
 });

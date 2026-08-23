@@ -1,14 +1,14 @@
 <script>
     import Icon from '@iconify/svelte';
-    import { iconGithub, iconInstagram, iconLinkedin } from '../lib/icons.js';
+    import { iconGithub, iconLinkedin } from '../lib/icons.js';
+    import { t } from '../lib/i18n.js';
 
     let { profile } = $props();
 
     const socials = $derived(
         [
             profile?.github_url && { url: profile.github_url, label: 'GitHub', icon: iconGithub },
-            profile?.linkedin_url && { url: profile.linkedin_url, label: 'LinkedIn', icon: iconLinkedin },
-            profile?.instagram_url && { url: profile.instagram_url, label: 'Instagram', icon: iconInstagram },
+            profile?.linkedin_url && { url: profile.linkedin_url, label: 'LinkedIn', icon: iconLinkedin }
         ].filter(Boolean),
     );
 
@@ -34,6 +34,6 @@
         </div>
     {/if}
     <p class="text-sm">
-        &copy; {new Date().getFullYear()}{fullName ? ` ${fullName}` : ''}. All rights reserved.
+        &copy; {new Date().getFullYear()}{fullName ? ` ${fullName}` : ''}. {t('footer.rights_reserved')}
     </p>
 </footer>

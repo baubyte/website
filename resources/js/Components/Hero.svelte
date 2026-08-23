@@ -1,6 +1,8 @@
 <script>
     import 'atropos/css';
     import Icon from '@iconify/svelte';
+    import { route } from '../lib/route.js';
+    import { t } from '../lib/i18n.js';
     import { tilt } from '../lib/tilt.js';
     import {
         iconCodeTags,
@@ -9,7 +11,6 @@
         iconChevronDown,
         iconDownload,
         iconGithub,
-        iconInstagram,
         iconLinkedin,
     } from '../lib/icons.js';
 
@@ -54,20 +55,17 @@
         [
             profile?.github_url && { url: profile.github_url, label: 'GitHub', icon: iconGithub },
             profile?.linkedin_url && { url: profile.linkedin_url, label: 'LinkedIn', icon: iconLinkedin },
-            profile?.instagram_url && { url: profile.instagram_url, label: 'Instagram', icon: iconInstagram },
         ].filter(Boolean),
     );
 </script>
 
 <section class="relative overflow-hidden bg-base-100 py-20 sm:py-28">
-    <!-- Soft decorative wash behind the composition — pure CSS blur, no JS. -->
     <div
         class="pointer-events-none absolute right-0 top-0 h-96 w-96 translate-x-1/3 -translate-y-1/3 rounded-full bg-primary/15 blur-3xl"
         aria-hidden="true"
     ></div>
 
     <div class="container relative z-10 mx-auto grid grid-cols-1 items-center gap-14 px-4 md:grid-cols-2 md:gap-16">
-        <!-- Left column: eyebrow, glowing title, tagline, CTA row. -->
         <div class="text-center md:text-left">
             <p class="mb-4 font-mono text-sm text-base-content/60">
                 <span class="text-primary">const</span> developer = <span class="text-secondary">"{fullName}"</span>;
@@ -82,9 +80,9 @@
             </p>
 
             <div class="mt-8 flex flex-col items-center gap-4 sm:flex-row md:justify-start">
-                <a href="/download-cv" class="btn btn-primary gap-2">
+                <a href={route('cv.download')} class="btn btn-primary gap-2">
                     <Icon icon={iconDownload} width="18" height="18" aria-hidden="true" />
-                    Download CV
+                    {t('hero.download_cv')}
                 </a>
 
                 {#if socials.length > 0}
@@ -204,7 +202,6 @@
                         </div>
                     </div>
                 </div>
-
                 <!--
                     Atropos' own `.atropos-inner` sets `overflow: hidden`
                     (it clips the tilting card) — badges meant to float
@@ -264,7 +261,7 @@
                         <span
                             class="max-w-0 overflow-hidden text-ellipsis whitespace-nowrap text-xs font-medium opacity-0 transition-all duration-300 ease-out group-hover:max-w-[11rem] group-hover:opacity-100 group-focus-within:max-w-[11rem] group-focus-within:opacity-100"
                         >
-                            +{yearsOfExperience} años de experiencia
+                            {t('hero.years_experience', { count: yearsOfExperience })}
                         </span>
                     </div>
                 {/if}

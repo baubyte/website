@@ -26,11 +26,13 @@
         "vitest": "^4.1.11"
     },
     "dependencies": {
+        "@erag/lang-sync-inertia": "^3.0.0",
         "@iconify-icons/devicon": "^2.0.0",
         "@iconify-icons/mdi": "^2.0.0",
         "@iconify/svelte": "^5.2.2",
         "@inertiajs/svelte": "^3.7.0",
         "animejs": "^4.5.0",
-        "atropos": "^2.0.2"
+        "atropos": "^2.0.2",
+        "ziggy-js": "^2.6.4"
     }
 }

@@ -1,30 +1,16 @@
 <script>
     import Icon from '@iconify/svelte';
     import { scrollReveal } from '../lib/scrollReveal.js';
+    import { t } from '../lib/i18n.js';
     import {
         iconAccount,
         iconBriefcase,
         iconEmailOutline,
         iconTranslate,
         iconGithub,
-        iconLinkedin,
-        iconInstagram,
+        iconLinkedin
     } from '../lib/icons.js';
 
-    /**
-     * `profile.description`/`profile.specialty`/`profile.language` arrive
-     * already resolved to the active session locale (see
-     * `HomeController@index` / PR9's `ResolvesLocalizedFields`) — this
-     * component never touches the raw `_es`/`_en` fields.
-     *
-     * The reference site's sidebar (gustavomorinaga.dev/about) also shows
-     * birthdate/age, location, and "random facts" — the `Profile` model has
-     * NO such fields, and none are invented here (a privacy decision, not
-     * this unit's to make). The "Details" sidebar below only renders real
-     * `Profile` data: full name, specialty, contact email, the same social
-     * links used in `Hero`, and languages (only when the profile actually
-     * has content for it).
-     */
     let { profile } = $props();
 
     const fullName = $derived(
@@ -35,7 +21,6 @@
         [
             profile?.github_url && { url: profile.github_url, label: 'GitHub', icon: iconGithub },
             profile?.linkedin_url && { url: profile.linkedin_url, label: 'LinkedIn', icon: iconLinkedin },
-            profile?.instagram_url && { url: profile.instagram_url, label: 'Instagram', icon: iconInstagram },
         ].filter(Boolean),
     );
 </script>
@@ -45,7 +30,7 @@
         <p class="mb-2 font-mono text-sm text-base-content/60">
             <span class="text-primary">const</span> about = <span class="text-secondary">"{fullName}"</span>;
         </p>
-        <h2 class="mb-8 font-display text-3xl font-semibold text-base-content sm:text-4xl">About</h2>
+        <h2 class="mb-8 font-display text-3xl font-semibold text-base-content sm:text-4xl">{t('about.title')}</h2>
 
         <div class="grid gap-10 md:grid-cols-3">
             <p class="whitespace-pre-line text-base leading-relaxed text-base-content/80 md:col-span-2">
@@ -54,7 +39,7 @@
 
             <div class="md:border-l md:border-base-300 md:pl-8">
                 <h3 class="mb-4 text-xs font-semibold uppercase tracking-wide text-base-content/50">
-                    Details
+                    {t('about.details')}
                 </h3>
 
                 <dl class="space-y-4">
@@ -67,7 +52,7 @@
                             aria-hidden="true"
                         />
                         <div>
-                            <dt class="sr-only">Name</dt>
+                            <dt class="sr-only">{t('about.name')}</dt>
                             <dd>{fullName}</dd>
                         </div>
                     </div>
@@ -82,7 +67,7 @@
                                 aria-hidden="true"
                             />
                             <div>
-                                <dt class="sr-only">Specialty</dt>
+                                <dt class="sr-only">{t('about.specialty')}</dt>
                                 <dd>{profile.specialty}</dd>
                             </div>
                         </div>
@@ -98,7 +83,7 @@
                                 aria-hidden="true"
                             />
                             <div>
-                                <dt class="sr-only">Email</dt>
+                                <dt class="sr-only">{t('about.email')}</dt>
                                 <dd>{profile.email_contact}</dd>
                             </div>
                         </div>
@@ -115,7 +100,7 @@
                             />
                             <div>
                                 <dt class="text-xs font-semibold uppercase tracking-wide text-base-content/50">
-                                    Languages
+                                    {t('about.languages')}
                                 </dt>
                                 <dd class="mt-0.5">{profile.language}</dd>
                             </div>

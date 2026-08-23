@@ -1,4 +1,7 @@
 <script>
+    import { route } from '../lib/route.js';
+    import { t } from '../lib/i18n.js';
+
     /**
      * Presentational language switcher. Deliberately renders plain
      * `<a href="/locale/{code}">` full-page navigations rather than
@@ -22,10 +25,10 @@
     ];
 </script>
 
-<nav aria-label="Language selector" class="flex gap-1">
+<nav aria-label={t('nav.language_selector')} class="flex gap-1">
     {#each LOCALES as { code, label } (code)}
         <a
-            href={`/locale/${code}`}
+            href={route('locale', { locale: code })}
             class="btn btn-ghost btn-xs"
             class:btn-active={currentLocale === code}
             aria-current={currentLocale === code ? 'true' : undefined}

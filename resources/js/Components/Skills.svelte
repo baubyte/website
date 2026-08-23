@@ -1,5 +1,6 @@
 <script>
     import { scrollReveal } from '../lib/scrollReveal.js';
+    import { t } from '../lib/i18n.js';
     import SkillBar from './SkillBar.svelte';
 
     /**
@@ -12,13 +13,12 @@
      */
     let { skills = [] } = $props();
 
-    const FALLBACK_CATEGORY = 'Otros';
-
     const groups = $derived.by(() => {
         const byCategory = new Map();
+        const fallbackCategory = t('skills.other');
 
         for (const skill of skills) {
-            const category = skill.category?.trim() || FALLBACK_CATEGORY;
+            const category = skill.category?.trim() || fallbackCategory;
 
             if (!byCategory.has(category)) {
                 byCategory.set(category, []);
@@ -34,7 +34,7 @@
 <section id="skills" class="bg-base-200 py-20 sm:py-28" use:scrollReveal>
     <div class="container mx-auto max-w-4xl px-4">
         <h2 class="mb-10 text-center font-display text-3xl font-semibold text-base-content sm:text-4xl">
-            Skills
+            {t('skills.title')}
         </h2>
 
         <div class="space-y-10">

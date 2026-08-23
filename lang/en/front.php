@@ -1,0 +1,38 @@
+<?php
+
+return [
+    'hero' => [
+        'download_cv' => 'Download CV',
+        'years_experience' => '+:count years of experience',
+    ],
+    'about' => [
+        'title' => 'About',
+        'details' => 'Details',
+        'name' => 'Name',
+        'specialty' => 'Specialty',
+        'email' => 'Email',
+        'languages' => 'Languages',
+    ],
+    'skills' => [
+        'title' => 'Skills',
+        'other' => 'Other',
+    ],
+    'experience' => [
+        'title' => 'Experience',
+        'present' => 'Present',
+    ],
+    'studies' => [
+        'title' => 'Studies',
+        'present' => 'Present',
+    ],
+    'contact' => [
+        'title' => 'Contact',
+        'subtitle' => "Let's talk about your next project.",
+    ],
+    'footer' => [
+        'rights_reserved' => 'All rights reserved.',
+    ],
+    'nav' => [
+        'language_selector' => 'Language selector',
+    ],
+];

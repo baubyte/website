@@ -8,7 +8,6 @@
 // renders fully offline, deterministically, in tests and in production.
 export { default as iconGithub } from '@iconify-icons/mdi/github';
 export { default as iconLinkedin } from '@iconify-icons/mdi/linkedin';
-export { default as iconInstagram } from '@iconify-icons/mdi/instagram';
 export { default as iconChevronDown } from '@iconify-icons/mdi/chevron-down';
 export { default as iconEmailOutline } from '@iconify-icons/mdi/email-outline';
 export { default as iconDownload } from '@iconify-icons/mdi/download';

@@ -1,5 +1,6 @@
 <script>
     import LocaleSwitcher from '../Components/LocaleSwitcher.svelte';
+    import { route } from '../lib/route.js';
 
     /**
      * `locale` is passed down as a plain prop (not read from the Inertia
@@ -22,7 +23,7 @@
 <div class="min-h-screen bg-base-100 text-base-content">
     <header class="navbar sticky top-0 z-50 border-b border-base-300 bg-base-100/80 px-4 backdrop-blur">
         <div class="flex-1">
-            <a href="/" class="flex flex-col leading-tight">
+            <a href={route('home')} class="flex flex-col leading-tight">
                 <span class="font-display text-lg font-bold text-base-content">Baubyte</span>
                 {#if profile?.specialty}
                     <span class="font-display text-xs italic text-primary">{profile.specialty}</span>
