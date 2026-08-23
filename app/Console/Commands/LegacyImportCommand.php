@@ -194,11 +194,24 @@ class LegacyImportCommand extends Command
      */
     protected function importUserRow(object $row): void
     {
-        $this->upsertPreservingTimestamps(User::class, (int) $row->id, [
+        $attributes = [
             'name' => $this->resolveUserName($row->email),
             'email' => $row->email,
-            'password' => $row->password_hash,
-        ], $row);
+        ];
+
+        // Only seed `password` the very first time this user is imported.
+        // Real bug the owner hit twice: re-running `legacy:import` after
+        // re-syncing a fresh production dump silently reverted the admin's
+        // Laravel-set password back to the old CodeIgniter hash on every
+        // run, locking them out of a password they'd since changed from
+        // Filament. Once a user row exists, its password belongs to
+        // Laravel's own auth (PR4) — the legacy hash never overwrites it
+        // again.
+        if (! User::withTrashed()->find((int) $row->id)) {
+            $attributes['password'] = $row->password_hash;
+        }
+
+        $this->upsertPreservingTimestamps(User::class, (int) $row->id, $attributes, $row);
     }
 
     protected function importProfileRow(object $row): void

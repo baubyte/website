@@ -150,6 +150,28 @@ class LegacyImportCommandTest extends TestCase
         ]), 'The migrated user must authenticate with their legacy plaintext password, unchanged.');
     }
 
+    public function test_reimporting_an_existing_user_does_not_revert_a_password_changed_in_laravel(): void
+    {
+        // Real bug the owner hit twice: after re-syncing a fresh production
+        // dump and re-running `legacy:import`, the admin panel started
+        // rejecting a password they'd since changed from Filament — the
+        // import was silently reverting it back to the old CodeIgniter
+        // hash on every re-run. Only the FIRST import of a user should ever
+        // seed `password`.
+        Artisan::call('legacy:import', ['--only' => 'users']);
+
+        $user = User::firstOrFail();
+        $changedPassword = 'changed-from-filament-admin';
+        $user->update(['password' => $changedPassword]);
+
+        Artisan::call('legacy:import', ['--only' => 'users']);
+
+        $this->assertTrue(Auth::attempt([
+            'email' => $user->email,
+            'password' => $changedPassword,
+        ]), 'Re-importing must not revert a password the owner changed in Laravel.');
+    }
+
     public function test_profile_avatar_file_is_copied_into_public_storage(): void
     {
         Storage::fake('public');
