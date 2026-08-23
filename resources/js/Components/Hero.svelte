@@ -165,15 +165,34 @@
                                     data-atropos-offset="2"
                                 >
                                     <div
-                                        class="w-36 rounded-full bg-base-100 p-1.5 shadow-xl ring-4 ring-primary/30 ring-offset-4 ring-offset-base-100 sm:w-44"
+                                        class="relative w-36 rounded-full bg-base-100 p-1.5 shadow-xl ring-4 ring-primary/30 ring-offset-4 ring-offset-base-100 sm:w-44"
                                     >
                                         {#if profile?.avatar && !avatarFailed}
+                                            <!--
+                                                The real photo's light office
+                                                background read as a jarring
+                                                bright halo against this
+                                                section's dark sage palette.
+                                                A slight desaturate/darken on
+                                                the photo itself plus a
+                                                radial vignette (using
+                                                daisyUI's own `--b2` token so
+                                                it tracks the active theme,
+                                                same pattern as `.text-glow`
+                                                in app.css) blend its edges
+                                                into the frame instead of
+                                                cropping/hiding real content.
+                                            -->
                                             <img
-                                                class="rounded-full object-cover"
+                                                class="rounded-full object-cover [filter:saturate(0.85)_contrast(1.05)_brightness(0.92)]"
                                                 src={`/storage/${profile.avatar}`}
                                                 alt={fullName}
                                                 onerror={() => (avatarFailed = true)}
                                             />
+                                            <div
+                                                class="pointer-events-none absolute inset-1.5 rounded-full [background:radial-gradient(circle,transparent_55%,oklch(var(--b2)/0.6)_100%)]"
+                                                aria-hidden="true"
+                                            ></div>
                                         {:else}
                                             <div class="flex items-center justify-center rounded-full bg-primary/15">
                                                 <span class="font-display text-4xl font-semibold text-primary">{initials}</span>
