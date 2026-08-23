@@ -72,6 +72,7 @@ class NoRoleOrPermissionTablesTest extends TestCase
             'experiences',
             'studies',
             'portfolios',
+            'leads',
         ])->sort()->values();
 
         $this->assertSame($expected->all(), $tableNames->all());
