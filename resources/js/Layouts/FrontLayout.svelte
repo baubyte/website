@@ -1,5 +1,4 @@
 <script>
-    import ThemeToggle from '../Components/ThemeToggle.svelte';
     import LocaleSwitcher from '../Components/LocaleSwitcher.svelte';
 
     /**
@@ -33,8 +32,6 @@
         <div class="flex-none">
             <div class="flex items-center gap-1 rounded-full border border-base-300 bg-base-100/60 px-2 py-1">
                 <LocaleSwitcher currentLocale={locale} />
-                <div class="h-4 w-px bg-base-300" aria-hidden="true"></div>
-                <ThemeToggle />
             </div>
         </div>
     </header>

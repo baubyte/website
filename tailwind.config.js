@@ -30,30 +30,11 @@ export default {
     },
     plugins: [require('daisyui')],
     daisyui: {
+        // Dark is the only theme (2026-08-22, owner request): the site
+        // never toggles — `ThemeToggle.svelte` and its light/dark
+        // localStorage logic were removed rather than defaulted, so
+        // `baubyte-light` isn't reachable from anywhere in the UI anymore.
         themes: [
-            {
-                'baubyte-light': {
-                    primary: '#6b8f6a',
-                    'primary-content': '#f5f6f2',
-                    secondary: '#4f7a52',
-                    'secondary-content': '#f5f6f2',
-                    accent: '#dfe8dc',
-                    'accent-content': '#23271f',
-                    neutral: '#5c6355',
-                    'neutral-content': '#f5f6f2',
-                    'base-100': '#ffffff',
-                    'base-200': '#f5f6f2',
-                    'base-300': '#eceee6',
-                    'base-content': '#23271f',
-                    info: '#3abff8',
-                    success: '#36d399',
-                    warning: '#fbbd23',
-                    error: '#f87272',
-
-                    '--rounded-box': '0.75rem',
-                    '--rounded-btn': '0.5rem',
-                },
-            },
             {
                 'baubyte-dark': {
                     primary: '#8fb389',

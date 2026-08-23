@@ -92,23 +92,15 @@ class HomeSeoTest extends TestCase
         );
     }
 
-    public function test_home_html_has_a_blocking_dark_mode_script_before_any_other_script(): void
+    public function test_home_html_always_renders_the_dark_theme_with_no_toggle_script(): void
     {
+        // The owner removed the light/dark toggle (2026-08-22): the site is
+        // dark-only now, hardcoded straight on <html> — no blocking
+        // pre-paint script is needed anymore since there's no
+        // localStorage-driven choice left to race against first paint.
         $html = $this->get('/')->getContent();
 
-        $headHtml = substr($html, 0, strpos($html, '</head>'));
-
-        $this->assertStringContainsString("localStorage.getItem('theme')", $headHtml);
-        $this->assertStringContainsString('data-theme', $headHtml);
-
-        $firstScriptPos = strpos($headHtml, '<script');
-        $darkModeScriptPos = strpos($headHtml, "localStorage.getItem('theme')");
-
-        $this->assertNotFalse($firstScriptPos);
-        $this->assertNotFalse($darkModeScriptPos);
-
-        // The dark-mode script must be inside the FIRST <script> tag in <head>.
-        $firstScriptTagEnd = strpos($headHtml, '</script>', $firstScriptPos);
-        $this->assertLessThan($firstScriptTagEnd, $darkModeScriptPos);
+        $this->assertStringContainsString('data-theme="baubyte-dark"', $html);
+        $this->assertStringNotContainsString("localStorage.getItem('theme')", $html);
     }
 }
