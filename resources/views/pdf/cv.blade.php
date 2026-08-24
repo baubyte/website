@@ -1,9 +1,9 @@
-{{-- Two-column table layout: dompdf 3.x has no flexbox/grid support, only tables/floats. --}}
+{{-- Two-column float layout: dompdf 3.x has no flexbox/grid, and its <table> pagination emits blank leading pages here. --}}
 @php
     $locale = $locale ?? 'es';
     $labels = $locale === 'en'
-        ? ['contact' => 'Contact', 'summary' => 'Summary', 'skills' => 'Skills', 'experience' => 'Experience', 'education' => 'Education', 'language' => 'Language', 'links' => 'Professional Profiles']
-        : ['contact' => 'Contacto', 'summary' => 'Perfil Profesional', 'skills' => 'Habilidades', 'experience' => 'Experiencia', 'education' => 'Formación', 'language' => 'Idioma', 'links' => 'Perfiles Profesionales'];
+        ? ['contact' => 'Contact', 'summary' => 'Summary', 'skills' => 'Skills', 'experience' => 'Experience', 'education' => 'Education', 'language' => 'Language', 'links' => 'Professional Profiles', 'present' => 'Present']
+        : ['contact' => 'Contacto', 'summary' => 'Perfil Profesional', 'skills' => 'Habilidades', 'experience' => 'Experiencia', 'education' => 'Formación', 'language' => 'Idioma', 'links' => 'Perfiles Profesionales', 'present' => 'Presente'];
 
     $fullName = $profile ? trim(($profile['name'] ?? '').' '.($profile['surname'] ?? '')) : config('app.name');
 @endphp
@@ -33,20 +33,25 @@
         color: #1f2937;
     }
 
-    table.layout {
+    .layout {
         width: 100%;
-        border-collapse: collapse;
     }
 
-    td.sidebar {
+    .layout::after {
+        content: '';
+        display: block;
+        clear: both;
+    }
+
+    .sidebar {
+        float: left;
         width: 32%;
-        vertical-align: top;
         padding-right: 18px;
     }
 
-    td.main {
-        width: 68%;
-        vertical-align: top;
+    .main {
+        float: right;
+        width: 66%;
     }
 
     h1 {
@@ -123,9 +128,8 @@
 </style>
 
 <body>
-    <table class="layout">
-        <tr>
-            <td class="sidebar">
+    <div class="layout">
+        <div class="sidebar">
                 <h1>{{ $fullName }}</h1>
                 @if ($profile)
                     <div class="specialty">{{ $profile['specialty'] ?? '' }}</div>
@@ -164,9 +168,9 @@
                         </div>
                     @endforeach
                 </div>
-            </td>
+        </div>
 
-            <td class="main">
+        <div class="main">
                 @if ($profile && !empty($profile['description']))
                     <div class="section">
                         <div class="section-title">{{ $labels['summary'] }}</div>
@@ -182,7 +186,7 @@
                             <div class="entry-dates">
                                 {{ \Illuminate\Support\Carbon::parse($experience['start_date'])->format('m/Y') }}
                                 &mdash;
-                                {{ $experience['end_date'] ? \Illuminate\Support\Carbon::parse($experience['end_date'])->format('m/Y') : 'Present' }}
+                                {{ $experience['end_date'] ? \Illuminate\Support\Carbon::parse($experience['end_date'])->format('m/Y') : $labels['present'] }}
                             </div>
                             <p>{{ $experience['description'] }}</p>
                         </div>
@@ -197,15 +201,14 @@
                             <div class="entry-dates">
                                 {{ \Illuminate\Support\Carbon::parse($study['start_date'])->format('m/Y') }}
                                 &mdash;
-                                {{ $study['end_date'] ? \Illuminate\Support\Carbon::parse($study['end_date'])->format('m/Y') : 'Present' }}
+                                {{ $study['end_date'] ? \Illuminate\Support\Carbon::parse($study['end_date'])->format('m/Y') : $labels['present'] }}
                             </div>
                             <p>{{ $study['description'] }}</p>
                         </div>
                     @endforeach
                 </div>
-            </td>
-        </tr>
-    </table>
+        </div>
+    </div>
 </body>
 
 </html>
