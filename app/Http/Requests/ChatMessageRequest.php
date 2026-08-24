@@ -68,10 +68,12 @@ class ChatMessageRequest extends FormRequest
     {
         try {
             $response = Http::asForm()
+                ->connectTimeout(3)
                 ->timeout(5)
+                ->retry(1, 200)
                 ->post(self::TURNSTILE_VERIFY_URL, [
                     'secret' => $secret,
-                    'response' => (string) $this->input('turnstile_token'),
+                    'response' => (string) $this->turnstile_token,
                     'remoteip' => $this->ip(),
                 ]);
         } catch (\Throwable) {
