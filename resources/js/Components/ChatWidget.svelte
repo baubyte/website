@@ -19,10 +19,31 @@
      */
     let { locale = 'es' } = $props();
 
-    let messages = $state([]);
+    /**
+     * The greeting is a local, non-persisted UI message (no `id` collision
+     * risk with real messages since `crypto.randomUUID()` never repeats) —
+     * it's never sent to the backend, purely so the widget doesn't open on
+     * an empty box.
+     */
+    let messages = $state([{ id: crypto.randomUUID(), role: 'assistant', text: t('chat.greeting') }]);
     let draft = $state('');
     let sending = $state(false);
     let conversationId = $state(null);
+    let messagesEl;
+
+    /**
+     * Svelte 5 effect, not `afterUpdate`: re-runs whenever `messages`
+     * changes (tracked via the `$state` read inside), scrolling the log to
+     * the newest message the same way any chat product does.
+     */
+    $effect(() => {
+        void messages.length;
+        void sending;
+
+        if (messagesEl) {
+            messagesEl.scrollTop = messagesEl.scrollHeight;
+        }
+    });
 
     /**
      * Laravel's default `web` CSRF middleware accepts the raw `XSRF-TOKEN`
@@ -115,20 +136,33 @@
 
 <div class="rounded-box border border-base-content/15 bg-base-100 p-5 text-left shadow-sm">
     <div
-        class="mb-4 flex max-h-80 flex-col gap-3 overflow-y-auto"
+        bind:this={messagesEl}
+        class="mb-4 flex h-80 flex-col gap-3 overflow-y-auto scroll-smooth pr-1 [scrollbar-width:thin] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-base-content/15 [&::-webkit-scrollbar-track]:bg-transparent"
         role="log"
         aria-live="polite"
         aria-label={t('chat.messages_label')}
     >
         {#each messages as message (message.id)}
-            <p
-                class={message.role === 'user'
-                    ? 'max-w-[85%] self-end rounded-box bg-primary px-4 py-2 text-sm text-primary-content'
-                    : 'max-w-[85%] self-start rounded-box bg-base-200 px-4 py-2 text-sm text-base-content'}
-            >
-                {message.text}
-            </p>
+            <div class="flex {message.role === 'user' ? 'justify-end' : 'justify-start'}">
+                <p
+                    class="max-w-[85%] rounded-box px-4 py-2 text-sm {message.role === 'user'
+                        ? 'bg-primary text-primary-content'
+                        : 'bg-base-200 text-base-content'}"
+                >
+                    {message.text}
+                </p>
+            </div>
         {/each}
+
+        {#if sending}
+            <div class="flex justify-start">
+                <div class="flex items-center gap-1 rounded-box bg-base-200 px-4 py-3">
+                    <span class="h-1.5 w-1.5 animate-bounce rounded-full bg-base-content/50 [animation-delay:-0.3s]"></span>
+                    <span class="h-1.5 w-1.5 animate-bounce rounded-full bg-base-content/50 [animation-delay:-0.15s]"></span>
+                    <span class="h-1.5 w-1.5 animate-bounce rounded-full bg-base-content/50"></span>
+                </div>
+            </div>
+        {/if}
     </div>
 
     <form class="flex items-center gap-2" onsubmit={sendMessage}>

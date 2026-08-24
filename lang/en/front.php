@@ -30,6 +30,7 @@ return [
         'subtitle' => "Let's talk about your next project.",
     ],
     'chat' => [
+        'greeting' => 'Hi! Tell me about the project you have in mind.',
         'input_label' => 'Type your message',
         'input_placeholder' => 'Type your message...',
         'send' => 'Send',

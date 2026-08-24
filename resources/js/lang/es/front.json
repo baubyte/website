@@ -28,6 +28,7 @@
         "subtitle": "Hablemos de tu próximo proyecto."
     },
     "chat": {
+        "greeting": "¡Hola! Contame en qué proyecto estás pensando.",
         "input_label": "Escribí tu mensaje",
         "input_placeholder": "Escribí tu mensaje...",
         "send": "Enviar",
