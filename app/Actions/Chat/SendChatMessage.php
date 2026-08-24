@@ -12,9 +12,9 @@ use Illuminate\Support\Uri;
 use Throwable;
 
 /**
- * PR11 chat proxy (D8): the browser talks only to `ChatController`, which
- * delegates the actual work here -- it never talks to n8n directly, so the
- * webhook URL/secret never reach the client.
+ * The browser talks only to `ChatController`, which delegates the actual
+ * work here -- it never talks to n8n directly, so the webhook URL/secret
+ * never reach the client.
  *
  * Browser --POST /api/chat--> throttle:20,1 -> EnsureSameOrigin ->
  * ChatController -> SendChatMessage --Http (15s)--> n8n webhook
@@ -113,20 +113,9 @@ class SendChatMessage
     }
 
     /**
-     * `page` isn't pinned down further by the design/tasks docs beyond
-     * "a reasonable value" -- the request may optionally supply it
-     * directly (the widget knows its own current route), falling back to
-     * the `Referer` header's path when it doesn't. Never the full URL
-     * (query strings could carry PII), just the path.
-     *
-     * Today this is near-worthless: the site is single-page
-     * (`HomeController` is the only content route), so the widget's
-     * `window.location.pathname` -- and therefore this field, both in the
-     * n8n payload and in `leads.page` -- is always `/`. The `Referer`
-     * fallback below is effectively dead code for the same reason (the
-     * widget always sends `page` directly). Kept as-is rather than removed
-     * on purpose: it becomes real signal the moment this site gains actual
-     * separate routes (blog, project pages, etc.).
+     * `page` may be supplied directly (the widget knows its own current
+     * route), falling back to the `Referer` header's path when it isn't.
+     * Never the full URL (query strings could carry PII), just the path.
      *
      * `Uri::path()` trims leading/trailing slashes and returns `/` for an
      * empty path (never null) -- re-adding the leading slash keeps this

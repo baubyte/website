@@ -3,13 +3,12 @@ import { render, screen } from '@testing-library/svelte';
 import Hero from './Hero.svelte';
 
 /**
- * PR8c: Hero moved from a centered single-column layout to an asymmetric
+ * Locks down the two contract points that matter for this asymmetric
  * two-column layout (text left, framed avatar right on desktop; stacked on
- * mobile). These tests lock down the two contract points that matter for a
- * layout-only change: (1) `Hero` still only needs `profile` — no new
- * required props — and (2) the responsive grid classes that make it collapse
- * to one column on small viewports are actually present, since jsdom cannot
- * evaluate real CSS media queries or layout/overflow.
+ * mobile): (1) `Hero` still only needs `profile` — no new required props —
+ * and (2) the responsive grid classes that make it collapse to one column
+ * on small viewports are actually present, since jsdom cannot evaluate real
+ * CSS media queries or layout/overflow.
  */
 const profile = {
     name: 'Martín',

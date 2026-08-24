@@ -6,9 +6,8 @@
     /**
      * `experiences` is already ordered by `start_date desc` server-side
      * (see `HomeController@index`) and each item's `specialty`/
-     * `description` are already resolved to the active session locale
-     * (PR9) — this component only renders the list in the order it
-     * receives it.
+     * `description` are already resolved to the active session locale —
+     * this component only renders the list in the order it receives it.
      */
     let { experiences } = $props();
 </script>

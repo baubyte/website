@@ -6,13 +6,13 @@
     import { route } from '../lib/route.js';
 
     /**
-     * PR12: chat widget that replaces the legacy `mailto:` contact link
-     * (see `Contact.svelte`) per the spec's "chat widget replaces contact
-     * form" requirement — there is no legacy form left to coexist with.
+     * Chat widget that replaces the legacy `mailto:` contact link (see
+     * `Contact.svelte`) per the spec's "chat widget replaces contact form"
+     * requirement — there is no legacy form left to coexist with.
      *
      * Talks only to the Laravel proxy at `POST /api/chat`
-     * (`App\Http\Controllers\ChatController`, PR11) — never directly to
-     * n8n, so no webhook URL/secret ever reach the client. `locale` is the
+     * (`App\Http\Controllers\ChatController`) — never directly to n8n, so
+     * no webhook URL/secret ever reach the client. `locale` is the
      * same value shared globally by `HandleInertiaRequests::share()`,
      * forwarded down as a plain prop through `Home` -> `Contact` -> here
      * (same pattern `LocaleSwitcher`/`FrontLayout` already use), which

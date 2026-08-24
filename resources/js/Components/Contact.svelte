@@ -4,7 +4,7 @@
     import ChatWidget from './ChatWidget.svelte';
 
     /**
-     * PR12: the legacy `mailto:` link is gone. `ChatWidget` (backed by
+     * The legacy `mailto:` link is gone. `ChatWidget` (backed by
      * `POST /api/chat`, `App\Http\Controllers\ChatController`) is now the
      * only way to reach out from this section, per the spec's "chat
      * widget replaces contact form" requirement — the two never coexist.

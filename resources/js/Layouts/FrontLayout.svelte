@@ -10,11 +10,10 @@
      * every page component's own `$props()`, so `Home.svelte` (and any
      * future page) just forwards its own `locale` prop straight through.
      *
-     * `profile` (PR8c, optional) only feeds the nav's tagline
+     * `profile` (optional) only feeds the nav's tagline
      * (`profile.specialty`, under the "Baubyte" wordmark) — it does not
-     * widen this layout's responsibility beyond that single read, and every
-     * consumer that predates PR8c (none exist yet outside `Home.svelte`)
-     * keeps working with no `profile` at all: the tagline line simply
+     * widen this layout's responsibility beyond that single read, and any
+     * consumer without a `profile` keeps working: the tagline line simply
      * doesn't render.
      */
     let { children, locale = 'es', profile = null } = $props();

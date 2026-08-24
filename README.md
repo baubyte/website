@@ -1,66 +1,60 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# baubyte.com.ar
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Sitio personal de portfolio, migrado de CodeIgniter 4 a Laravel 13 + Inertia + Svelte 5. Público (Inertia/Svelte, sin API REST propia) y panel de administración (Filament) están completamente separados: el público nunca usa Filament, el admin nunca usa Inertia/Svelte/SSR.
 
-## About Laravel
+## Stack
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- **Backend**: Laravel 13, PHP 8.3+.
+- **Frontend público**: Inertia.js + Svelte 5 (sin SvelteKit), Tailwind + daisyUI, tema oscuro único (sin toggle).
+- **SSR**: entry point oficial de Inertia (`resources/js/ssr.js`), como servicio Docker interno separado (`baubyte-website-ssr`, sin exposición directa a Traefik). Si el servicio SSR no está corriendo o falla, Inertia cae automáticamente a client-side rendering — no hay middleware de fallback hecho a mano, es el comportamiento nativo de `Inertia\Ssr\HttpGateway::dispatch()`. Ver `App\Listeners\LogSsrFallback` para la observabilidad de ese fallback.
+- **Admin**: Filament 5, auth nativa de Laravel (single-account, sin roles/permisos).
+- **i18n**: `erag/laravel-lang-sync-inertia` — una sola fuente de verdad (`lang/{locale}/front.php`), sincronizada automáticamente a `resources/js/lang/{locale}/front.json` para el frontend vía `php artisan erag:generate-lang`. El backend usa `__('front.clave', [], $locale)` normalmente; nunca hardcodear strings bilingües en un array PHP — si hace falta un string nuevo, va a `lang/`.
+- **Rutas con nombre en el frontend**: `tightenco/ziggy` (`resources/js/lib/route.js`).
+- **PDF**: `barryvdh/laravel-dompdf` para la descarga del CV.
+- **Datos**: importados una sola vez desde la base legacy de CodeIgniter (misma instancia MySQL, conexión `legacy` de solo lectura) vía `php artisan legacy:import`, comando idempotente.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Arquitectura del chat (proxy a n8n)
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+El formulario de contacto legacy fue reemplazado por un widget de chat (`resources/js/Components/ChatWidget.svelte`) que habla exclusivamente con `POST /api/chat`. El navegador nunca habla directo con n8n — la URL del webhook y el secreto compartido nunca salen del servidor.
 
-## Learning Laravel
+Flujo: `ChatWidget` → `throttle:20,1` + `EnsureSameOrigin` → `ChatMessageRequest` (valida + verifica Turnstile) → `App\Actions\Chat\SendChatMessage` (llama a n8n, guarda el `Lead`) → `ChatController` (solo traduce el resultado a HTTP).
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+**Protecciones contra abuso/costo** (cada mensaje real dispara una llamada a un LLM del lado de n8n):
+- `throttle:20,1` por IP en la ruta.
+- `EnsureSameOrigin`: rechaza requests cuyo `Origin`/`Referer` no coincida con `app.url`.
+- Techo diario global (`services.chat.daily_limit`, env `CHAT_DAILY_MESSAGE_LIMIT`, default 200): corta antes de llamar a n8n si ya se superó, independiente del throttle por IP.
+- Cloudflare Turnstile (`services.turnstile.site_key`/`secret_key`, envs `TURNSTILE_SITE_KEY`/`TURNSTILE_SECRET_KEY`): verificación real del lado del servidor en `ChatMessageRequest`.
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+**Operacional, no configurado por defecto**: mientras `N8N_CHAT_WEBHOOK_URL`/`N8N_CHAT_WEBHOOK_SECRET` o `TURNSTILE_SITE_KEY`/`TURNSTILE_SECRET_KEY` estén vacíos, el chat sigue funcionando pero sin llamar al servicio real (falla cerrado con un mensaje localizado) / sin pedir verificación Turnstile. Ninguno de los dos rompe el desarrollo local sin esas credenciales.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+**Nota de diseño — el campo `page`**: cada mensaje guarda en qué página estaba el visitante (`leads.page`, y se manda también a n8n). Hoy el sitio es de una sola página (`HomeController` es la única ruta de contenido), así que este campo siempre vale `/` — no aporta señal real todavía. Se dejó a propósito: empieza a tener sentido el día que el sitio tenga rutas de contenido propias (blog, portfolio de proyectos, etc.).
 
-## Laravel Sponsors
+## Modo mantenimiento
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+Mantenimiento nativo de Laravel (`artisan down`/`up`, driver de archivo), activable desde un Action de Filament (`App\Filament\Pages\ManageProfile`) vía `App\Services\MaintenanceToggler` — no hay tabla propia ni endpoint custom. `/admin/*` queda excluido del modo mantenimiento (`App\Http\Middleware\PreventRequestsDuringMaintenance`) para que el dueño no se bloquee a sí mismo.
 
-### Premium Partners
+## Setup local (DDEV)
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+```bash
+ddev start
+ddev composer install
+ddev npm install
+ddev artisan migrate
+ddev artisan legacy:import   # una sola vez, si hay datos legacy que migrar
+ddev npm run dev             # o `ddev npm run build` para producción
+```
 
-## Contributing
+Variables de entorno relevantes además de las estándar de Laravel:
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+| Variable | Requerida | Efecto si falta |
+|---|---|---|
+| `N8N_CHAT_WEBHOOK_URL` / `N8N_CHAT_WEBHOOK_SECRET` | No | El chat responde "no disponible" sin llamar a n8n |
+| `TURNSTILE_SITE_KEY` / `TURNSTILE_SECRET_KEY` | No | El chat no pide verificación anti-bot |
+| `CHAT_DAILY_MESSAGE_LIMIT` | No (default 200) | — |
 
-## Code of Conduct
+## Tests
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+```bash
+ddev artisan test        # PHPUnit/Pest (requiere la conexión `legacy` de DDEV para los tests de importación)
+npx vitest run            # Vitest (componentes Svelte)
+```

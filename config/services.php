@@ -35,10 +35,10 @@ return [
         ],
     ],
 
-    // PR11 (D8): `ChatController` proxies Laravel -> n8n; the browser never
-    // talks to n8n directly, so this URL/secret must never reach the
-    // client. Operational dependency the owner sets up before go-live --
-    // until then both are empty and `ChatController` fails closed (503).
+    // `ChatController` proxies Laravel -> n8n; the browser never talks to
+    // n8n directly, so this URL/secret must never reach the client.
+    // Operational dependency the owner sets up before go-live -- until
+    // then both are empty and `ChatController` fails closed (503).
     'n8n' => [
         'chat_webhook' => env('N8N_CHAT_WEBHOOK_URL'),
         'secret' => env('N8N_CHAT_WEBHOOK_SECRET'),

@@ -22,9 +22,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // PR10: log every time Inertia's SSR gateway falls back to
-        // client-side rendering, so an `ssr` container outage is visible
-        // in production logs instead of silently degrading. See
+        // Log every time Inertia's SSR gateway falls back to client-side
+        // rendering, so an `ssr` container outage is visible in production
+        // logs instead of silently degrading. See
         // App\Listeners\LogSsrFallback's docblock for why this is the
         // officially-supported extension point rather than hand-rolled
         // fallback middleware.

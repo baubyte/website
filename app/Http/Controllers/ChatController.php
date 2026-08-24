@@ -7,8 +7,8 @@ use App\Http\Requests\ChatMessageRequest;
 use Illuminate\Http\JsonResponse;
 
 /**
- * PR11 chat proxy (D8): the browser talks only to this endpoint -- it never
- * talks to n8n directly, so the webhook URL/secret never reach the client.
+ * The browser talks only to this endpoint -- it never talks to n8n
+ * directly, so the webhook URL/secret never reach the client.
  * Validation lives in `ChatMessageRequest`, the actual proxying/lead
  * recording in `SendChatMessage` -- this controller only turns that result
  * into an HTTP response.

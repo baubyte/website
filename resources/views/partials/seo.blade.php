@@ -4,9 +4,9 @@
     Rendered from Blade (not from Svelte's `<svelte:head>`) so it always
     reaches the browser in the initial HTML response, independent of the
     Inertia/Svelte client mounting successfully. This is a deliberate design
-    decision: if a later SSR process (see PR10) ever falls back to
-    client-side rendering, the structured data and base meta tags below
-    still ship with the very first response.
+    decision: if the SSR process ever falls back to client-side rendering,
+    the structured data and base meta tags below still ship with the very
+    first response.
 
     Per-page `<title>`/OG overrides coming from an Inertia page component
     (via `@inertiaHead`) may layer on top of this once Svelte pages exist,
@@ -20,7 +20,7 @@
     // The legacy `SEOConfig`'s page metadata (title/description/keywords)
     // never had an English variant to begin with — only the JSON-LD
     // Person schema below is built from live, genuinely bilingual `Profile`
-    // data, so only `og:locale` reflects the session here (PR9).
+    // data, so only `og:locale` reflects the session here.
     $ogLocale = $locale === 'en' ? 'en_US' : ($defaultOg['locale'] ?? 'es_ES');
 @endphp
 

@@ -8,10 +8,10 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
 /**
- * `POST /api/chat` (PR11 chat proxy). No per-user auth exists on this
- * public endpoint -- `EnsureSameOrigin` + `throttle:20,1` (see
- * `routes/web.php`) are the actual access controls, so `authorize()` just
- * clears every request that reaches validation.
+ * `POST /api/chat` chat proxy. No per-user auth exists on this public
+ * endpoint -- `EnsureSameOrigin` + `throttle:20,1` (see `routes/web.php`)
+ * are the actual access controls, so `authorize()` just clears every
+ * request that reaches validation.
  */
 class ChatMessageRequest extends FormRequest
 {

@@ -116,7 +116,7 @@ class ManageProfile extends Page implements HasForms
     }
 
     /**
-     * Connects the `MaintenanceToggler` service (PR5) to a real panel UI: a
+     * Connects the `MaintenanceToggler` service to a real panel UI: a
      * single header action that flips between activate/deactivate depending
      * on the app's current maintenance state.
      */

@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
- * PR11 — one row per chat message the site receives via `ChatController`,
+ * One row per chat message the site receives via `ChatController`,
  * whether or not the proxied n8n webhook answered successfully
  * (`reply_status` tracks that outcome). This replaces the old contact-form
  * lead capture.

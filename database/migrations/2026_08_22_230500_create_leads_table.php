@@ -7,10 +7,10 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * PR11 — chat proxy (D8: `ChatController` proxies Laravel -> n8n
-     * webhook, browser never talks to n8n directly). This table is the
-     * lead-capture record replacing the old contact form: one row per
-     * chat message received, whether or not n8n answered successfully.
+     * `ChatController` proxies Laravel -> n8n webhook; the browser never
+     * talks to n8n directly. This table is the lead-capture record
+     * replacing the old contact form: one row per chat message received,
+     * whether or not n8n answered successfully.
      *
      * `client_hash` is the ONLY thing derived from the visitor's IP/User-
      * Agent that is ever persisted (an HMAC digest, see `ChatController`)

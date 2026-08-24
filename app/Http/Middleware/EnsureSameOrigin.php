@@ -8,7 +8,7 @@ use Illuminate\Support\Uri;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * PR11 chat proxy guard. `POST /api/chat` is a same-origin-only endpoint:
+ * Chat proxy guard. `POST /api/chat` is a same-origin-only endpoint:
  * the `Origin` header's host (falling back to `Referer`'s host when
  * `Origin` is absent, as browsers may omit `Origin` on same-origin
  * requests in some configurations) must match `config('app.url')`'s host.

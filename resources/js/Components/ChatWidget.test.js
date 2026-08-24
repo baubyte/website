@@ -4,8 +4,8 @@ import ChatWidget from './ChatWidget.svelte';
 import Contact from './Contact.svelte';
 
 /**
- * PR12: `ChatWidget` talks to `POST /api/chat`
- * (`App\Http\Controllers\ChatController`, PR11) via plain `fetch` — these
+ * `ChatWidget` talks to `POST /api/chat`
+ * (`App\Http\Controllers\ChatController`) via plain `fetch` — these
  * tests mock `global.fetch` so no real network call is ever made. The
  * `chat` route already exists in the test build's `ziggy.js`, so `route()`
  * resolves for real; only the network layer is mocked.

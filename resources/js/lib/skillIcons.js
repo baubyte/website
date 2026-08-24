@@ -9,7 +9,7 @@ import iconSass from '@iconify-icons/devicon/sass';
 import { iconCodeBraces, iconDatabase } from './icons.js';
 
 /**
- * Real skills currently stored in the DB (legacy-imported, PR3): "C#",
+ * Real skills currently stored in the DB (legacy-imported): "C#",
  * "C++", "CSS", "HTML", "JAVA", "PHP", "PYTHON", "SASS", "SQL" — all
  * uppercase/legacy-cased. This map is keyed by the UPPERCASED skill name so
  * matching stays case-insensitive (future entries added from Filament won't

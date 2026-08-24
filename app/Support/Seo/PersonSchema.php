@@ -13,8 +13,8 @@ use Illuminate\Support\Collection;
  * `schema_org_person()` helper (`app/Helpers/seo_helper.php`), but sourced
  * from the migrated database instead of a static config class so it always
  * reflects the current profile. `description`/`jobTitle` are resolved to
- * the given locale (PR9) since `Profile` carries real `_es`/`_en` data,
- * unlike the static page-metadata copy in `config/seo.php`.
+ * the given locale since `Profile` carries real `_es`/`_en` data, unlike
+ * the static page-metadata copy in `config/seo.php`.
  */
 class PersonSchema
 {

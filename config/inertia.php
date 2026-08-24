@@ -17,7 +17,7 @@ return [
     | as a separate rendering service needs to be available. To learn more,
     | please visit https://inertiajs.com/server-side-rendering
     |
-    | PR10 (SSR + Docker): `enabled` defaults to false so plain DDEV/local
+    | `enabled` defaults to false so plain DDEV/local
     | dev keeps working without the `ssr` docker-compose service running
     | (DDEV never starts it). `url` defaults to the `ssr` Docker service
     | name, not `127.0.0.1`, because in docker-compose the PHP container

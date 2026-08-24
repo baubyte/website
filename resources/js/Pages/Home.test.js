@@ -2,7 +2,7 @@ import { describe, expect, test } from 'vitest';
 import { render, screen } from '@testing-library/svelte';
 import Home from './Home.svelte';
 
-// Real props sent by `HomeController@index` (PR9): already resolved to a
+// Real props sent by `HomeController@index`: already resolved to a
 // single language — `description`/`specialty`/`title`, never the raw
 // `_es`/`_en` pair — since `Home.svelte` and its child components never
 // need to know about locale suffixes.
@@ -47,8 +47,8 @@ describe('Home', () => {
     test('renders the real profile name from props', () => {
         render(Home, { props: baseProps });
 
-        // The full name now legitimately appears twice (Hero + the About
-        // sidebar's "Details" block, PR8d) — asserting at least one match
+        // The full name legitimately appears twice (Hero + the About
+        // sidebar's "Details" block) — asserting at least one match
         // instead of a single exact node, since both occurrences are
         // correct by design, not a regression.
         expect(screen.getAllByText('Martín Pared Baez').length).toBeGreaterThan(0);

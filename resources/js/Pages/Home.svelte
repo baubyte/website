@@ -12,15 +12,14 @@
      * Real props sent by `HomeController@index`: `profile` (single object),
      * `skills`/`experiences`/`studies` (collections, already ordered
      * server-side). `locale` is shared globally on every Inertia response
-     * by `HandleInertiaRequests::share()` (PR9) — forwarded straight
-     * through to `FrontLayout` for `LocaleSwitcher`'s active-language
-     * state, and to `Contact` (PR12) so `ChatWidget` sends the visitor's
-     * current locale to `POST /api/chat`. `turnstileSiteKey` is the same
-     * kind of global share (`HandleInertiaRequests`) -- forwarded to
-     * `Contact` so `ChatWidget` can render the Cloudflare Turnstile
-     * widget; null until the owner configures a real Turnstile site.
-     * `profile` is also forwarded to `FrontLayout` (PR8c) purely for the
-     * nav's specialty tagline under the "Baubyte" wordmark.
+     * by `HandleInertiaRequests::share()` — forwarded straight through to
+     * `FrontLayout` for `LocaleSwitcher`'s active-language state, and to
+     * `Contact` so `ChatWidget` sends the visitor's current locale to
+     * `POST /api/chat`. `turnstileSiteKey` is the same kind of global
+     * share -- forwarded to `Contact` so `ChatWidget` can render the
+     * Cloudflare Turnstile widget; null until the owner configures a real
+     * Turnstile site. `profile` is also forwarded to `FrontLayout` purely
+     * for the nav's specialty tagline under the "Baubyte" wordmark.
      */
     let {
         profile,
@@ -35,8 +34,8 @@
 
 <FrontLayout {locale} {profile}>
     <!--
-        The CV download CTA now lives inside `Hero`'s left column (PR8c),
-        alongside the social icons — it used to be a standalone block here.
+        The CV download CTA lives inside `Hero`'s left column, alongside
+        the social icons -- not as a standalone block here.
     -->
     <Hero {profile} {skills} {yearsOfExperience} />
 

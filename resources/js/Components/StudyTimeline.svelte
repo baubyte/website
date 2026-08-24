@@ -7,7 +7,7 @@
      * Same ordered-list pattern as `ExperienceTimeline.svelte`; `studies`
      * arrives already ordered by `start_date desc` from `HomeController`,
      * with `title`/`description` already resolved to the active session
-     * locale (PR9).
+     * locale.
      */
     let { studies } = $props();
 </script>

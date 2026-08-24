@@ -205,8 +205,7 @@ class LegacyImportCommand extends Command
         // Laravel-set password back to the old CodeIgniter hash on every
         // run, locking them out of a password they'd since changed from
         // Filament. Once a user row exists, its password belongs to
-        // Laravel's own auth (PR4) — the legacy hash never overwrites it
-        // again.
+        // Laravel's own auth — the legacy hash never overwrites it again.
         if (! User::withTrashed()->find((int) $row->id)) {
             $attributes['password'] = $row->password_hash;
         }

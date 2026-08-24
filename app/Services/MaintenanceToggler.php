@@ -11,8 +11,9 @@ use Illuminate\Support\Str;
  * No `maintenance` table and no persistence of our own: the framework's
  * file-based driver (`APP_MAINTENANCE_DRIVER=file`) already tracks state
  * via a marker file under `storage/framework/`. This class only exists so
- * a future UI (a Filament Action, landing in PR6) has a single, simple,
- * testable entry point instead of shelling out to `artisan` directly.
+ * the Filament Action UI (`App\Filament\Pages\ManageProfile`) has a
+ * single, simple, testable entry point instead of shelling out to
+ * `artisan` directly.
  */
 class MaintenanceToggler
 {

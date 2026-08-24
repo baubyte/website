@@ -40,7 +40,7 @@ class HandleInertiaRequests extends Middleware
             ...parent::share($request),
             // Shared globally (not just on `HomeController`) so
             // `LocaleSwitcher.svelte` can highlight the active language
-            // from any future Inertia page, per PR9.
+            // from any Inertia page.
             'locale' => Locale::current(),
             // Public site key only -- the secret never leaves the server
             // (see `ChatMessageRequest::verifyTurnstileToken()`). Null
