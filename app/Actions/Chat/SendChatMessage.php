@@ -28,18 +28,6 @@ use Throwable;
  */
 class SendChatMessage
 {
-    /**
-     * No `lang/` translation files exist for backend-owned strings in this
-     * project (locale-suffixed `_es`/`_en` DB columns are the established
-     * pattern instead, see `App\Support\Locale\Locale`) -- this small map
-     * follows that same convention for the one user-facing string this
-     * action owns.
-     */
-    private const array UNAVAILABLE_REPLY = [
-        'es' => 'El chat no está disponible en este momento. Probá de nuevo en unos minutos.',
-        'en' => 'Chat is unavailable right now. Please try again in a few minutes.',
-    ];
-
     public function handle(ChatMessageRequest $request): ChatReply
     {
         $data = $request->validated();
@@ -187,11 +175,18 @@ class SendChatMessage
         ]);
     }
 
+    /**
+     * `$locale` is the validated request's own `locale` field
+     * (`ChatMessageRequest::rules()`, `in:es,en`), not necessarily the
+     * current session locale -- `__()`'s explicit third argument
+     * translates for that exact locale regardless of what the app/session
+     * is currently resolved to.
+     */
     private function unavailableReply(string $locale, string $conversationId): ChatReply
     {
         return new ChatReply(
             successful: false,
-            reply: self::UNAVAILABLE_REPLY[$locale] ?? self::UNAVAILABLE_REPLY['es'],
+            reply: __('front.chat.unavailable', [], $locale),
             conversationId: $conversationId,
         );
     }

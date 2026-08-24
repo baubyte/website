@@ -36,6 +36,7 @@ return [
         'send' => 'Send',
         'messages_label' => 'Conversation history',
         'network_error' => "We couldn't send your message. Check your connection and try again.",
+        'unavailable' => 'Chat is unavailable right now. Please try again in a few minutes.',
     ],
     'footer' => [
         'rights_reserved' => 'All rights reserved.',

@@ -36,6 +36,7 @@ return [
         'send' => 'Enviar',
         'messages_label' => 'Historial de la conversación',
         'network_error' => 'No pudimos enviar tu mensaje. Revisá tu conexión e intentá de nuevo.',
+        'unavailable' => 'El chat no está disponible en este momento. Probá de nuevo en unos minutos.',
     ],
     'footer' => [
         'rights_reserved' => 'Todos los derechos reservados.',
