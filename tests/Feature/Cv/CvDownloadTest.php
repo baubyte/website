@@ -128,6 +128,24 @@ class CvDownloadTest extends TestCase
         $this->assertSame(3, substr_count($html, 'class="entry"'));
     }
 
+    public function test_download_cv_has_no_leading_blank_pages(): void
+    {
+        $profile = $this->seedRealData();
+
+        $pdf = app('dompdf.wrapper')->loadView('pdf.cv', [
+            'locale' => 'es',
+            'profile' => $profile->toLocalizedArray('es'),
+            'skills' => Skill::orderBy('name')->get(),
+            'experiences' => Experience::orderBy('start_date', 'desc')->get()
+                ->map(fn (Experience $experience) => $experience->toLocalizedArray('es')),
+            'studies' => Study::orderBy('start_date', 'desc')->get()
+                ->map(fn (Study $study) => $study->toLocalizedArray('es')),
+        ]);
+        $pdf->render();
+
+        $this->assertSame(1, $pdf->getDomPDF()->getCanvas()->get_page_count());
+    }
+
     private function renderCvView(?Profile $profile): string
     {
         return view('pdf.cv', [
