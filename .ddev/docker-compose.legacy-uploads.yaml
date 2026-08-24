@@ -5,4 +5,4 @@ services:
       # `legacy:import` can copy profile avatars (and any future uploads) into
       # the new app's storage. The legacy repo lives outside this project's
       # own DDEV-managed mount, so it must be attached explicitly here.
-      - "/home/baubyte/Devs/Baubyte/Projects/website/writable/uploads:/legacy-uploads:ro"
+      - "/home/baubyte/Devs/Baubyte/Projects/website-old/writable/uploads:/legacy-uploads:ro"
