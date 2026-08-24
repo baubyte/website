@@ -5,11 +5,6 @@ namespace Tests\Unit\Support\Icons;
 use App\Support\Icons\IconCatalog;
 use Tests\TestCase;
 
-/**
- * Exercises `IconCatalog` against the real vendored
- * `resources/icons/devicon.json` — no fixtures/mocks, since the whole point
- * of this class is to be a thin, trustworthy reader over that exact file.
- */
 class IconCatalogTest extends TestCase
 {
     public function test_has_returns_true_for_a_known_icon_id(): void
