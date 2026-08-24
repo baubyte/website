@@ -89,10 +89,6 @@ class SkillResource extends Resource
     }
 
     /**
-     * Maps `IconCatalog::search()` results (`list<array{id, label}>`) into
-     * the `[id => htmlLabel]` shape `Select::getSearchResultsUsing()`
-     * expects.
-     *
      * @param  list<array{id: string, label: string}>  $entries
      * @return array<string, string>
      */
@@ -107,19 +103,7 @@ class SkillResource extends Resource
         return $options;
     }
 
-    /**
-     * Builds the HTML shown for one icon option (search results and the
-     * currently selected value): an inline SVG preview + its label.
-     *
-     * SECURITY: `allowHtml()` on the `icon` Select renders this string as
-     * raw HTML. The SVG body/dimensions below MUST come exclusively from
-     * `IconCatalog::resolve($id)` — i.e. only ids that already passed
-     * `IconCatalog`'s own catalog lookup — never from `$search`, a raw
-     * `$state`, or any other unvalidated/user-supplied string. `$label` is
-     * still escaped with `e()` as defense in depth, even though every
-     * caller here sources it from `IconCatalog` (search results or
-     * `IconCatalog::labelFor()`), never directly from user input.
-     */
+    // SECURITY: allowHtml() renders this raw — SVG must come only from IconCatalog::resolve(), never raw input.
     private static function renderIconOption(string $id, string $label): string
     {
         $icon = IconCatalog::resolve($id);

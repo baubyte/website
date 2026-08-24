@@ -24,12 +24,6 @@ class HomeController extends Controller
             // the session locale (see `ResolvesLocalizedFields`) — Svelte
             // components never see the raw `_es`/`_en` field pair.
             'profile' => $profile?->toLocalizedArray($locale),
-            // `icon_data` is the resolved Iconify icon (`body`/`width`/
-            // `height`) for `Skill.icon` when set, ready to hand straight to
-            // `@iconify/svelte`'s `Icon` component — `null` when the skill
-            // has no `icon` assigned, or when it references an id the
-            // catalog no longer recognizes. `SkillBar.svelte` falls back to
-            // `getSkillMeta()`'s legacy name-based matching in that case.
             'skills' => Skill::orderBy('name')->get()->map(fn (Skill $skill) => [
                 ...$skill->toArray(),
                 'icon_data' => IconCatalog::resolve($skill->icon),
