@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" data-theme="baubyte-dark">
     <head>
+        <!-- Favicons -->
+        <link href="{{ asset('favicon.png') }}" rel="icon">
+        <link href="{{ asset('apple-touch-icon.png') }}" rel="apple-touch-icon">
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
