@@ -10,10 +10,22 @@
      * unmapped skill still renders via its fallback (generic icon,
      * title-cased label, "Otros" category — see `skillIcons.js`), it is
      * never hidden or allowed to crash the page.
+     *
+     * `skill.icon_data` (set by `HomeController`, resolved server-side via
+     * `App\Support\Icons\IconCatalog` from the admin-picked `Skill.icon`)
+     * takes priority when present — it is already an `IconifyIcon`-shaped
+     * object (`body`/`width`/`height`) `Icon` accepts directly. `null`
+     * (no icon assigned, or an id the catalog no longer recognizes) falls
+     * back to the legacy name-based `getSkillMeta()` lookup, so the 9
+     * existing skills keep rendering with no manual assignment needed.
      */
     let { skill } = $props();
 
-    const meta = $derived(getSkillMeta(skill.name));
+    const meta = $derived(
+        skill.icon_data
+            ? { icon: skill.icon_data, label: getSkillMeta(skill.name).label }
+            : getSkillMeta(skill.name),
+    );
 </script>
 
 <div class="group w-full rounded-lg p-1.5 transition-colors duration-200 hover:bg-base-200/60">

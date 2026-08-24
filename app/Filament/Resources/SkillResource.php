@@ -4,6 +4,8 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\SkillResource\Pages;
 use App\Models\Skill;
+use App\Support\Icons\IconCatalog;
+use Closure;
 use Filament\Actions;
 use Filament\Forms;
 use Filament\Resources\Resource;
@@ -36,6 +38,18 @@ class SkillResource extends Resource
                     ->helperText('How this skill groups on the public site. Free text — group them however makes sense, e.g. "Lenguajes", "Frameworks", "Bases de datos".')
                     ->datalist(fn () => Skill::query()->whereNotNull('category')->distinct()->orderBy('category')->pluck('category')->all())
                     ->maxLength(60),
+                Forms\Components\Select::make('icon')
+                    ->label('Icon')
+                    ->helperText('Search across ~1000 tech icons. Optional — skills left without one fall back to legacy name matching on the public site.')
+                    ->searchable()
+                    ->allowHtml()
+                    ->getSearchResultsUsing(fn (string $search): array => self::iconOptions(IconCatalog::search($search)))
+                    ->getOptionLabelUsing(fn (?string $state): ?string => $state === null ? null : self::renderIconOption($state, IconCatalog::labelFor($state) ?? $state))
+                    ->rule(fn (): Closure => function (string $attribute, mixed $value, Closure $fail): void {
+                        if ($value !== null && ! IconCatalog::has($value)) {
+                            $fail('The selected icon is not valid.');
+                        }
+                    }),
             ]);
     }
 
@@ -52,6 +66,12 @@ class SkillResource extends Resource
                 Tables\Columns\TextColumn::make('percentage')
                     ->suffix('%')
                     ->sortable(),
+                Tables\Columns\TextColumn::make('icon')
+                    ->label('Icon')
+                    ->html()
+                    ->formatStateUsing(fn (?string $state): string => $state === null
+                        ? '—'
+                        : self::renderIconOption($state, IconCatalog::labelFor($state) ?? $state)),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('category')
@@ -66,6 +86,55 @@ class SkillResource extends Resource
                     Actions\DeleteBulkAction::make(),
                 ]),
             ]);
+    }
+
+    /**
+     * Maps `IconCatalog::search()` results (`list<array{id, label}>`) into
+     * the `[id => htmlLabel]` shape `Select::getSearchResultsUsing()`
+     * expects.
+     *
+     * @param  list<array{id: string, label: string}>  $entries
+     * @return array<string, string>
+     */
+    private static function iconOptions(array $entries): array
+    {
+        $options = [];
+
+        foreach ($entries as $entry) {
+            $options[$entry['id']] = self::renderIconOption($entry['id'], $entry['label']);
+        }
+
+        return $options;
+    }
+
+    /**
+     * Builds the HTML shown for one icon option (search results and the
+     * currently selected value): an inline SVG preview + its label.
+     *
+     * SECURITY: `allowHtml()` on the `icon` Select renders this string as
+     * raw HTML. The SVG body/dimensions below MUST come exclusively from
+     * `IconCatalog::resolve($id)` — i.e. only ids that already passed
+     * `IconCatalog`'s own catalog lookup — never from `$search`, a raw
+     * `$state`, or any other unvalidated/user-supplied string. `$label` is
+     * still escaped with `e()` as defense in depth, even though every
+     * caller here sources it from `IconCatalog` (search results or
+     * `IconCatalog::labelFor()`), never directly from user input.
+     */
+    private static function renderIconOption(string $id, string $label): string
+    {
+        $icon = IconCatalog::resolve($id);
+
+        if ($icon === null) {
+            return e($label);
+        }
+
+        return sprintf(
+            '<span class="flex items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 %d %d" width="20" height="20" class="shrink-0">%s</svg><span>%s</span></span>',
+            $icon['width'],
+            $icon['height'],
+            $icon['body'],
+            e($label),
+        );
     }
 
     public static function getRelations(): array

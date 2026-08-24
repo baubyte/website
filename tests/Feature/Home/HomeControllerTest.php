@@ -190,6 +190,35 @@ class HomeControllerTest extends TestCase
         );
     }
 
+    public function test_skills_include_icon_data_when_a_valid_icon_is_set(): void
+    {
+        Skill::create(['name' => 'Laravel', 'percentage' => 90, 'icon' => 'devicon:laravel']);
+
+        $response = $this->get('/');
+
+        $response->assertOk();
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('Home', shouldExist: false)
+            ->has('skills.0.icon_data')
+            ->where('skills.0.icon_data.body', fn ($body) => is_string($body) && str_contains($body, '<path'))
+            ->has('skills.0.icon_data.width')
+            ->has('skills.0.icon_data.height')
+        );
+    }
+
+    public function test_skills_have_null_icon_data_when_no_icon_is_set(): void
+    {
+        Skill::create(['name' => 'PHP', 'percentage' => 80]);
+
+        $response = $this->get('/');
+
+        $response->assertOk();
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('Home', shouldExist: false)
+            ->where('skills.0.icon_data', null)
+        );
+    }
+
     public function test_home_route_renders_with_null_profile_when_none_exists(): void
     {
         $response = $this->get('/');

@@ -4,10 +4,12 @@
     "scripts": {
         "build": "vite build && vite build --ssr",
         "dev": "vite",
+        "icons:build": "node scripts/build-icon-catalog.mjs",
         "test": "vitest run",
         "test:watch": "vitest"
     },
     "devDependencies": {
+        "@iconify-json/devicon": "^1.2.62",
         "@sveltejs/vite-plugin-svelte": "^5.1.1",
         "@testing-library/jest-dom": "^7.0.1",
         "@testing-library/svelte": "^5.4.2",
