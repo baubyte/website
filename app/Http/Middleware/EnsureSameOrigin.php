@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Uri;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -26,7 +27,7 @@ class EnsureSameOrigin
         $originHost = $this->hostFromHeader($request->headers->get('Origin'))
             ?? $this->hostFromHeader($request->headers->get('Referer'));
 
-        $expectedHost = parse_url((string) config('app.url'), PHP_URL_HOST);
+        $expectedHost = Uri::of((string) config('app.url'))->host();
 
         if ($originHost === null || $originHost !== $expectedHost) {
             abort(403);
@@ -35,12 +36,22 @@ class EnsureSameOrigin
         return $next($request);
     }
 
+    /**
+     * `Uri::of()` (unlike `parse_url()`) throws on a genuinely malformed
+     * URI instead of just returning an empty part -- an attacker-controlled
+     * `Origin`/`Referer` header must never be able to turn this same-origin
+     * check into an unhandled 500 instead of the intended clean 403.
+     */
     private function hostFromHeader(?string $header): ?string
     {
         if (! $header) {
             return null;
         }
 
-        return parse_url($header, PHP_URL_HOST) ?: null;
+        try {
+            return Uri::of($header)->host();
+        } catch (\Throwable) {
+            return null;
+        }
     }
 }

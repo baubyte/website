@@ -8,6 +8,7 @@ use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Illuminate\Support\Uri;
 use Throwable;
 
 /**
@@ -89,9 +90,9 @@ class SendChatMessage
             return $this->unavailableReply($locale, $conversationId);
         }
 
-        $body = $response->json();
+        $reply = $response->json('reply');
 
-        if (! $response->successful() || ! is_array($body) || ! array_key_exists('reply', $body)) {
+        if (! $response->successful() || ! is_string($reply) || $reply === '') {
             $this->logFailure($response->status(), $startedAt);
             $this->recordLead($conversationId, $data, $page, $clientHash, 'failed');
 
@@ -100,7 +101,7 @@ class SendChatMessage
 
         $this->recordLead($conversationId, $data, $page, $clientHash, 'success');
 
-        return new ChatReply(successful: true, reply: $body['reply'], conversationId: $conversationId);
+        return new ChatReply(successful: true, reply: $reply, conversationId: $conversationId);
     }
 
     /**
@@ -129,6 +130,14 @@ class SendChatMessage
      * directly (the widget knows its own current route), falling back to
      * the `Referer` header's path when it doesn't. Never the full URL
      * (query strings could carry PII), just the path.
+     *
+     * `Uri::path()` trims leading/trailing slashes and returns `/` for an
+     * empty path (never null) -- re-adding the leading slash keeps this
+     * consistent with the widget's own `window.location.pathname`, which
+     * always has one. `Referer` is attacker-controlled like any header, and
+     * `Uri::of()` throws on a genuinely malformed one (unlike `parse_url()`,
+     * which just returns false) -- caught so a bad header degrades to "no
+     * page" instead of a 500.
      */
     private function resolvePage(ChatMessageRequest $request, array $data): ?string
     {
@@ -138,7 +147,15 @@ class SendChatMessage
 
         $referer = $request->headers->get('Referer');
 
-        return $referer ? (parse_url($referer, PHP_URL_PATH) ?: null) : null;
+        if (! $referer) {
+            return null;
+        }
+
+        try {
+            return '/'.ltrim(Uri::of($referer)->path(), '/');
+        } catch (Throwable) {
+            return null;
+        }
     }
 
     /**
