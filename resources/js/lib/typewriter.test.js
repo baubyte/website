@@ -125,4 +125,30 @@ describe('typewriter', () => {
 
         action?.destroy?.();
     });
+
+    test('reveals the text on its own even if IntersectionObserver never calls back', async () => {
+        vi.useFakeTimers();
+        window.matchMedia = vi.fn().mockReturnValue({ matches: false });
+        window.IntersectionObserver = class {
+            observe() {}
+            unobserve() {}
+            disconnect() {}
+        };
+
+        const { typewriter } = await import('./typewriter.js');
+        const node = document.createElement('h1');
+        node.textContent = 'Martín Paredes';
+
+        const action = typewriter(node, { duration: 900, delay: 0 });
+
+        expect(node.style.clipPath).toBe('inset(0 100% 0 0)');
+
+        vi.advanceTimersByTime(900 + 0 + 1000 + 1);
+
+        expect(node.style.clipPath).toBe('inset(0 0% 0 0)');
+        expect(node.textContent).toBe('Martín Paredes');
+
+        action?.destroy?.();
+        vi.useRealTimers();
+    });
 });

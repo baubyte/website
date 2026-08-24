@@ -17,10 +17,20 @@ export function typewriter(node, options = {}) {
     const reveal = () => {
         node.style.clipPath = 'inset(0 0% 0 0)';
     };
-    hide();
 
     let animating = false;
     let safetyTimer = null;
+
+    // Independent of the IntersectionObserver ever firing at all: guarantees
+    // the real text becomes visible within a bounded time no matter what.
+    const armSafetyNet = () => {
+        clearTimeout(safetyTimer);
+        safetyTimer = setTimeout(reveal, duration + delay + 1000);
+    };
+
+    hide();
+    armSafetyNet();
+
     const state = { p: 0 };
 
     const observer = new IntersectionObserver(
@@ -30,9 +40,7 @@ export function typewriter(node, options = {}) {
                     if (animating) continue;
                     animating = true;
                     state.p = 0;
-                    clearTimeout(safetyTimer);
-                    // Never leave the real text permanently clipped if the animation stalls for any reason.
-                    safetyTimer = setTimeout(reveal, duration + delay + 500);
+                    armSafetyNet();
                     animate(state, {
                         p: 100,
                         duration,
