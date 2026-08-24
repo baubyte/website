@@ -4,6 +4,7 @@
     import { route } from '../lib/route.js';
     import { t } from '../lib/i18n.js';
     import { tilt } from '../lib/tilt.js';
+    import { typewriter } from '../lib/typewriter.js';
     import {
         iconCodeTags,
         iconCreation,
@@ -67,11 +68,22 @@
 
     <div class="container relative z-10 mx-auto grid grid-cols-1 items-center gap-14 px-4 md:grid-cols-2 md:gap-16">
         <div class="text-center md:text-left">
-            <p class="mb-4 font-mono text-sm text-base-content/60">
-                <span class="text-primary">const</span> developer = <span class="text-secondary">"{fullName}"</span>;
+            <!--
+                Purely decorative syntax-highlighted flavor text — never a
+                real method call (`profile` is a plain Inertia prop object
+                with `.name`/`.surname` string fields, it has no
+                `showName()` method). `aria-hidden` because the REAL,
+                accessible name lives in the `<h1>` below, animated with
+                `use:typewriter` there instead.
+            -->
+            <p class="mb-4 font-mono text-sm text-base-content/60" aria-hidden="true">
+                <span class="text-primary">const</span> <span class="text-base-content/80">developer</span> = <span class="text-secondary">profile</span><span class="text-base-content/60">.</span><span class="text-accent">showName()</span><span class="text-base-content/60">;</span>
             </p>
 
-            <h1 class="text-glow font-display text-5xl font-semibold leading-tight tracking-tight text-base-content sm:text-6xl md:text-7xl">
+            <h1
+                class="text-glow font-display text-5xl font-semibold leading-tight tracking-tight text-base-content sm:text-6xl md:text-7xl"
+                use:typewriter
+            >
                 {fullName}
             </h1>
 
