@@ -48,6 +48,12 @@ class SendChatMessage
         $page = $this->resolvePage($request, $data);
         $clientHash = $this->clientHash($request);
 
+        if ($this->dailyLimitReached()) {
+            $this->recordLead($conversationId, $data, $page, $clientHash, 'blocked_daily_limit');
+
+            return $this->unavailableReply($locale, $conversationId);
+        }
+
         $webhookUrl = config('services.n8n.chat_webhook');
         $secret = config('services.n8n.secret');
 
@@ -95,6 +101,26 @@ class SendChatMessage
         $this->recordLead($conversationId, $data, $page, $clientHash, 'success');
 
         return new ChatReply(successful: true, reply: $body['reply'], conversationId: $conversationId);
+    }
+
+    /**
+     * Cost/abuse guard: a site-wide hard cap on messages forwarded to n8n
+     * per calendar day (`services.chat.daily_limit`), independent of the
+     * per-IP `throttle:20,1` on the route -- that limit resets every
+     * minute per IP and does nothing against a patient single script or a
+     * handful of rotating IPs. Counts every `Lead` row created today
+     * (any `reply_status`, including past `blocked_daily_limit` ones) so
+     * the cap can't be reset mid-day by triggering failures on purpose.
+     */
+    private function dailyLimitReached(): bool
+    {
+        $limit = (int) config('services.chat.daily_limit');
+
+        if ($limit <= 0) {
+            return false;
+        }
+
+        return Lead::whereDate('created_at', now()->toDateString())->count() >= $limit;
     }
 
     /**

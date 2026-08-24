@@ -1,4 +1,5 @@
 <script>
+    import { onMount } from 'svelte';
     import Icon from '@iconify/svelte';
     import { iconSend } from '../lib/icons.js';
     import { t } from '../lib/i18n.js';
@@ -15,21 +16,90 @@
      * same value shared globally by `HandleInertiaRequests::share()`,
      * forwarded down as a plain prop through `Home` -> `Contact` -> here
      * (same pattern `LocaleSwitcher`/`FrontLayout` already use), which
-     * keeps this component trivially testable in isolation.
+     * keeps this component trivially testable in isolation. `turnstileSiteKey`
+     * is the same kind of global share, null until the owner configures a
+     * real Cloudflare Turnstile site (see `ChatMessageRequest`) -- when
+     * null, the widget below never renders and every message sends with no
+     * `turnstile_token`, matching the backend's own skip-if-unconfigured.
      */
-    let { locale = 'es' } = $props();
+    let { locale = 'es', turnstileSiteKey = null } = $props();
 
-    /**
-     * The greeting is a local, non-persisted UI message (no `id` collision
-     * risk with real messages since `crypto.randomUUID()` never repeats) —
-     * it's never sent to the backend, purely so the widget doesn't open on
-     * an empty box.
-     */
-    let messages = $state([{ id: crypto.randomUUID(), role: 'assistant', text: t('chat.greeting') }]);
+    let messages = $state([]);
     let draft = $state('');
     let sending = $state(false);
     let conversationId = $state(null);
     let messagesEl;
+    let turnstileEl = $state();
+    let turnstileToken = $state(null);
+    let turnstileWidgetId = null;
+
+    /**
+     * Cloudflare Turnstile tokens are single-use -- each successful
+     * `siteverify` call server-side consumes it, per Cloudflare's own docs
+     * -- so a widget left as-is after the first message would silently
+     * fail every message after it. `turnstile.reset()` re-runs the
+     * (usually invisible/managed) challenge and the `callback` below fires
+     * again with a fresh token, ready for the next send.
+     */
+    onMount(() => {
+        if (!turnstileSiteKey || typeof window === 'undefined') {
+            return;
+        }
+
+        loadTurnstileScript()
+            .then(() => {
+                if (!turnstileEl || !window.turnstile) {
+                    return;
+                }
+
+                turnstileWidgetId = window.turnstile.render(turnstileEl, {
+                    sitekey: turnstileSiteKey,
+                    size: 'compact',
+                    language: locale,
+                    callback: (token) => {
+                        turnstileToken = token;
+                    },
+                    'expired-callback': () => {
+                        turnstileToken = null;
+                    },
+                    'error-callback': () => {
+                        turnstileToken = null;
+                    },
+                });
+            })
+            .catch(() => {
+                // Turnstile script failed to load (offline, ad-blocker,
+                // Cloudflare down) -- `turnstileToken` stays null, which
+                // just keeps the send button disabled per the guard below
+                // rather than crashing the widget.
+            });
+    });
+
+    function loadTurnstileScript() {
+        return new Promise((resolve, reject) => {
+            if (window.turnstile) {
+                resolve();
+                return;
+            }
+
+            const existing = document.querySelector('script[data-turnstile]');
+
+            if (existing) {
+                existing.addEventListener('load', () => resolve());
+                existing.addEventListener('error', () => reject(new Error('turnstile script failed')));
+                return;
+            }
+
+            const script = document.createElement('script');
+            script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js';
+            script.async = true;
+            script.defer = true;
+            script.dataset.turnstile = 'true';
+            script.addEventListener('load', () => resolve());
+            script.addEventListener('error', () => reject(new Error('turnstile script failed')));
+            document.head.appendChild(script);
+        });
+    }
 
     /**
      * Svelte 5 effect, not `afterUpdate`: re-runs whenever `messages`
@@ -106,6 +176,7 @@
                     conversation_id: conversationId,
                     locale,
                     page: typeof window !== 'undefined' ? window.location.pathname : undefined,
+                    turnstile_token: turnstileSiteKey ? turnstileToken : undefined,
                 }),
             });
 
@@ -130,6 +201,11 @@
             pushMessage('assistant', t('chat.network_error'));
         } finally {
             sending = false;
+
+            if (turnstileSiteKey && turnstileWidgetId !== null && window.turnstile) {
+                turnstileToken = null;
+                window.turnstile.reset(turnstileWidgetId);
+            }
         }
     }
 </script>
@@ -142,6 +218,12 @@
         aria-live="polite"
         aria-label={t('chat.messages_label')}
     >
+        {#if messages.length === 0 && !sending}
+            <p class="m-auto max-w-[75%] text-center text-sm text-base-content/50">
+                {t('chat.empty_hint')}
+            </p>
+        {/if}
+
         {#each messages as message (message.id)}
             <div class="flex {message.role === 'user' ? 'justify-end' : 'justify-start'}">
                 <p
@@ -165,6 +247,10 @@
         {/if}
     </div>
 
+    {#if turnstileSiteKey}
+        <div bind:this={turnstileEl} class="mb-2 flex justify-center"></div>
+    {/if}
+
     <form class="flex items-center gap-2" onsubmit={sendMessage}>
         <label for="chat-input" class="sr-only">{t('chat.input_label')}</label>
         <input
@@ -177,7 +263,11 @@
             autocomplete="off"
         />
 
-        <button type="submit" class="btn btn-primary gap-2" disabled={sending || !draft.trim()}>
+        <button
+            type="submit"
+            class="btn btn-primary gap-2"
+            disabled={sending || !draft.trim() || (turnstileSiteKey && !turnstileToken)}
+        >
             {#if sending}
                 <span class="loading loading-spinner loading-sm" aria-hidden="true"></span>
             {:else}

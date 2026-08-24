@@ -44,4 +44,22 @@ return [
         'secret' => env('N8N_CHAT_WEBHOOK_SECRET'),
     ],
 
+    // Cost/abuse guard for the chat proxy: a site-wide hard cap on messages
+    // forwarded to n8n per calendar day (see `SendChatMessage`). Has a safe
+    // default so it works with zero setup -- unlike `n8n`/`turnstile`,
+    // nothing external needs to be configured for this one to be active.
+    'chat' => [
+        'daily_limit' => (int) env('CHAT_DAILY_MESSAGE_LIMIT', 200),
+    ],
+
+    // Cloudflare Turnstile bot check on the chat widget's first message.
+    // `site_key` is public (shipped to the browser); `secret_key` never is.
+    // Operational dependency like `n8n` above -- until both are set,
+    // `ChatMessageRequest` skips verification entirely so local dev keeps
+    // working with zero setup.
+    'turnstile' => [
+        'site_key' => env('TURNSTILE_SITE_KEY'),
+        'secret_key' => env('TURNSTILE_SECRET_KEY'),
+    ],
+
 ];

@@ -15,7 +15,10 @@
      * by `HandleInertiaRequests::share()` (PR9) — forwarded straight
      * through to `FrontLayout` for `LocaleSwitcher`'s active-language
      * state, and to `Contact` (PR12) so `ChatWidget` sends the visitor's
-     * current locale to `POST /api/chat`.
+     * current locale to `POST /api/chat`. `turnstileSiteKey` is the same
+     * kind of global share (`HandleInertiaRequests`) -- forwarded to
+     * `Contact` so `ChatWidget` can render the Cloudflare Turnstile
+     * widget; null until the owner configures a real Turnstile site.
      * `profile` is also forwarded to `FrontLayout` (PR8c) purely for the
      * nav's specialty tagline under the "Baubyte" wordmark.
      */
@@ -25,6 +28,7 @@
         experiences = [],
         studies = [],
         locale = 'es',
+        turnstileSiteKey = null,
         yearsOfExperience = null,
     } = $props();
 </script>
@@ -40,7 +44,7 @@
     <Skills {skills} />
     <ExperienceTimeline {experiences} />
     <StudyTimeline {studies} />
-    <Contact {locale} />
+    <Contact {locale} {turnstileSiteKey} />
 
     <Footer {profile} />
 </FrontLayout>

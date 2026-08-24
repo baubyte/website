@@ -42,6 +42,11 @@ class HandleInertiaRequests extends Middleware
             // `LocaleSwitcher.svelte` can highlight the active language
             // from any future Inertia page, per PR9.
             'locale' => Locale::current(),
+            // Public site key only -- the secret never leaves the server
+            // (see `ChatMessageRequest::verifyTurnstileToken()`). Null
+            // until the owner sets up a real Cloudflare Turnstile site,
+            // same operational-dependency pattern as `services.n8n`.
+            'turnstileSiteKey' => config('services.turnstile.site_key'),
         ];
     }
 }

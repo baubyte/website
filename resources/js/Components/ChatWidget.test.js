@@ -115,6 +115,73 @@ describe('ChatWidget', () => {
         expect(screen.getByRole('button', { name: /enviar/i })).toBeDisabled();
         expect(global.fetch).not.toHaveBeenCalled();
     });
+
+    test('shows an inviting empty-state hint, never a fake message pretending to be the assistant', () => {
+        render(ChatWidget, { props: { locale: 'es' } });
+
+        expect(screen.getByText('Contanos en qué proyecto estás pensando.')).toBeInTheDocument();
+        expect(screen.getByRole('log')).not.toHaveTextContent('¡Hola!');
+    });
+});
+
+describe('ChatWidget with Turnstile configured', () => {
+    beforeEach(() => {
+        vi.stubGlobal('fetch', vi.fn());
+    });
+
+    afterEach(() => {
+        vi.unstubAllGlobals();
+        delete window.turnstile;
+    });
+
+    test('the send button stays disabled until Turnstile issues a token, even with real input', async () => {
+        window.turnstile = { render: vi.fn(() => 'widget-1'), reset: vi.fn() };
+
+        render(ChatWidget, { props: { locale: 'es', turnstileSiteKey: 'test-site-key' } });
+        await Promise.resolve();
+
+        const input = screen.getByLabelText('Escribí tu mensaje');
+        await fireEvent.input(input, { target: { value: 'Hola' } });
+
+        expect(screen.getByRole('button', { name: /enviar/i })).toBeDisabled();
+    });
+
+    test('once Turnstile calls back with a token, sending includes it in the request body', async () => {
+        window.turnstile = {
+            render: vi.fn((el, options) => {
+                options.callback('real-token-from-cloudflare');
+
+                return 'widget-1';
+            }),
+            reset: vi.fn(),
+        };
+        global.fetch.mockResolvedValueOnce({
+            ok: true,
+            json: async () => ({ reply: 'Hola!', conversation_id: 'abc-123' }),
+        });
+
+        render(ChatWidget, { props: { locale: 'es', turnstileSiteKey: 'test-site-key' } });
+        await Promise.resolve();
+
+        await typeAndSend('Hola');
+
+        const body = JSON.parse(global.fetch.mock.calls[0][1].body);
+        expect(body.turnstile_token).toBe('real-token-from-cloudflare');
+    });
+
+    test('without a site key, no Turnstile token is required and none is sent', async () => {
+        global.fetch.mockResolvedValueOnce({
+            ok: true,
+            json: async () => ({ reply: 'Hola!', conversation_id: 'abc-123' }),
+        });
+
+        render(ChatWidget, { props: { locale: 'es', turnstileSiteKey: null } });
+
+        await typeAndSend('Hola');
+
+        const body = JSON.parse(global.fetch.mock.calls[0][1].body);
+        expect(body.turnstile_token).toBeUndefined();
+    });
 });
 
 describe('Contact', () => {

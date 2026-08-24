@@ -265,4 +265,74 @@ class ChatControllerTest extends TestCase
                 && ! str_contains($rawJson, '127.0.0.1');
         });
     }
+
+    public function test_daily_message_limit_blocks_further_sends_without_calling_n8n_and_records_the_lead(): void
+    {
+        Config::set('services.chat.daily_limit', 2);
+        Http::fake(['*' => Http::response(['reply' => 'Hola!'], 200)]);
+
+        $this->postChat($this->validPayload())->assertOk();
+        $this->postChat($this->validPayload())->assertOk();
+
+        Http::fake(['*' => Http::response(['reply' => 'Hola!'], 200)]);
+        $response = $this->postChat($this->validPayload(['message' => 'mensaje de más']));
+
+        $response->assertStatus(503);
+        $response->assertJson(['error' => 'chat_unavailable']);
+        Http::assertSentCount(0);
+
+        $this->assertDatabaseHas('leads', [
+            'message' => 'mensaje de más',
+            'reply_status' => 'blocked_daily_limit',
+        ]);
+    }
+
+    public function test_daily_limit_of_zero_means_no_cap(): void
+    {
+        Config::set('services.chat.daily_limit', 0);
+        Http::fake(['*' => Http::response(['reply' => 'Hola!'], 200)]);
+
+        for ($i = 0; $i < 5; $i++) {
+            $this->postChat($this->validPayload())->assertOk();
+        }
+    }
+
+    public function test_valid_turnstile_token_is_accepted_when_turnstile_is_configured(): void
+    {
+        Config::set('services.turnstile.secret_key', 'ts-secret');
+        Http::fake([
+            'challenges.cloudflare.com/*' => Http::response(['success' => true], 200),
+            self::WEBHOOK_URL => Http::response(['reply' => 'Hola!'], 200),
+        ]);
+
+        $response = $this->postChat($this->validPayload(['turnstile_token' => 'a-real-looking-token']));
+
+        $response->assertOk();
+    }
+
+    public function test_missing_turnstile_token_is_rejected_with_422_when_turnstile_is_configured(): void
+    {
+        Config::set('services.turnstile.secret_key', 'ts-secret');
+        Http::fake();
+
+        $response = $this->postChat($this->validPayload());
+
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors('turnstile_token');
+        Http::assertNotSent(fn (ClientRequest $request) => $request->url() === self::WEBHOOK_URL);
+    }
+
+    public function test_invalid_turnstile_token_is_rejected_with_422_when_turnstile_is_configured(): void
+    {
+        Config::set('services.turnstile.secret_key', 'ts-secret');
+        Http::fake([
+            'challenges.cloudflare.com/*' => Http::response(['success' => false], 200),
+        ]);
+
+        $response = $this->postChat($this->validPayload(['turnstile_token' => 'a-fake-token']));
+
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors('turnstile_token');
+        Http::assertNotSent(fn (ClientRequest $request) => $request->url() === self::WEBHOOK_URL);
+    }
 }
