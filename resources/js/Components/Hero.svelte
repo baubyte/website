@@ -68,14 +68,7 @@
 
     <div class="container relative z-10 mx-auto grid grid-cols-1 items-center gap-14 px-4 md:grid-cols-2 md:gap-16">
         <div class="text-center md:text-left">
-            <!--
-                Purely decorative syntax-highlighted flavor text — never a
-                real method call (`profile` is a plain Inertia prop object
-                with `.name`/`.surname` string fields, it has no
-                `showName()` method). `aria-hidden` because the REAL,
-                accessible name lives in the `<h1>` below, animated with
-                `use:typewriter` there instead.
-            -->
+            <!-- Decorative only, never a real profile.showName() call -->
             <p class="mb-4 font-mono text-sm text-base-content/60" aria-hidden="true">
                 <span class="text-primary">const</span> <span class="text-base-content/80">developer</span> = <span class="text-secondary">profile</span><span class="text-base-content/60">.</span><span class="text-accent">showName()</span><span class="text-base-content/60">;</span>
             </p>

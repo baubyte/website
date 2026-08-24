@@ -1,10 +1,5 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 
-// `typewriter` is a Svelte action applied directly to a heading whose own
-// `textContent` (set by the component's markup) is always the correct final
-// text. This action may only clip it out visually and wipe it back in once
-// it has confirmed it will genuinely run — it must never touch the text
-// itself.
 describe('typewriter', () => {
     let originalIntersectionObserver;
     let originalMatchMedia;
