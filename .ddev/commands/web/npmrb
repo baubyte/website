@@ -1,0 +1,9 @@
+#!/bin/bash
+
+#ddev-silent-no-warn
+
+## Description: Ejecuta comandos de npm run build en el contenedor web
+## Usage: npmrb [flags] [args]
+## Example: "ddev npmrb --help"
+
+npm run build
