@@ -224,10 +224,11 @@
                     badge's small icon box.
                 -->
                 {#if topBackendSkill}
-                    <div
-                        class="absolute -left-4 -top-2 flex h-11 items-center gap-2 overflow-hidden rounded-lg border border-primary/40 bg-base-100 px-2.5 text-primary shadow-lg transition-[width] duration-300 ease-out sm:-left-8 sm:-top-4"
+                    <button
+                        type="button"
+                        class="absolute -left-4 -top-2 flex h-11 cursor-default items-center gap-2 overflow-hidden rounded-lg border border-primary/40 bg-base-100 px-2.5 text-primary shadow-lg transition-[width] duration-300 ease-out sm:-left-8 sm:-top-4"
                         data-atropos-offset="4"
-                        tabindex="0"
+                        aria-label={topBackendSkill.name}
                     >
                         <Icon icon={iconCodeTags} width="20" height="20" class="shrink-0" />
                         <span
@@ -235,13 +236,14 @@
                         >
                             {topBackendSkill.name}
                         </span>
-                    </div>
+                    </button>
                 {/if}
                 {#if topIaSkill}
-                    <div
-                        class="absolute -right-4 -top-2 flex h-11 items-center gap-2 overflow-hidden rounded-lg border border-primary/40 bg-base-100 px-2.5 text-primary shadow-lg transition-[width] duration-300 ease-out sm:-right-8 sm:-top-4"
+                    <button
+                        type="button"
+                        class="absolute -right-4 -top-2 flex h-11 cursor-default items-center gap-2 overflow-hidden rounded-lg border border-primary/40 bg-base-100 px-2.5 text-primary shadow-lg transition-[width] duration-300 ease-out sm:-right-8 sm:-top-4"
                         data-atropos-offset="6"
-                        tabindex="0"
+                        aria-label={topIaSkill.name}
                     >
                         <Icon icon={iconCreation} width="20" height="20" class="shrink-0" />
                         <span
@@ -249,13 +251,14 @@
                         >
                             {topIaSkill.name}
                         </span>
-                    </div>
+                    </button>
                 {/if}
                 {#if yearsOfExperience}
-                    <div
-                        class="absolute -right-4 bottom-8 flex h-11 items-center gap-2 overflow-hidden rounded-lg border border-primary/40 bg-base-100 px-2.5 text-primary shadow-lg transition-[width] duration-300 ease-out sm:-right-8"
+                    <button
+                        type="button"
+                        class="absolute -right-4 bottom-8 flex h-11 cursor-default items-center gap-2 overflow-hidden rounded-lg border border-primary/40 bg-base-100 px-2.5 text-primary shadow-lg transition-[width] duration-300 ease-out sm:-right-8"
                         data-atropos-offset="9"
-                        tabindex="0"
+                        aria-label={t('hero.years_experience', { count: yearsOfExperience })}
                     >
                         <Icon icon={iconCalendarClock} width="20" height="20" class="shrink-0" />
                         <span
@@ -263,7 +266,7 @@
                         >
                             {t('hero.years_experience', { count: yearsOfExperience })}
                         </span>
-                    </div>
+                    </button>
                 {/if}
             </div>
         {/if}
