@@ -151,4 +151,42 @@ describe('typewriter', () => {
         action?.destroy?.();
         vi.useRealTimers();
     });
+
+    test('reveals the text even when a late exit-callback re-clips it after the animation already completed', async () => {
+        vi.useFakeTimers();
+        window.matchMedia = vi.fn().mockReturnValue({ matches: false });
+
+        let observedCallback;
+        window.IntersectionObserver = class {
+            constructor(callback) {
+                observedCallback = callback;
+            }
+            observe() {}
+            unobserve() {}
+            disconnect() {}
+        };
+
+        const { typewriter } = await import('./typewriter.js');
+        const node = document.createElement('h1');
+        node.textContent = 'Martín Paredes';
+
+        const action = typewriter(node, { duration: 900, delay: 0 });
+
+        observedCallback([{ isIntersecting: true, target: node }]);
+        vi.advanceTimersByTime(1000);
+        node.style.clipPath = 'inset(0 0% 0 0)';
+
+        // A late/spurious exit callback (layout shift, font load, etc.)
+        // re-clips the text well after the real animation already finished.
+        observedCallback([{ isIntersecting: false, target: node }]);
+        expect(node.style.clipPath).toBe('inset(0 100% 0 0)');
+
+        vi.advanceTimersByTime(900 + 0 + 1000 + 1);
+
+        expect(node.style.clipPath).toBe('inset(0 0% 0 0)');
+        expect(node.textContent).toBe('Martín Paredes');
+
+        action?.destroy?.();
+        vi.useRealTimers();
+    });
 });

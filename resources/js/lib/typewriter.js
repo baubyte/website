@@ -11,26 +11,26 @@ export function typewriter(node, options = {}) {
 
     const charCount = node.textContent.trim().length || 1;
 
-    const hide = () => {
-        node.style.clipPath = 'inset(0 100% 0 0)';
-    };
-    const reveal = () => {
-        node.style.clipPath = 'inset(0 0% 0 0)';
-    };
-
-    let animating = false;
     let safetyTimer = null;
 
-    // Independent of the IntersectionObserver ever firing at all: guarantees
-    // the real text becomes visible within a bounded time no matter what.
-    const armSafetyNet = () => {
+    // Independent of the IntersectionObserver ever firing (or firing again)
+    // at all: guarantees the real text becomes visible within a bounded
+    // time no matter what. Bound to `hide()` itself, not to any one call
+    // site, so it is impossible to clip the text without also scheduling
+    // its own recovery.
+    const reveal = () => {
+        clearTimeout(safetyTimer);
+        node.style.clipPath = 'inset(0 0% 0 0)';
+    };
+    const hide = () => {
+        node.style.clipPath = 'inset(0 100% 0 0)';
         clearTimeout(safetyTimer);
         safetyTimer = setTimeout(reveal, duration + delay + 1000);
     };
 
     hide();
-    armSafetyNet();
 
+    let animating = false;
     const state = { p: 0 };
 
     const observer = new IntersectionObserver(
@@ -40,7 +40,8 @@ export function typewriter(node, options = {}) {
                     if (animating) continue;
                     animating = true;
                     state.p = 0;
-                    armSafetyNet();
+                    clearTimeout(safetyTimer);
+                    safetyTimer = setTimeout(reveal, duration + delay + 1000);
                     animate(state, {
                         p: 100,
                         duration,
@@ -56,7 +57,6 @@ export function typewriter(node, options = {}) {
                     });
                 } else {
                     animating = false;
-                    clearTimeout(safetyTimer);
                     hide();
                 }
             }
