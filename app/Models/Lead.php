@@ -14,6 +14,34 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * `client_hash` is an HMAC digest of the visitor's IP + User-Agent (see
  * `ChatController::clientHash()`) — the raw IP/User-Agent is never
  * persisted here or anywhere else.
+ *
+ * @property int $id
+ * @property string $conversation_id
+ * @property string $message
+ * @property string $locale
+ * @property string|null $page
+ * @property string $client_hash
+ * @property string $reply_status
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Lead newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Lead newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Lead onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Lead query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Lead whereClientHash($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Lead whereConversationId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Lead whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Lead whereDeletedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Lead whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Lead whereLocale($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Lead whereMessage($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Lead wherePage($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Lead whereReplyStatus($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Lead whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Lead withTrashed(bool $withTrashed = true)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Lead withoutTrashed()
+ * @mixin \Eloquent
  */
 class Lead extends Model
 {

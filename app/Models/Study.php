@@ -6,6 +6,37 @@ use App\Models\Concerns\ResolvesLocalizedFields;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+/**
+ * @property int $id
+ * @property string $entity
+ * @property string $title_es
+ * @property string $title_en
+ * @property string|null $description_es
+ * @property string|null $description_en
+ * @property \Illuminate\Support\Carbon $start_date
+ * @property \Illuminate\Support\Carbon|null $end_date
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Study newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Study newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Study onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Study query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Study whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Study whereDeletedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Study whereDescriptionEn($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Study whereDescriptionEs($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Study whereEndDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Study whereEntity($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Study whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Study whereStartDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Study whereTitleEn($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Study whereTitleEs($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Study whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Study withTrashed(bool $withTrashed = true)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Study withoutTrashed()
+ * @mixin \Eloquent
+ */
 class Study extends Model
 {
     use ResolvesLocalizedFields, SoftDeletes;

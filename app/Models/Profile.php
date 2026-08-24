@@ -11,6 +11,48 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * enforces a hard singleton constraint at the schema level; the UI/admin
  * layer (Filament, added in a later PR) is responsible for keeping this to
  * a single row.
+ *
+ * @property int $id
+ * @property string $name
+ * @property string $surname
+ * @property string $avatar
+ * @property string|null $email_contact
+ * @property string|null $description_es
+ * @property string|null $description_en
+ * @property string $specialty_es
+ * @property string|null $specialty_en
+ * @property string|null $language_es
+ * @property string|null $language_en
+ * @property string|null $github_url
+ * @property string|null $linkedin_url
+ * @property string|null $instagram_url
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Profile newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Profile newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Profile onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Profile query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Profile whereAvatar($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Profile whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Profile whereDeletedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Profile whereDescriptionEn($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Profile whereDescriptionEs($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Profile whereEmailContact($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Profile whereGithubUrl($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Profile whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Profile whereInstagramUrl($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Profile whereLanguageEn($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Profile whereLanguageEs($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Profile whereLinkedinUrl($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Profile whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Profile whereSpecialtyEn($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Profile whereSpecialtyEs($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Profile whereSurname($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Profile whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Profile withTrashed(bool $withTrashed = true)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Profile withoutTrashed()
+ * @mixin \Eloquent
  */
 class Profile extends Model
 {

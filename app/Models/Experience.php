@@ -6,6 +6,37 @@ use App\Models\Concerns\ResolvesLocalizedFields;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+/**
+ * @property int $id
+ * @property string $company
+ * @property string $specialty_es
+ * @property string $specialty_en
+ * @property string|null $description_es
+ * @property string|null $description_en
+ * @property \Illuminate\Support\Carbon $start_date
+ * @property \Illuminate\Support\Carbon|null $end_date
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Experience newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Experience newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Experience onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Experience query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Experience whereCompany($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Experience whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Experience whereDeletedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Experience whereDescriptionEn($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Experience whereDescriptionEs($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Experience whereEndDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Experience whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Experience whereSpecialtyEn($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Experience whereSpecialtyEs($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Experience whereStartDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Experience whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Experience withTrashed(bool $withTrashed = true)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Experience withoutTrashed()
+ * @mixin \Eloquent
+ */
 class Experience extends Model
 {
     use ResolvesLocalizedFields, SoftDeletes;
