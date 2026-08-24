@@ -49,8 +49,7 @@ class PersonSchema
             ],
             'sameAs' => array_values(array_filter([
                 $localized['github_url'],
-                $localized['linkedin_url'],
-                $localized['instagram_url'],
+                $localized['linkedin_url']
             ])),
             'knowsAbout' => $skills->pluck('name')->values()->all(),
         ];
