@@ -9,16 +9,7 @@ use App\Models\Study;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
-/**
- * `GET /download-cv` — PDF generation ported from the legacy CodeIgniter
- * app's `app/Views/Front/pdf/cv.php`, rendered from real Profile/Skill/
- * Experience/Study data in the current session locale.
- *
- * Per the task's own allowance, this does not use a sophisticated PDF text
- * parser: it asserts `Content-Type: application/pdf`, a real (non-trivial)
- * byte size, and the real profile's name via the `Content-Disposition`
- * filename, which is derived directly from the live `Profile` row.
- */
+// Content/markup assertions render `pdf.cv` directly, since dompdf compresses the final PDF's text streams.
 class CvDownloadTest extends TestCase
 {
     use RefreshDatabase;
@@ -89,5 +80,73 @@ class CvDownloadTest extends TestCase
 
         $response->assertOk();
         $response->assertHeader('Content-Type', 'application/pdf');
+        $this->assertStringContainsString('attachment; filename=cv.pdf', $response->headers->get('Content-Disposition'));
+    }
+
+    public function test_download_cv_pdf_info_dict_carries_profile_metadata(): void
+    {
+        $this->seedRealData();
+
+        $response = $this->get('/download-cv');
+        $pdf = $response->getContent();
+
+        $this->assertSame('Martín Pared Baez - Curriculum Vitae', $this->extractPdfInfoValue($pdf, 'Title'));
+        $this->assertSame('Martín Pared Baez', $this->extractPdfInfoValue($pdf, 'Author'));
+        $this->assertSame('Curriculum Vitae', $this->extractPdfInfoValue($pdf, 'Subject'));
+    }
+
+    public function test_download_cv_content_has_no_duplicated_contact_block(): void
+    {
+        $profile = $this->seedRealData();
+        $body = str($this->renderCvView($profile))->after('<body>')->toString();
+
+        $this->assertSame(1, substr_count($body, 'Martín Pared Baez'));
+        $this->assertSame(1, substr_count($body, $profile->github_url));
+        $this->assertSame(1, substr_count($body, $profile->linkedin_url));
+
+        foreach (['Contacto', 'Perfiles Profesionales', 'Habilidades', 'Experiencia', 'Formación'] as $label) {
+            $this->assertSame(1, substr_count($body, $label), "Expected label [{$label}] to appear exactly once.");
+        }
+    }
+
+    public function test_download_cv_entries_keep_page_break_avoid_structure(): void
+    {
+        $profile = $this->seedRealData();
+        Experience::create([
+            'company' => 'Second Co',
+            'specialty_es' => 'Backend',
+            'specialty_en' => 'Backend',
+            'description_es' => str_repeat('Descripción extensa. ', 60),
+            'description_en' => str_repeat('Long description. ', 60),
+            'start_date' => '2018-01-01',
+            'end_date' => '2019-12-31',
+        ]);
+
+        $html = $this->renderCvView($profile);
+
+        $this->assertStringContainsString('page-break-inside: avoid', $html);
+        $this->assertSame(3, substr_count($html, 'class="entry"'));
+    }
+
+    private function renderCvView(?Profile $profile): string
+    {
+        return view('pdf.cv', [
+            'locale' => 'es',
+            'profile' => $profile?->toLocalizedArray('es'),
+            'skills' => Skill::orderBy('name')->get(),
+            'experiences' => Experience::orderBy('start_date', 'desc')->get()
+                ->map(fn (Experience $experience) => $experience->toLocalizedArray('es')),
+            'studies' => Study::orderBy('start_date', 'desc')->get()
+                ->map(fn (Study $study) => $study->toLocalizedArray('es')),
+        ])->render();
+    }
+
+    private function extractPdfInfoValue(string $pdf, string $label): ?string
+    {
+        if (! preg_match('/\/'.preg_quote($label, '/').'\s*\((.*?)\)/s', $pdf, $matches)) {
+            return null;
+        }
+
+        return mb_convert_encoding(substr($matches[1], 2), 'UTF-8', 'UTF-16BE');
     }
 }
