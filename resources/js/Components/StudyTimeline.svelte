@@ -1,5 +1,6 @@
 <script>
     import { scrollReveal } from '../lib/scrollReveal.js';
+    import { typewriter } from '../lib/typewriter.js';
     import { formatMonthYear } from '../lib/formatDate.js';
     import { t } from '../lib/i18n.js';
 
@@ -14,7 +15,10 @@
 
 <section id="studies" class="bg-base-200 py-20 sm:py-28" use:scrollReveal>
     <div class="container mx-auto max-w-3xl px-4">
-        <h2 class="mb-12 text-center font-display text-3xl font-semibold text-base-content sm:text-4xl">
+        <h2
+            class="mb-12 text-center font-display text-3xl font-semibold text-base-content sm:text-4xl"
+            use:typewriter
+        >
             {t('studies.title')}
         </h2>
 

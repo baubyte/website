@@ -6,6 +6,7 @@ use App\Models\Experience;
 use App\Models\Profile;
 use App\Models\Skill;
 use App\Models\Study;
+use App\Support\Icons\IconCatalog;
 use App\Support\Locale\Locale;
 use Carbon\Carbon;
 use Inertia\Inertia;
@@ -23,7 +24,10 @@ class HomeController extends Controller
             // the session locale (see `ResolvesLocalizedFields`) — Svelte
             // components never see the raw `_es`/`_en` field pair.
             'profile' => $profile?->toLocalizedArray($locale),
-            'skills' => Skill::orderBy('name')->get(),
+            'skills' => Skill::orderBy('name')->get()->map(fn (Skill $skill) => [
+                ...$skill->toArray(),
+                'icon_data' => IconCatalog::resolve($skill->icon),
+            ])->values(),
             'experiences' => Experience::orderBy('start_date', 'desc')->get()
                 ->map(fn (Experience $experience) => $experience->toLocalizedArray($locale))
                 ->values(),

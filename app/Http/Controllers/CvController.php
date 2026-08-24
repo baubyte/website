@@ -24,6 +24,7 @@ class CvController extends Controller
     {
         $locale = Locale::current();
         $profile = Profile::first();
+        $fullName = $profile ? trim("{$profile->name} {$profile->surname}") : config('app.name');
 
         $pdf = Pdf::loadView('pdf.cv', [
             'locale' => $locale,
@@ -38,6 +39,14 @@ class CvController extends Controller
         $filename = $profile
             ? Str::slug(trim("{$profile->name} {$profile->surname}")).'-cv.pdf'
             : 'cv.pdf';
+
+        // addInfo() must run after render(): dompdf only persists it once `rendered` is set.
+        $pdf->render();
+        $pdf->getDomPDF()->addInfo('Title', "{$fullName} - Curriculum Vitae");
+        $pdf->getDomPDF()->addInfo('Author', $fullName);
+        $pdf->getDomPDF()->addInfo('Subject', 'Curriculum Vitae');
+        $pdf->getDomPDF()->addInfo('Keywords', "CV, resume, {$fullName}");
+        $pdf->getDomPDF()->addInfo('Creator', config('app.name'));
 
         return $pdf->download($filename);
     }

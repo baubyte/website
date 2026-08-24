@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string $name
  * @property int $percentage
  * @property string|null $category
+ * @property string|null $icon
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
@@ -41,5 +42,6 @@ class Skill extends Model
         'name',
         'percentage',
         'category',
+        'icon',
     ];
 }

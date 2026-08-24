@@ -74,4 +74,51 @@ class SkillResourceTest extends TestCase
 
         $this->assertSoftDeleted('skills', ['id' => $skill->id]);
     }
+
+    public function test_it_persists_a_valid_icon_id(): void
+    {
+        Livewire::test(CreateSkill::class)
+            ->fillForm([
+                'name' => 'Laravel',
+                'percentage' => 90,
+                'icon' => 'devicon:laravel',
+            ])
+            ->call('create')
+            ->assertHasNoFormErrors();
+
+        $this->assertDatabaseHas('skills', [
+            'name' => 'Laravel',
+            'icon' => 'devicon:laravel',
+        ]);
+    }
+
+    public function test_it_rejects_an_unknown_icon_id(): void
+    {
+        Livewire::test(CreateSkill::class)
+            ->fillForm([
+                'name' => 'Laravel',
+                'percentage' => 90,
+                'icon' => 'devicon:this-icon-does-not-exist',
+            ])
+            ->call('create')
+            ->assertHasFormErrors(['icon']);
+
+        $this->assertDatabaseMissing('skills', ['name' => 'Laravel']);
+    }
+
+    public function test_icon_is_optional(): void
+    {
+        Livewire::test(CreateSkill::class)
+            ->fillForm([
+                'name' => 'PHP',
+                'percentage' => 90,
+            ])
+            ->call('create')
+            ->assertHasNoFormErrors();
+
+        $this->assertDatabaseHas('skills', [
+            'name' => 'PHP',
+            'icon' => null,
+        ]);
+    }
 }

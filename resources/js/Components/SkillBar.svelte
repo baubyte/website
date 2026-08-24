@@ -13,7 +13,11 @@
      */
     let { skill } = $props();
 
-    const meta = $derived(getSkillMeta(skill.name));
+    const meta = $derived(
+        skill.icon_data
+            ? { icon: skill.icon_data, label: getSkillMeta(skill.name).label }
+            : getSkillMeta(skill.name),
+    );
 </script>
 
 <div class="group w-full rounded-lg p-1.5 transition-colors duration-200 hover:bg-base-200/60">
