@@ -56,6 +56,16 @@
                     sitekey: turnstileSiteKey,
                     size: 'compact',
                     language: locale,
+                    /**
+                     * 'interaction-only' keeps the widget invisible while
+                     * Cloudflare's challenge runs silently/non-interactively
+                     * (the common case) and only renders UI when it truly
+                     * needs the user to interact -- without this, the
+                     * default 'always' appearance shows a persistent
+                     * "success" badge that reads as floating debris in the
+                     * empty message log above.
+                     */
+                    appearance: 'interaction-only',
                     callback: (token) => {
                         turnstileToken = token;
                     },
@@ -248,7 +258,10 @@
     </div>
 
     {#if turnstileSiteKey}
-        <div bind:this={turnstileEl} class="mb-2 flex justify-center"></div>
+        <div
+            bind:this={turnstileEl}
+            class="mb-2 flex min-h-[65px] items-center justify-center border-t border-base-content/10 pt-2"
+        ></div>
     {/if}
 
     <form class="flex items-center gap-2" onsubmit={sendMessage}>
