@@ -1,39 +1,82 @@
 # baubyte.com.ar
 
-Sitio personal de portfolio, migrado de CodeIgniter 4 a Laravel 13 + Inertia + Svelte 5. Público (Inertia/Svelte, sin API REST propia) y panel de administración (Filament) están completamente separados: el público nunca usa Filament, el admin nunca usa Inertia/Svelte/SSR.
+<p>
+  <img alt="Laravel" src="https://img.shields.io/badge/Laravel-13-FF2D20?style=flat-square&logo=laravel&logoColor=white">
+  <img alt="PHP" src="https://img.shields.io/badge/PHP-8.3%2B-777BB4?style=flat-square&logo=php&logoColor=white">
+  <img alt="Inertia.js" src="https://img.shields.io/badge/Inertia.js-9553E9?style=flat-square&logo=inertia&logoColor=white">
+  <img alt="Svelte" src="https://img.shields.io/badge/Svelte-5-FF3E00?style=flat-square&logo=svelte&logoColor=white">
+  <img alt="Filament" src="https://img.shields.io/badge/Filament-5-F59E0B?style=flat-square&logo=laravel&logoColor=white">
+  <img alt="Tailwind CSS" src="https://img.shields.io/badge/Tailwind_CSS-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white">
+  <img alt="License" src="https://img.shields.io/badge/license-private-lightgrey?style=flat-square">
+</p>
 
-## Stack
+Sitio personal de portfolio, migrado de **CodeIgniter 4** a **Laravel 13 + Inertia + Svelte 5**. Público y panel de administración están completamente separados: el público nunca usa Filament, el admin nunca usa Inertia/Svelte/SSR.
 
-- **Backend**: Laravel 13, PHP 8.3+.
-- **Frontend público**: Inertia.js + Svelte 5 (sin SvelteKit), Tailwind + daisyUI, tema oscuro único (sin toggle).
-- **SSR**: entry point oficial de Inertia (`resources/js/ssr.js`), como servicio Docker interno separado (`baubyte-website-ssr`, sin exposición directa a Traefik). Si el servicio SSR no está corriendo o falla, Inertia cae automáticamente a client-side rendering — no hay middleware de fallback hecho a mano, es el comportamiento nativo de `Inertia\Ssr\HttpGateway::dispatch()`. Ver `App\Listeners\LogSsrFallback` para la observabilidad de ese fallback.
-- **Admin**: Filament 5, auth nativa de Laravel (single-account, sin roles/permisos).
-- **i18n**: `erag/laravel-lang-sync-inertia` — una sola fuente de verdad (`lang/{locale}/front.php`), sincronizada automáticamente a `resources/js/lang/{locale}/front.json` para el frontend vía `php artisan erag:generate-lang`. El backend usa `__('front.clave', [], $locale)` normalmente; nunca hardcodear strings bilingües en un array PHP — si hace falta un string nuevo, va a `lang/`.
-- **Rutas con nombre en el frontend**: `tightenco/ziggy` (`resources/js/lib/route.js`).
-- **PDF**: `barryvdh/laravel-dompdf` para la descarga del CV.
-- **Datos**: importados una sola vez desde la base legacy de CodeIgniter (misma instancia MySQL, conexión `legacy` de solo lectura) vía `php artisan legacy:import`, comando idempotente.
+---
 
-## Arquitectura del chat (proxy a n8n)
+## 📋 Índice
 
-El formulario de contacto legacy fue reemplazado por un widget de chat (`resources/js/Components/ChatWidget.svelte`) que habla exclusivamente con `POST /api/chat`. El navegador nunca habla directo con n8n — la URL del webhook y el secreto compartido nunca salen del servidor.
+- [Stack](#-stack)
+- [Arquitectura del chat (proxy a n8n)](#-arquitectura-del-chat-proxy-a-n8n)
+- [Modo mantenimiento](#-modo-mantenimiento)
+- [Setup local (DDEV)](#-setup-local-ddev)
+- [Variables de entorno](#-variables-de-entorno)
+- [Tests](#-tests)
 
-Flujo: `ChatWidget` → `throttle:20,1` + `EnsureSameOrigin` → `ChatMessageRequest` (valida + verifica Turnstile) → `App\Actions\Chat\SendChatMessage` (llama a n8n, guarda el `Lead`) → `ChatController` (solo traduce el resultado a HTTP).
+---
 
-**Protecciones contra abuso/costo** (cada mensaje real dispara una llamada a un LLM del lado de n8n):
-- `throttle:20,1` por IP en la ruta.
-- `EnsureSameOrigin`: rechaza requests cuyo `Origin`/`Referer` no coincida con `app.url`.
-- Techo diario global (`services.chat.daily_limit`, env `CHAT_DAILY_MESSAGE_LIMIT`, default 200): corta antes de llamar a n8n si ya se superó, independiente del throttle por IP.
-- Cloudflare Turnstile (`services.turnstile.site_key`/`secret_key`, envs `TURNSTILE_SITE_KEY`/`TURNSTILE_SECRET_KEY`): verificación real del lado del servidor en `ChatMessageRequest`.
+## 🧱 Stack
 
-**Operacional, no configurado por defecto**: mientras `N8N_CHAT_WEBHOOK_URL`/`N8N_CHAT_WEBHOOK_SECRET` o `TURNSTILE_SITE_KEY`/`TURNSTILE_SECRET_KEY` estén vacíos, el chat sigue funcionando pero sin llamar al servicio real (falla cerrado con un mensaje localizado) / sin pedir verificación Turnstile. Ninguno de los dos rompe el desarrollo local sin esas credenciales.
+| Capa | Tecnología |
+|---|---|
+| Backend | Laravel 13, PHP 8.3+ |
+| Frontend público | Inertia.js + Svelte 5 (sin SvelteKit), Tailwind + daisyUI, tema oscuro único |
+| SSR | Entry point oficial de Inertia (`resources/js/ssr.js`), servicio Docker interno separado |
+| Admin | Filament 5, auth nativa de Laravel (single-account, sin roles/permisos) |
+| i18n | `erag/laravel-lang-sync-inertia` — una sola fuente de verdad en `lang/{locale}/front.php` |
+| Rutas en el frontend | `tightenco/ziggy` |
+| PDF | `barryvdh/laravel-dompdf` (descarga del CV) |
+| Datos | Importados una vez desde la base legacy de CodeIgniter vía `php artisan legacy:import` |
 
-**Nota de diseño — el campo `page`**: cada mensaje guarda en qué página estaba el visitante (`leads.page`, y se manda también a n8n). Hoy el sitio es de una sola página (`HomeController` es la única ruta de contenido), así que este campo siempre vale `/` — no aporta señal real todavía. Se dejó a propósito: empieza a tener sentido el día que el sitio tenga rutas de contenido propias (blog, portfolio de proyectos, etc.).
+**SSR con fallback automático**: si el servicio SSR (`baubyte-website-ssr`, sin exposición directa a Traefik) no está corriendo o falla, Inertia cae a client-side rendering sin código propio — es el comportamiento nativo de `Inertia\Ssr\HttpGateway::dispatch()`. Ver `App\Listeners\LogSsrFallback` para la observabilidad de ese fallback.
 
-## Modo mantenimiento
+**i18n**: el backend usa `__('front.clave', [], $locale)`; el frontend usa `t('clave')`. `resources/js/lang/{locale}/front.json` se regenera con `php artisan erag:generate-lang` — nunca se edita a mano, y nunca se hardcodea un string bilingüe en un array PHP.
+
+---
+
+## 💬 Arquitectura del chat (proxy a n8n)
+
+El formulario de contacto legacy fue reemplazado por un widget de chat (`resources/js/Components/ChatWidget.svelte`) que habla exclusivamente con `POST /api/chat`. El navegador **nunca** habla directo con n8n — la URL del webhook y el secreto compartido nunca salen del servidor.
+
+```
+ChatWidget → throttle:20,1 + EnsureSameOrigin → ChatMessageRequest (valida + Turnstile)
+           → SendChatMessage (llama a n8n, guarda el Lead) → ChatController (traduce a HTTP)
+```
+
+### 🛡️ Protecciones contra abuso/costo
+
+Cada mensaje real dispara una llamada a un LLM del lado de n8n — hay cuatro capas:
+
+| Protección | Dónde |
+|---|---|
+| Throttle 20/min por IP | `routes/web.php` |
+| Origen/Referer debe coincidir con `app.url` | `App\Http\Middleware\EnsureSameOrigin` |
+| Techo diario global (`CHAT_DAILY_MESSAGE_LIMIT`, default 200) | `App\Actions\Chat\SendChatMessage::dailyLimitReached()` |
+| Verificación real de Cloudflare Turnstile | `App\Http\Requests\ChatMessageRequest` |
+
+Mientras `N8N_CHAT_WEBHOOK_URL`/`N8N_CHAT_WEBHOOK_SECRET` o `TURNSTILE_SITE_KEY`/`TURNSTILE_SECRET_KEY` estén vacíos, el chat sigue funcionando pero falla cerrado con un mensaje localizado / no pide verificación Turnstile — ninguno de los dos rompe el desarrollo local sin esas credenciales.
+
+> **Nota de diseño — el campo `page`**: cada mensaje guarda en qué página estaba el visitante (`leads.page`, y se manda también a n8n). Hoy el sitio es de una sola página (`HomeController` es la única ruta de contenido), así que este campo siempre vale `/` — no aporta señal real todavía. Se dejó a propósito: empieza a tener sentido el día que el sitio tenga rutas de contenido propias (blog, portfolio de proyectos, etc.).
+
+---
+
+## 🔧 Modo mantenimiento
 
 Mantenimiento nativo de Laravel (`artisan down`/`up`, driver de archivo), activable desde un Action de Filament (`App\Filament\Pages\ManageProfile`) vía `App\Services\MaintenanceToggler` — no hay tabla propia ni endpoint custom. `/admin/*` queda excluido del modo mantenimiento (`App\Http\Middleware\PreventRequestsDuringMaintenance`) para que el dueño no se bloquee a sí mismo.
 
-## Setup local (DDEV)
+---
+
+## 🚀 Setup local (DDEV)
 
 ```bash
 ddev start
@@ -44,17 +87,23 @@ ddev artisan legacy:import   # una sola vez, si hay datos legacy que migrar
 ddev npm run dev             # o `ddev npm run build` para producción
 ```
 
-Variables de entorno relevantes además de las estándar de Laravel:
+---
+
+## 🔑 Variables de entorno
+
+Además de las estándar de Laravel:
 
 | Variable | Requerida | Efecto si falta |
-|---|---|---|
-| `N8N_CHAT_WEBHOOK_URL` / `N8N_CHAT_WEBHOOK_SECRET` | No | El chat responde "no disponible" sin llamar a n8n |
-| `TURNSTILE_SITE_KEY` / `TURNSTILE_SECRET_KEY` | No | El chat no pide verificación anti-bot |
-| `CHAT_DAILY_MESSAGE_LIMIT` | No (default 200) | — |
+|---|:---:|---|
+| `N8N_CHAT_WEBHOOK_URL` / `N8N_CHAT_WEBHOOK_SECRET` | ❌ | El chat responde "no disponible" sin llamar a n8n |
+| `TURNSTILE_SITE_KEY` / `TURNSTILE_SECRET_KEY` | ❌ | El chat no pide verificación anti-bot |
+| `CHAT_DAILY_MESSAGE_LIMIT` | ❌ (default 200) | — |
 
-## Tests
+---
+
+## ✅ Tests
 
 ```bash
-ddev artisan test        # PHPUnit/Pest (requiere la conexión `legacy` de DDEV para los tests de importación)
-npx vitest run            # Vitest (componentes Svelte)
+ddev artisan test   # PHPUnit/Pest — requiere la conexión `legacy` de DDEV para los tests de importación
+npx vitest run       # Vitest — componentes Svelte
 ```
