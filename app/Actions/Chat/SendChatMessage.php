@@ -119,6 +119,15 @@ class SendChatMessage
      * the `Referer` header's path when it doesn't. Never the full URL
      * (query strings could carry PII), just the path.
      *
+     * Today this is near-worthless: the site is single-page
+     * (`HomeController` is the only content route), so the widget's
+     * `window.location.pathname` -- and therefore this field, both in the
+     * n8n payload and in `leads.page` -- is always `/`. The `Referer`
+     * fallback below is effectively dead code for the same reason (the
+     * widget always sends `page` directly). Kept as-is rather than removed
+     * on purpose: it becomes real signal the moment this site gains actual
+     * separate routes (blog, project pages, etc.).
+     *
      * `Uri::path()` trims leading/trailing slashes and returns `/` for an
      * empty path (never null) -- re-adding the leading slash keeps this
      * consistent with the widget's own `window.location.pathname`, which
