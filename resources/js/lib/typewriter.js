@@ -1,52 +1,51 @@
-import { animate, steps as stepsEase } from 'animejs';
+import Typed from 'typed.js';
 import { canAnimate } from './motion.js';
 
-// Animates clip-path over the real text (never per-character spans) so textContent stays untouched and accessible throughout.
-// One-shot by design (unlike scrollReveal/skillBarReveal): a name/heading that already typed in should never re-hide itself
-// on scroll-out, which is also what caused the reveal to flap in production when the observer re-fired.
+// Thin wrapper around Typed.js (battle-tested typing animation) that only starts once the node
+// enters the viewport, one-shot, and falls back to the real final text if anything stalls.
 export function typewriter(node, options = {}) {
-    const { duration = 900, delay = 0, threshold = 0.5 } = options;
+    const { typeSpeed = 45, threshold = 0.5 } = options;
 
     if (!canAnimate()) {
         return {};
     }
 
-    const charCount = node.textContent.trim().length || 1;
+    const text = node.textContent.trim();
 
+    let typed = null;
     let safetyTimer = null;
-    const reveal = () => {
+    let started = false;
+
+    const finish = () => {
         clearTimeout(safetyTimer);
-        node.style.clipPath = 'inset(0 0% 0 0)';
+        typed?.destroy();
+        node.textContent = text;
     };
 
-    node.style.clipPath = 'inset(0 100% 0 0)';
-    // Guarantees the real text becomes visible within a bounded time even if the observer never fires at all.
-    safetyTimer = setTimeout(reveal, duration + delay + 1000);
+    const start = () => {
+        if (started) {
+            return;
+        }
+        started = true;
+
+        typed = new Typed(node, {
+            strings: [text],
+            typeSpeed,
+            showCursor: false,
+            onComplete: () => clearTimeout(safetyTimer),
+        });
+
+        // Never leave the real text stuck mid-type if Typed.js stalls for any reason.
+        safetyTimer = setTimeout(finish, typeSpeed * text.length + 3000);
+    };
 
     const observer = new IntersectionObserver(
         (entries) => {
             for (const entry of entries) {
-                if (!entry.isIntersecting) {
-                    continue;
+                if (entry.isIntersecting) {
+                    observer.disconnect();
+                    start();
                 }
-
-                observer.disconnect();
-                clearTimeout(safetyTimer);
-                safetyTimer = setTimeout(reveal, duration + delay + 1000);
-
-                const state = { p: 0 };
-                animate(state, {
-                    p: 100,
-                    duration,
-                    delay,
-                    ease: stepsEase(charCount),
-                    onUpdate: () => {
-                        node.style.clipPath = `inset(0 ${100 - state.p}% 0 0)`;
-                    },
-                    onComplete: () => {
-                        clearTimeout(safetyTimer);
-                    },
-                });
             }
         },
         { threshold },
@@ -58,6 +57,7 @@ export function typewriter(node, options = {}) {
         destroy() {
             clearTimeout(safetyTimer);
             observer.disconnect();
+            typed?.destroy();
         },
     };
 }
