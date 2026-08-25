@@ -61,6 +61,14 @@ COPY --chown=www-data:www-data composer.json composer.lock ./
 USER root
 RUN composer install --no-dev --optimize-autoloader --no-interaction --no-progress --no-scripts
 
+RUN apt-get update && apt-get install -y \
+  weasyprint \
+  libjpeg-dev \
+  libpng-dev \
+  ghostscript \
+  fonts-freefont-ttf \
+  && rm -rf /var/lib/apt/lists/*
+
 COPY --chown=www-data:www-data . .
 
 # Client build output only -- the `web` image never runs Node and never

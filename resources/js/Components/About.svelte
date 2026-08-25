@@ -10,6 +10,7 @@
         iconGithub,
         iconLinkedin
     } from '../lib/icons.js';
+    import { typewriter } from '../lib/typewriter.js';
 
     let { profile } = $props();
 
@@ -30,7 +31,7 @@
         <p class="mb-2 font-mono text-sm text-base-content/60">
             <span class="text-primary">const</span> about = <span class="text-secondary">"{fullName}"</span>;
         </p>
-        <h2 class="mb-8 font-display text-3xl font-semibold text-base-content sm:text-4xl">{t('about.title')}</h2>
+        <h2 class="mb-8 font-display text-3xl font-semibold text-base-content sm:text-4xl" use:typewriter>{t('about.title')}</h2>
 
         <div class="grid gap-10 md:grid-cols-3">
             <p class="whitespace-pre-line text-base leading-relaxed text-base-content/80 md:col-span-2">

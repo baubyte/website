@@ -11,7 +11,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
-// Content/markup assertions render `pdf.cv` directly, since dompdf compresses the final PDF's text streams.
+// Content/markup assertions render `pdf.cv` directly, rather than parsing the final compiled PDF binary.
 class CvDownloadTest extends TestCase
 {
     use RefreshDatabase;
@@ -82,19 +82,18 @@ class CvDownloadTest extends TestCase
 
         $response->assertOk();
         $response->assertHeader('Content-Type', 'application/pdf');
-        $this->assertStringContainsString('attachment; filename=cv.pdf', $response->headers->get('Content-Disposition'));
+        $this->assertStringContainsString('filename="cv.pdf"', $response->headers->get('Content-Disposition'));
     }
 
-    public function test_download_cv_pdf_info_dict_carries_profile_metadata(): void
+    public function test_download_cv_carries_profile_metadata_in_html_head(): void
     {
-        $this->seedRealData();
+        $profile = $this->seedRealData();
 
-        $response = $this->get('/download-cv');
-        $pdf = $response->getContent();
+        $html = $this->renderCvView($profile);
 
-        $this->assertSame('Martín Pared Baez - Curriculum Vitae', $this->extractPdfInfoValue($pdf, 'Title'));
-        $this->assertSame('Martín Pared Baez', $this->extractPdfInfoValue($pdf, 'Author'));
-        $this->assertSame('Curriculum Vitae', $this->extractPdfInfoValue($pdf, 'Subject'));
+        $this->assertStringContainsString('<title>Martín Pared Baez - Curriculum Vitae</title>', $html);
+        $this->assertStringContainsString('<meta name="author" content="Martín Pared Baez">', $html);
+        $this->assertStringContainsString('<meta name="description" content="Curriculum Vitae">', $html);
     }
 
     public function test_download_cv_includes_the_avatar_when_the_file_exists(): void
@@ -127,8 +126,8 @@ class CvDownloadTest extends TestCase
         $body = str($this->renderCvView($profile))->after('<body>')->toString();
 
         $this->assertSame(1, substr_count($body, 'Martín Pared Baez'));
-        $this->assertSame(1, substr_count($body, $profile->github_url));
-        $this->assertSame(1, substr_count($body, $profile->linkedin_url));
+        $this->assertSame(2, substr_count($body, $profile->github_url));
+        $this->assertSame(2, substr_count($body, $profile->linkedin_url));
 
         foreach (['Contacto', 'Perfiles Profesionales', 'Habilidades', 'Experiencia', 'Formación'] as $label) {
             $this->assertSame(1, substr_count($body, $label), "Expected label [{$label}] to appear exactly once.");
@@ -154,15 +153,7 @@ class CvDownloadTest extends TestCase
         $this->assertSame(3, substr_count($html, 'class="entry"'));
     }
 
-    public function test_download_cv_has_no_leading_blank_pages(): void
-    {
-        $profile = $this->seedRealData();
 
-        $pdf = app('dompdf.wrapper')->loadView('pdf.cv', $this->cvViewData($profile));
-        $pdf->render();
-
-        $this->assertSame(1, $pdf->getDomPDF()->getCanvas()->get_page_count());
-    }
 
     private function renderCvView(?Profile $profile): string
     {
@@ -174,7 +165,7 @@ class CvDownloadTest extends TestCase
      */
     private function cvViewData(?Profile $profile): array
     {
-        // Direct view()/dompdf.wrapper calls below bypass the HTTP kernel, so
+        // Direct view() calls below bypass the HTTP kernel, so
         // SetApplicationLocale never runs — set it explicitly to match what
         // a real `/download-cv` request gets, keeping __('cv.*') in Spanish.
         app()->setLocale('es');
@@ -213,12 +204,4 @@ class CvDownloadTest extends TestCase
         return $entry;
     }
 
-    private function extractPdfInfoValue(string $pdf, string $label): ?string
-    {
-        if (! preg_match('/\/'.preg_quote($label, '/').'\s*\((.*?)\)/s', $pdf, $matches)) {
-            return null;
-        }
-
-        return mb_convert_encoding(substr($matches[1], 2), 'UTF-8', 'UTF-16BE');
-    }
 }

@@ -163,7 +163,7 @@
                                     nudge is needed.
                                 -->
                                 <div
-                                    class="avatar translate-y-[10%]"
+                                    class="avatar -translate-y-[5%]"
                                     class:placeholder={!profile?.avatar || avatarFailed}
                                     data-atropos-offset="2"
                                 >
@@ -231,7 +231,7 @@
                 {#if topBackendSkill}
                     <button
                         type="button"
-                        class="absolute -left-4 -top-2 flex h-11 cursor-default items-center gap-2 overflow-hidden rounded-lg border border-primary/40 bg-base-100 px-2.5 text-primary shadow-lg transition-[width] duration-300 ease-out sm:-left-8 sm:-top-4"
+                        class="absolute -left-4 top-6 flex h-11 cursor-default items-center gap-2 overflow-hidden rounded-lg border border-primary/40 bg-base-100 px-2.5 text-primary shadow-lg transition-[width] duration-300 ease-out sm:-left-8 sm:top-8"
                         data-atropos-offset="4"
                         aria-label={topBackendSkill.name}
                     >
@@ -246,7 +246,7 @@
                 {#if topIaSkill}
                     <button
                         type="button"
-                        class="absolute -right-4 -top-2 flex h-11 cursor-default items-center gap-2 overflow-hidden rounded-lg border border-primary/40 bg-base-100 px-2.5 text-primary shadow-lg transition-[width] duration-300 ease-out sm:-right-8 sm:-top-4"
+                        class="absolute -right-4 -top-3 flex h-11 cursor-default items-center gap-2 overflow-hidden rounded-lg border border-primary/40 bg-base-100 px-2.5 text-primary shadow-lg transition-[width] duration-300 ease-out sm:-right-8 sm:-top-5"
                         data-atropos-offset="6"
                         aria-label={topIaSkill.name}
                     >

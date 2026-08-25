@@ -7,7 +7,7 @@ use App\Models\Profile;
 use App\Models\Skill;
 use App\Models\Study;
 use App\Support\Locale\Locale;
-use Barryvdh\DomPDF\Facade\Pdf;
+use Fruitcake\WeasyPrint\Facades\WeasyPrint;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -28,7 +28,7 @@ class CvController extends Controller
         $profile = Profile::first();
         $fullName = $profile ? trim("{$profile->name} {$profile->surname}") : config('app.name');
 
-        $pdf = Pdf::loadView('pdf.cv', [
+        $pdf = WeasyPrint::loadView('pdf.cv', [
             'locale' => $locale,
             'fullName' => $fullName,
             'avatarPath' => $this->avatarPath($profile),
@@ -38,20 +38,12 @@ class CvController extends Controller
                 ->map(fn (Experience $experience) => $this->withDateRange($experience->toLocalizedArray($locale))),
             'studies' => Study::orderBy('start_date', 'desc')->get()
                 ->map(fn (Study $study) => $this->withDateRange($study->toLocalizedArray($locale))),
+            'webUrl' => config('app.url'),
         ]);
 
         $filename = $profile
             ? Str::slug(trim("{$profile->name} {$profile->surname}")).'-cv.pdf'
             : 'cv.pdf';
-
-        // addInfo() must run after render(): dompdf only persists it once `rendered` is set.
-        $pdf->render();
-        $pdf->getDomPDF()->addInfo('Title', "{$fullName} - Curriculum Vitae");
-        $pdf->getDomPDF()->addInfo('Author', $fullName);
-        $pdf->getDomPDF()->addInfo('Subject', 'Curriculum Vitae');
-        $pdf->getDomPDF()->addInfo('Keywords', "CV, resume, {$fullName}");
-        $pdf->getDomPDF()->addInfo('Creator', config('app.name'));
-
         return $pdf->download($filename);
     }
 

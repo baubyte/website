@@ -4,6 +4,7 @@
     import { iconSend } from '../lib/icons.js';
     import { t } from '../lib/i18n.js';
     import { route } from '../lib/route.js';
+    import { typewriter } from '../lib/typewriter.js';
 
     /**
      * Chat widget that replaces the legacy `mailto:` contact link (see
@@ -220,7 +221,7 @@
         aria-label={t('chat.messages_label')}
     >
         {#if messages.length === 0 && !sending}
-            <p class="m-auto max-w-[75%] text-center text-sm text-base-content/50">
+            <p class="m-auto max-w-[75%] text-center text-sm text-base-content/50" use:typewriter>
                 {t('chat.empty_hint')}
             </p>
         {/if}

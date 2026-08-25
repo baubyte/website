@@ -86,7 +86,7 @@
         @inertiaHead
     </head>
     <body>
-        <div id="pre-hydration-loader" role="status" aria-label="Loading">
+        <div id="pre-hydration-loader" class="bg-base-100" role="status" aria-label="Loading">
             <div class="cube">
                 <div class="border-primary bg-primary/20"></div>
                 <div class="border-primary bg-primary/20"></div>

@@ -5,19 +5,16 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>{{ $fullName }} - Curriculum Vitae</title>
+    <meta name="author" content="{{ $fullName }}">
+    <meta name="description" content="Curriculum Vitae">
+    <meta name="keywords" content="CV, resume, {{ $fullName }}">
+    <meta name="generator" content="{{ config('app.name') }}">
 </head>
 
 <style type="text/css">
-    /*
-     * @page margin-top is not reliably applied to floated content across
-     * page breaks in dompdf 3.x — the floats (.sidebar/.main) started flush
-     * against the physical page edge on second-and-later pages. Zeroing the
-     * page margin and padding a non-floated wrapper instead makes the top
-     * offset repeat correctly on every page, since dompdf paginates a
-     * block-level container's own padding the same way normal text wraps.
-     */
     @page {
-        margin: 0;
+        size: A4;
+        margin: 12mm 14mm 14mm 14mm;
     }
 
     * {
@@ -30,63 +27,45 @@
 
     body {
         font-family: 'DejaVu Sans', sans-serif;
-        font-size: 9.5px;
-        line-height: 1.55;
+        font-size: 11px;
+        line-height: 1.5;
         color: #2b3226;
     }
 
     .layout {
+        position: relative;
         width: 100%;
-        padding: 0 2cm 1.5cm;
     }
 
-    .layout::after {
-        content: '';
-        display: block;
-        clear: both;
-    }
-
-    /*
-     * Fixed cm widths instead of percentages, and float:left+margin-left
-     * for .main instead of float:right: dompdf 3.x's float:right anchors
-     * to the page's own right edge instead of the .layout container's
-     * padded content edge, letting .main's text overflow straight past
-     * the printable page area with real (long) content. float:left with
-     * an explicit margin-left doesn't have that failure mode.
-     *
-     * The top offset moved from .layout's own padding to padding-top on
-     * each float directly: dompdf repeats a float's own padding on every
-     * page it continues onto, but does not repeat an ancestor's padding.
-     */
     .sidebar {
-        float: left;
-        width: 5.4cm;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 32%;
         background: #f2f5ef;
-        padding: 2.2cm 14px 14px;
+        padding: 16px 14px;
         border-radius: 6px;
     }
 
     .main {
-        float: left;
-        width: 10.6cm;
-        margin-left: 0.6cm;
-        padding-top: 2.2cm;
+        margin-left: 35%;
+        width: 65%;
     }
 
     .avatar {
         display: block;
-        width: 76px;
-        height: 76px;
+        width: 84px;
+        height: 84px;
         border-radius: 50%;
         object-fit: cover;
         margin-bottom: 12px;
     }
 
     h1 {
-        font-size: 27px;
+        font-size: 22px;
         font-weight: bold;
         color: #1c2018;
-        line-height: 1.15;
+        line-height: 1.2;
         margin-bottom: 6px;
     }
 
@@ -98,33 +77,35 @@
     }
 
     .specialty {
-        font-size: 11px;
+        font-size: 12px;
         font-weight: bold;
         color: #5c7a55;
-        margin-bottom: 22px;
+        margin-bottom: 18px;
     }
 
     .section {
-        margin-bottom: 20px;
+        margin-bottom: 18px;
     }
 
     .section-title {
-        font-size: 10px;
+        font-size: 11px;
         font-weight: bold;
         text-transform: uppercase;
-        letter-spacing: 1.5px;
+        letter-spacing: 1.2px;
         color: #5c7a55;
-        margin-bottom: 10px;
+        margin-bottom: 8px;
+        break-after: avoid;
+        page-break-after: avoid;
     }
 
     .main .section-title {
         border-bottom: 1.5px solid #d9a441;
-        padding-bottom: 4px;
+        padding-bottom: 3px;
     }
 
     .contact-item,
     .link-item {
-        font-size: 9.5px;
+        font-size: 10.5px;
         margin-bottom: 5px;
         word-wrap: break-word;
     }
@@ -134,14 +115,16 @@
     }
 
     .skill-item {
-        margin-bottom: 10px;
+        margin-bottom: 8px;
+        break-inside: avoid;
+        page-break-inside: avoid;
     }
 
     .skill-name {
-        font-size: 9.5px;
+        font-size: 10px;
         font-weight: bold;
         color: #2b3226;
-        margin-bottom: 4px;
+        margin-bottom: 3px;
     }
 
     .skill-bar {
@@ -158,18 +141,19 @@
     }
 
     .summary {
-        font-size: 9.5px;
-        line-height: 1.6;
+        font-size: 11px;
+        line-height: 1.55;
         color: #3a4235;
     }
 
     .entry {
-        margin-bottom: 15px;
+        margin-bottom: 14px;
+        break-inside: avoid;
         page-break-inside: avoid;
     }
 
     .entry-title {
-        font-size: 11.5px;
+        font-size: 12.5px;
         font-weight: bold;
         color: #1c2018;
         margin-bottom: 2px;
@@ -177,18 +161,20 @@
 
     .entry-dates {
         display: inline-block;
-        font-size: 8.5px;
+        font-size: 9.5px;
         font-weight: bold;
-        letter-spacing: 0.5px;
+        letter-spacing: 0.4px;
         color: #5c7a55;
         background: #eaf0e6;
         border-radius: 3px;
         padding: 2px 7px;
-        margin-bottom: 6px;
+        margin-bottom: 4px;
     }
 
     .entry p {
+        font-size: 10.5px;
         color: #3a4235;
+        line-height: 1.45;
     }
 </style>
 
@@ -216,11 +202,14 @@
                 @if (!empty($profile['github_url']) || !empty($profile['linkedin_url']))
                     <div class="section">
                         <div class="section-title">{{ __('cv.links') }}</div>
+                        @if (!empty($webUrl))
+                            <div class="link-item">Website: <a href="{{ $webUrl }}" class="muted" target="_blank">{{ $webUrl }}</a></div>
+                        @endif
                         @if (!empty($profile['github_url']))
-                            <div class="link-item">GitHub: {{ $profile['github_url'] }}</div>
+                            <div class="link-item">GitHub: <a href="{{ $profile['github_url'] }}" class="muted" target="_blank">{{ $profile['github_url'] }}</a></div>
                         @endif
                         @if (!empty($profile['linkedin_url']))
-                            <div class="link-item">LinkedIn: {{ $profile['linkedin_url'] }}</div>
+                            <div class="link-item">LinkedIn: <a href="{{ $profile['linkedin_url'] }}" class="muted" target="_blank">{{ $profile['linkedin_url'] }}</a></div>
                         @endif
                     </div>
                 @endif

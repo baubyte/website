@@ -1,0 +1,7 @@
+RUN apt-get update && apt-get install -y \
+  weasyprint \
+  libjpeg-dev \
+  libpng-dev \
+  ghostscript \
+  fonts-freefont-ttf \
+  && rm -rf /var/lib/apt/lists/*
