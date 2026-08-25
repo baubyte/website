@@ -37,7 +37,7 @@
 
     .layout {
         width: 100%;
-        padding: 2.2cm 2cm 1.5cm;
+        padding: 0 2cm 1.5cm;
     }
 
     .layout::after {
@@ -46,17 +46,31 @@
         clear: both;
     }
 
+    /*
+     * Fixed cm widths instead of percentages, and float:left+margin-left
+     * for .main instead of float:right: dompdf 3.x's float:right anchors
+     * to the page's own right edge instead of the .layout container's
+     * padded content edge, letting .main's text overflow straight past
+     * the printable page area with real (long) content. float:left with
+     * an explicit margin-left doesn't have that failure mode.
+     *
+     * The top offset moved from .layout's own padding to padding-top on
+     * each float directly: dompdf repeats a float's own padding on every
+     * page it continues onto, but does not repeat an ancestor's padding.
+     */
     .sidebar {
         float: left;
-        width: 32%;
+        width: 5.4cm;
         background: #f2f5ef;
-        padding: 14px;
+        padding: 2.2cm 14px 14px;
         border-radius: 6px;
     }
 
     .main {
-        float: right;
-        width: 64%;
+        float: left;
+        width: 10.6cm;
+        margin-left: 0.6cm;
+        padding-top: 2.2cm;
     }
 
     .avatar {
