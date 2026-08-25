@@ -60,48 +60,7 @@ describe('typewriter', () => {
     test('when animation is supported, clips the text before it enters the viewport', async () => {
         window.matchMedia = vi.fn().mockReturnValue({ matches: false });
 
-        let observedCallback;
-        let unobserveCalled = false;
         window.IntersectionObserver = class {
-            constructor(callback) {
-                observedCallback = callback;
-            }
-            observe() {}
-            unobserve() {
-                unobserveCalled = true;
-            }
-            disconnect() {}
-        };
-
-        const { typewriter } = await import('./typewriter.js');
-        const node = document.createElement('h1');
-        node.textContent = 'Martín Paredes';
-
-        const action = typewriter(node);
-
-        expect(node.style.clipPath).toBe('inset(0 100% 0 0)');
-        expect(node.textContent).toBe('Martín Paredes');
-
-        expect(() => {
-            observedCallback([{ isIntersecting: true, target: node }]);
-        }).not.toThrow();
-
-        // Deliberately NOT a one-shot reveal: must keep observing (never
-        // unobserve) so scrolling away and back can re-trigger the wipe.
-        expect(unobserveCalled).toBe(false);
-        expect(node.textContent).toBe('Martín Paredes');
-
-        action?.destroy?.();
-    });
-
-    test('re-clips on exit and can animate again on re-entry, instead of only wiping once', async () => {
-        window.matchMedia = vi.fn().mockReturnValue({ matches: false });
-
-        let observedCallback;
-        window.IntersectionObserver = class {
-            constructor(callback) {
-                observedCallback = callback;
-            }
             observe() {}
             unobserve() {}
             disconnect() {}
@@ -113,14 +72,42 @@ describe('typewriter', () => {
 
         const action = typewriter(node);
 
-        observedCallback([{ isIntersecting: true, target: node }]);
-        observedCallback([{ isIntersecting: false, target: node }]);
         expect(node.style.clipPath).toBe('inset(0 100% 0 0)');
         expect(node.textContent).toBe('Martín Paredes');
+
+        action?.destroy?.();
+    });
+
+    test('reveals once on entry and disconnects — one-shot, never re-hides on a later exit', async () => {
+        window.matchMedia = vi.fn().mockReturnValue({ matches: false });
+
+        let observedCallback;
+        let disconnectCalled = false;
+        window.IntersectionObserver = class {
+            constructor(callback) {
+                observedCallback = callback;
+            }
+            observe() {}
+            unobserve() {}
+            disconnect() {
+                disconnectCalled = true;
+            }
+        };
+
+        const { typewriter } = await import('./typewriter.js');
+        const node = document.createElement('h1');
+        node.textContent = 'Martín Paredes';
+
+        const action = typewriter(node);
 
         expect(() => {
             observedCallback([{ isIntersecting: true, target: node }]);
         }).not.toThrow();
+
+        // Real browsers stop calling back after disconnect(); this asserts
+        // the action actually disconnects on its first reveal so a real
+        // exit callback can never reach it again.
+        expect(disconnectCalled).toBe(true);
         expect(node.textContent).toBe('Martín Paredes');
 
         action?.destroy?.();
@@ -152,18 +139,21 @@ describe('typewriter', () => {
         vi.useRealTimers();
     });
 
-    test('reveals the text even when a late exit-callback re-clips it after the animation already completed', async () => {
+    test('a late/spurious exit callback after disconnect cannot re-clip the text', async () => {
         vi.useFakeTimers();
         window.matchMedia = vi.fn().mockReturnValue({ matches: false });
 
         let observedCallback;
+        let disconnected = false;
         window.IntersectionObserver = class {
             constructor(callback) {
                 observedCallback = callback;
             }
             observe() {}
             unobserve() {}
-            disconnect() {}
+            disconnect() {
+                disconnected = true;
+            }
         };
 
         const { typewriter } = await import('./typewriter.js');
@@ -173,15 +163,19 @@ describe('typewriter', () => {
         const action = typewriter(node, { duration: 900, delay: 0 });
 
         observedCallback([{ isIntersecting: true, target: node }]);
-        vi.advanceTimersByTime(1000);
-        node.style.clipPath = 'inset(0 0% 0 0)';
+        expect(disconnected).toBe(true);
 
-        // A late/spurious exit callback (layout shift, font load, etc.)
-        // re-clips the text well after the real animation already finished.
-        observedCallback([{ isIntersecting: false, target: node }]);
-        expect(node.style.clipPath).toBe('inset(0 100% 0 0)');
-
+        // animejs drives onUpdate via requestAnimationFrame, which fake
+        // timers don't advance, so what actually resolves clip-path here is
+        // the safety net (a real setTimeout) reaching its own deadline —
+        // exactly like the real browser does if the animation stalls.
         vi.advanceTimersByTime(900 + 0 + 1000 + 1);
+        expect(node.style.clipPath).toBe('inset(0 0% 0 0)');
+
+        // A real IntersectionObserver would never invoke this callback again
+        // post-disconnect; the action's own logic only ever reveals on
+        // `isIntersecting`, so even a stray false callback is a safe no-op.
+        observedCallback([{ isIntersecting: false, target: node }]);
 
         expect(node.style.clipPath).toBe('inset(0 0% 0 0)');
         expect(node.textContent).toBe('Martín Paredes');
