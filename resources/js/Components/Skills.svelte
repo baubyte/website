@@ -36,7 +36,7 @@
     <div class="container mx-auto max-w-4xl px-4">
         <h2
             class="mb-10 text-center font-display text-3xl font-semibold text-base-content sm:text-4xl"
-            use:typewriter
+            use:typewriter={{ threshold: 0.15, revealDelay: 800 }}
         >
             {t('skills.title')}
         </h2>

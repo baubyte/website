@@ -65,6 +65,7 @@ describe('typewriter', () => {
     });
 
     test('starts Typed.js once the node enters the viewport, then disconnects (one-shot)', async () => {
+        vi.useFakeTimers();
         window.matchMedia = vi.fn().mockReturnValue({ matches: false });
 
         let observedCallback;
@@ -97,6 +98,7 @@ describe('typewriter', () => {
         expect(typedCtor).not.toHaveBeenCalled();
 
         observedCallback([{ isIntersecting: true, target: node }]);
+        vi.advanceTimersByTime(0);
 
         expect(typedCtor).toHaveBeenCalledTimes(1);
         expect(typedCtor.mock.calls[0][0]).toBe(node);
@@ -111,6 +113,42 @@ describe('typewriter', () => {
         // A second intersection callback (real observer would never send one
         // post-disconnect, but guard against it anyway) must not re-init.
         observedCallback([{ isIntersecting: true, target: node }]);
+        vi.advanceTimersByTime(0);
+        expect(typedCtor).toHaveBeenCalledTimes(1);
+
+        action?.destroy?.();
+    });
+
+    test('delays the start by revealDelay so it does not race a scrollReveal fade-in', async () => {
+        vi.useFakeTimers();
+        window.matchMedia = vi.fn().mockReturnValue({ matches: false });
+
+        let observedCallback;
+        window.IntersectionObserver = class {
+            constructor(callback) {
+                observedCallback = callback;
+            }
+            observe() {}
+            disconnect() {}
+        };
+
+        function MockTyped() { return { destroy: vi.fn() }; }
+        const typedCtor = vi.fn(MockTyped);
+        vi.doMock('typed.js', () => ({ default: typedCtor }));
+
+        const { typewriter } = await import('./typewriter.js');
+        const node = document.createElement('h2');
+        node.textContent = 'Skills';
+
+        const action = typewriter(node, { revealDelay: 800 });
+
+        observedCallback([{ isIntersecting: true, target: node }]);
+        expect(typedCtor).not.toHaveBeenCalled();
+
+        vi.advanceTimersByTime(799);
+        expect(typedCtor).not.toHaveBeenCalled();
+
+        vi.advanceTimersByTime(1);
         expect(typedCtor).toHaveBeenCalledTimes(1);
 
         action?.destroy?.();
@@ -153,6 +191,7 @@ describe('typewriter', () => {
     });
 
     test('destroy() tears down the timer, observer, and any live Typed.js instance', async () => {
+        vi.useFakeTimers();
         window.matchMedia = vi.fn().mockReturnValue({ matches: false });
 
         let observedCallback;
@@ -178,11 +217,42 @@ describe('typewriter', () => {
 
         const action = typewriter(node);
         observedCallback([{ isIntersecting: true, target: node }]);
+        vi.advanceTimersByTime(0);
 
         action?.destroy?.();
 
         expect(destroyMock).toHaveBeenCalledTimes(1);
         // Already disconnected on entry (one-shot); destroy() calling it again is a harmless no-op.
         expect(disconnectCalledTimes).toBeGreaterThanOrEqual(1);
+    });
+
+    test('destroy() before revealDelay elapses cancels the pending start entirely', async () => {
+        vi.useFakeTimers();
+        window.matchMedia = vi.fn().mockReturnValue({ matches: false });
+
+        let observedCallback;
+        window.IntersectionObserver = class {
+            constructor(callback) {
+                observedCallback = callback;
+            }
+            observe() {}
+            disconnect() {}
+        };
+
+        function MockTyped() { return { destroy: vi.fn() }; }
+        const typedCtor = vi.fn(MockTyped);
+        vi.doMock('typed.js', () => ({ default: typedCtor }));
+
+        const { typewriter } = await import('./typewriter.js');
+        const node = document.createElement('h2');
+        node.textContent = 'Experiencia';
+
+        const action = typewriter(node, { revealDelay: 800 });
+
+        observedCallback([{ isIntersecting: true, target: node }]);
+        action.destroy();
+        vi.advanceTimersByTime(800);
+
+        expect(typedCtor).not.toHaveBeenCalled();
     });
 });
