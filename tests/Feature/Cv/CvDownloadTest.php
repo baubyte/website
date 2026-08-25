@@ -8,6 +8,7 @@ use App\Models\Skill;
 use App\Models\Study;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 // Content/markup assertions render `pdf.cv` directly, since dompdf compresses the final PDF's text streams.
@@ -96,6 +97,30 @@ class CvDownloadTest extends TestCase
         $this->assertSame('Curriculum Vitae', $this->extractPdfInfoValue($pdf, 'Subject'));
     }
 
+    public function test_download_cv_includes_the_avatar_when_the_file_exists(): void
+    {
+        Storage::fake('public');
+        Storage::disk('public')->put('avatar.webp', 'fake-image-bytes');
+
+        $this->seedRealData();
+
+        $body = str($this->renderCvView(Profile::first()))->after('<body>')->toString();
+
+        $this->assertStringContainsString('class="avatar"', $body);
+        $this->assertStringContainsString(Storage::disk('public')->path('avatar.webp'), $body);
+    }
+
+    public function test_download_cv_omits_the_avatar_when_the_file_is_missing(): void
+    {
+        Storage::fake('public');
+
+        $this->seedRealData();
+
+        $body = str($this->renderCvView(Profile::first()))->after('<body>')->toString();
+
+        $this->assertStringNotContainsString('class="avatar"', $body);
+    }
+
     public function test_download_cv_content_has_no_duplicated_contact_block(): void
     {
         $profile = $this->seedRealData();
@@ -156,9 +181,14 @@ class CvDownloadTest extends TestCase
 
         $fullName = $profile ? trim("{$profile->name} {$profile->surname}") : config('app.name');
 
+        $avatarPath = $profile?->avatar && Storage::disk('public')->exists($profile->avatar)
+            ? Storage::disk('public')->path($profile->avatar)
+            : null;
+
         return [
             'locale' => 'es',
             'fullName' => $fullName,
+            'avatarPath' => $avatarPath,
             'profile' => $profile?->toLocalizedArray('es'),
             'skills' => Skill::orderBy('name')->get(),
             'experiences' => Experience::orderBy('start_date', 'desc')->get()

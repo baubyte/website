@@ -8,14 +8,24 @@
 </head>
 
 <style type="text/css">
+    /*
+     * @page margin-top is not reliably applied to floated content across
+     * page breaks in dompdf 3.x — the floats (.sidebar/.main) started flush
+     * against the physical page edge on second-and-later pages. Zeroing the
+     * page margin and padding a non-floated wrapper instead makes the top
+     * offset repeat correctly on every page, since dompdf paginates a
+     * block-level container's own padding the same way normal text wraps.
+     */
     @page {
-        margin: 2.2cm 2cm;
+        margin: 0;
     }
 
     * {
         margin: 0;
         padding: 0;
         box-sizing: border-box;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
     }
 
     body {
@@ -27,6 +37,7 @@
 
     .layout {
         width: 100%;
+        padding: 2.2cm 2cm 1.5cm;
     }
 
     .layout::after {
@@ -46,6 +57,15 @@
     .main {
         float: right;
         width: 64%;
+    }
+
+    .avatar {
+        display: block;
+        width: 76px;
+        height: 76px;
+        border-radius: 50%;
+        object-fit: cover;
+        margin-bottom: 12px;
     }
 
     h1 {
@@ -161,6 +181,9 @@
 <body>
     <div class="layout">
         <div class="sidebar">
+            @if ($avatarPath)
+                <img class="avatar" src="{{ $avatarPath }}" alt="{{ $fullName }}" />
+            @endif
             <h1>{{ $fullName }}</h1>
             <div class="accent-rule"></div>
             @if ($profile)
