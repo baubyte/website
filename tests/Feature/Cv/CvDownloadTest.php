@@ -7,6 +7,7 @@ use App\Models\Profile;
 use App\Models\Skill;
 use App\Models\Study;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Carbon;
 use Tests\TestCase;
 
 // Content/markup assertions render `pdf.cv` directly, since dompdf compresses the final PDF's text streams.
@@ -132,15 +133,7 @@ class CvDownloadTest extends TestCase
     {
         $profile = $this->seedRealData();
 
-        $pdf = app('dompdf.wrapper')->loadView('pdf.cv', [
-            'locale' => 'es',
-            'profile' => $profile->toLocalizedArray('es'),
-            'skills' => Skill::orderBy('name')->get(),
-            'experiences' => Experience::orderBy('start_date', 'desc')->get()
-                ->map(fn (Experience $experience) => $experience->toLocalizedArray('es')),
-            'studies' => Study::orderBy('start_date', 'desc')->get()
-                ->map(fn (Study $study) => $study->toLocalizedArray('es')),
-        ]);
+        $pdf = app('dompdf.wrapper')->loadView('pdf.cv', $this->cvViewData($profile));
         $pdf->render();
 
         $this->assertSame(1, $pdf->getDomPDF()->getCanvas()->get_page_count());
@@ -148,15 +141,46 @@ class CvDownloadTest extends TestCase
 
     private function renderCvView(?Profile $profile): string
     {
-        return view('pdf.cv', [
+        return view('pdf.cv', $this->cvViewData($profile))->render();
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function cvViewData(?Profile $profile): array
+    {
+        // Direct view()/dompdf.wrapper calls below bypass the HTTP kernel, so
+        // SetApplicationLocale never runs — set it explicitly to match what
+        // a real `/download-cv` request gets, keeping __('cv.*') in Spanish.
+        app()->setLocale('es');
+
+        $fullName = $profile ? trim("{$profile->name} {$profile->surname}") : config('app.name');
+
+        return [
             'locale' => 'es',
+            'fullName' => $fullName,
             'profile' => $profile?->toLocalizedArray('es'),
             'skills' => Skill::orderBy('name')->get(),
             'experiences' => Experience::orderBy('start_date', 'desc')->get()
-                ->map(fn (Experience $experience) => $experience->toLocalizedArray('es')),
+                ->map(fn (Experience $experience) => $this->withDateRange($experience->toLocalizedArray('es'))),
             'studies' => Study::orderBy('start_date', 'desc')->get()
-                ->map(fn (Study $study) => $study->toLocalizedArray('es')),
-        ])->render();
+                ->map(fn (Study $study) => $this->withDateRange($study->toLocalizedArray('es'))),
+        ];
+    }
+
+    /**
+     * @param  array<string, mixed>  $entry
+     * @return array<string, mixed>
+     */
+    private function withDateRange(array $entry): array
+    {
+        $end = $entry['end_date']
+            ? Carbon::parse($entry['end_date'])->format('m/Y')
+            : __('cv.present');
+
+        $entry['date_range'] = Carbon::parse($entry['start_date'])->format('m/Y')." – {$end}";
+
+        return $entry;
     }
 
     private function extractPdfInfoValue(string $pdf, string $label): ?string

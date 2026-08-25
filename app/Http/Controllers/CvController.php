@@ -8,6 +8,7 @@ use App\Models\Skill;
 use App\Models\Study;
 use App\Support\Locale\Locale;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -28,12 +29,13 @@ class CvController extends Controller
 
         $pdf = Pdf::loadView('pdf.cv', [
             'locale' => $locale,
+            'fullName' => $fullName,
             'profile' => $profile?->toLocalizedArray($locale),
             'skills' => Skill::orderBy('name')->get(),
             'experiences' => Experience::orderBy('start_date', 'desc')->get()
-                ->map(fn (Experience $experience) => $experience->toLocalizedArray($locale)),
+                ->map(fn (Experience $experience) => $this->withDateRange($experience->toLocalizedArray($locale))),
             'studies' => Study::orderBy('start_date', 'desc')->get()
-                ->map(fn (Study $study) => $study->toLocalizedArray($locale)),
+                ->map(fn (Study $study) => $this->withDateRange($study->toLocalizedArray($locale))),
         ]);
 
         $filename = $profile
@@ -49,5 +51,20 @@ class CvController extends Controller
         $pdf->getDomPDF()->addInfo('Creator', config('app.name'));
 
         return $pdf->download($filename);
+    }
+
+    /**
+     * @param  array<string, mixed>  $entry
+     * @return array<string, mixed>
+     */
+    private function withDateRange(array $entry): array
+    {
+        $end = $entry['end_date']
+            ? Carbon::parse($entry['end_date'])->format('m/Y')
+            : __('cv.present');
+
+        $entry['date_range'] = Carbon::parse($entry['start_date'])->format('m/Y')." – {$end}";
+
+        return $entry;
     }
 }

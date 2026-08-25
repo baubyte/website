@@ -1,12 +1,4 @@
 {{-- Two-column float layout: dompdf 3.x has no flexbox/grid, and its <table> pagination emits blank leading pages here. --}}
-@php
-    $locale = $locale ?? 'es';
-    $labels = $locale === 'en'
-        ? ['contact' => 'Contact', 'summary' => 'Summary', 'skills' => 'Skills', 'experience' => 'Experience', 'education' => 'Education', 'language' => 'Language', 'links' => 'Professional Profiles', 'present' => 'Present']
-        : ['contact' => 'Contacto', 'summary' => 'Perfil Profesional', 'skills' => 'Habilidades', 'experience' => 'Experiencia', 'education' => 'Formación', 'language' => 'Idioma', 'links' => 'Perfiles Profesionales', 'present' => 'Presente'];
-
-    $fullName = $profile ? trim(($profile['name'] ?? '').' '.($profile['surname'] ?? '')) : config('app.name');
-@endphp
 <!DOCTYPE html>
 <html lang="{{ $locale }}">
 
@@ -28,9 +20,9 @@
 
     body {
         font-family: 'DejaVu Sans', sans-serif;
-        font-size: 10px;
-        line-height: 1.45;
-        color: #1f2937;
+        font-size: 9.5px;
+        line-height: 1.55;
+        color: #2b3226;
     }
 
     .layout {
@@ -46,167 +38,199 @@
     .sidebar {
         float: left;
         width: 32%;
-        padding-right: 18px;
+        background: #f2f5ef;
+        padding: 14px;
+        border-radius: 6px;
     }
 
     .main {
         float: right;
-        width: 66%;
+        width: 64%;
     }
 
     h1 {
-        font-size: 24px;
-        color: #1f2937;
-        margin-bottom: 4px;
+        font-size: 27px;
+        font-weight: bold;
+        color: #1c2018;
+        line-height: 1.15;
+        margin-bottom: 6px;
+    }
+
+    .accent-rule {
+        width: 34px;
+        height: 3px;
+        background: #d9a441;
+        margin-bottom: 10px;
     }
 
     .specialty {
         font-size: 11px;
-        color: #6b7280;
-        margin-bottom: 16px;
+        font-weight: bold;
+        color: #5c7a55;
+        margin-bottom: 22px;
     }
 
     .section {
-        margin-bottom: 16px;
+        margin-bottom: 20px;
     }
 
     .section-title {
-        font-size: 11px;
+        font-size: 10px;
         font-weight: bold;
         text-transform: uppercase;
-        letter-spacing: 1px;
-        color: #3498db;
-        border-bottom: 1px solid #3498db;
-        padding-bottom: 3px;
-        margin-bottom: 8px;
+        letter-spacing: 1.5px;
+        color: #5c7a55;
+        margin-bottom: 10px;
+    }
+
+    .main .section-title {
+        border-bottom: 1.5px solid #d9a441;
+        padding-bottom: 4px;
     }
 
     .contact-item,
     .link-item {
-        font-size: 10px;
-        margin-bottom: 4px;
+        font-size: 9.5px;
+        margin-bottom: 5px;
+        word-wrap: break-word;
     }
 
     .muted {
-        color: #6b7280;
+        color: #6b7563;
     }
 
     .skill-item {
-        margin-bottom: 8px;
+        margin-bottom: 10px;
+    }
+
+    .skill-name {
+        font-size: 9.5px;
+        font-weight: bold;
+        color: #2b3226;
+        margin-bottom: 4px;
     }
 
     .skill-bar {
         width: 100%;
-        height: 4px;
-        background: #ecf0f1;
+        height: 5px;
+        background: #dde3d7;
+        border-radius: 3px;
     }
 
     .skill-progress {
         height: 100%;
-        background: #3498db;
+        background: #8fb389;
+        border-radius: 3px;
     }
 
     .summary {
-        font-size: 10px;
-        line-height: 1.45;
+        font-size: 9.5px;
+        line-height: 1.6;
+        color: #3a4235;
     }
 
     .entry {
-        margin-bottom: 12px;
+        margin-bottom: 15px;
         page-break-inside: avoid;
     }
 
     .entry-title {
-        font-size: 11px;
+        font-size: 11.5px;
         font-weight: bold;
+        color: #1c2018;
+        margin-bottom: 2px;
     }
 
     .entry-dates {
-        font-size: 10px;
-        color: #6b7280;
+        display: inline-block;
+        font-size: 8.5px;
+        font-weight: bold;
+        letter-spacing: 0.5px;
+        color: #5c7a55;
+        background: #eaf0e6;
+        border-radius: 3px;
+        padding: 2px 7px;
+        margin-bottom: 6px;
+    }
+
+    .entry p {
+        color: #3a4235;
     }
 </style>
 
 <body>
     <div class="layout">
         <div class="sidebar">
-                <h1>{{ $fullName }}</h1>
-                @if ($profile)
-                    <div class="specialty">{{ $profile['specialty'] ?? '' }}</div>
-
-                    <div class="section">
-                        <div class="section-title">{{ $labels['contact'] }}</div>
-                        @if (!empty($profile['email_contact']))
-                            <div class="contact-item">{{ $profile['email_contact'] }}</div>
-                        @endif
-                        @if (!empty($profile['language']))
-                            <div class="contact-item muted">{{ $labels['language'] }}: {{ $profile['language'] }}</div>
-                        @endif
-                    </div>
-
-                    @if (!empty($profile['github_url']) || !empty($profile['linkedin_url']))
-                        <div class="section">
-                            <div class="section-title">{{ $labels['links'] }}</div>
-                            @if (!empty($profile['github_url']))
-                                <div class="link-item">GitHub: {{ $profile['github_url'] }}</div>
-                            @endif
-                            @if (!empty($profile['linkedin_url']))
-                                <div class="link-item">LinkedIn: {{ $profile['linkedin_url'] }}</div>
-                            @endif
-                        </div>
-                    @endif
-                @endif
+            <h1>{{ $fullName }}</h1>
+            <div class="accent-rule"></div>
+            @if ($profile)
+                <div class="specialty">{{ $profile['specialty'] ?? '' }}</div>
 
                 <div class="section">
-                    <div class="section-title">{{ $labels['skills'] }}</div>
-                    @foreach ($skills as $skill)
-                        <div class="skill-item">
-                            <div>{{ $skill->name }} &mdash; {{ $skill->percentage }}%</div>
-                            <div class="skill-bar">
-                                <div class="skill-progress" style="width: {{ $skill->percentage }}%;"></div>
-                            </div>
-                        </div>
-                    @endforeach
+                    <div class="section-title">{{ __('cv.contact') }}</div>
+                    @if (!empty($profile['email_contact']))
+                        <div class="contact-item">{{ $profile['email_contact'] }}</div>
+                    @endif
+                    @if (!empty($profile['language']))
+                        <div class="contact-item muted">{{ __('cv.language') }}: {{ $profile['language'] }}</div>
+                    @endif
                 </div>
+
+                @if (!empty($profile['github_url']) || !empty($profile['linkedin_url']))
+                    <div class="section">
+                        <div class="section-title">{{ __('cv.links') }}</div>
+                        @if (!empty($profile['github_url']))
+                            <div class="link-item">GitHub: {{ $profile['github_url'] }}</div>
+                        @endif
+                        @if (!empty($profile['linkedin_url']))
+                            <div class="link-item">LinkedIn: {{ $profile['linkedin_url'] }}</div>
+                        @endif
+                    </div>
+                @endif
+            @endif
+
+            <div class="section">
+                <div class="section-title">{{ __('cv.skills') }}</div>
+                @foreach ($skills as $skill)
+                    <div class="skill-item">
+                        <div class="skill-name">{{ $skill->name }} &middot; {{ $skill->percentage }}%</div>
+                        <div class="skill-bar">
+                            <div class="skill-progress" style="width: {{ $skill->percentage }}%;"></div>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
         </div>
 
         <div class="main">
-                @if ($profile && !empty($profile['description']))
-                    <div class="section">
-                        <div class="section-title">{{ $labels['summary'] }}</div>
-                        <p class="summary">{{ $profile['description'] }}</p>
+            @if ($profile && !empty($profile['description']))
+                <div class="section">
+                    <div class="section-title">{{ __('cv.summary') }}</div>
+                    <p class="summary">{{ $profile['description'] }}</p>
+                </div>
+            @endif
+
+            <div class="section">
+                <div class="section-title">{{ __('cv.experience') }}</div>
+                @foreach ($experiences as $experience)
+                    <div class="entry">
+                        <div class="entry-title">{{ $experience['company'] }} &mdash; {{ $experience['specialty'] }}</div>
+                        <div class="entry-dates">{{ $experience['date_range'] }}</div>
+                        <p>{{ $experience['description'] }}</p>
                     </div>
-                @endif
+                @endforeach
+            </div>
 
-                <div class="section">
-                    <div class="section-title">{{ $labels['experience'] }}</div>
-                    @foreach ($experiences as $experience)
-                        <div class="entry">
-                            <div class="entry-title">{{ $experience['company'] }} &mdash; {{ $experience['specialty'] }}</div>
-                            <div class="entry-dates">
-                                {{ \Illuminate\Support\Carbon::parse($experience['start_date'])->format('m/Y') }}
-                                &mdash;
-                                {{ $experience['end_date'] ? \Illuminate\Support\Carbon::parse($experience['end_date'])->format('m/Y') : $labels['present'] }}
-                            </div>
-                            <p>{{ $experience['description'] }}</p>
-                        </div>
-                    @endforeach
-                </div>
-
-                <div class="section">
-                    <div class="section-title">{{ $labels['education'] }}</div>
-                    @foreach ($studies as $study)
-                        <div class="entry">
-                            <div class="entry-title">{{ $study['entity'] }} &mdash; {{ $study['title'] }}</div>
-                            <div class="entry-dates">
-                                {{ \Illuminate\Support\Carbon::parse($study['start_date'])->format('m/Y') }}
-                                &mdash;
-                                {{ $study['end_date'] ? \Illuminate\Support\Carbon::parse($study['end_date'])->format('m/Y') : $labels['present'] }}
-                            </div>
-                            <p>{{ $study['description'] }}</p>
-                        </div>
-                    @endforeach
-                </div>
+            <div class="section">
+                <div class="section-title">{{ __('cv.education') }}</div>
+                @foreach ($studies as $study)
+                    <div class="entry">
+                        <div class="entry-title">{{ $study['entity'] }} &mdash; {{ $study['title'] }}</div>
+                        <div class="entry-dates">{{ $study['date_range'] }}</div>
+                        <p>{{ $study['description'] }}</p>
+                    </div>
+                @endforeach
+            </div>
         </div>
     </div>
 </body>
