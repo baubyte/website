@@ -1,0 +1,12 @@
+<?php
+
+return [
+    'contact' => 'Contact',
+    'summary' => 'Summary',
+    'skills' => 'Skills',
+    'experience' => 'Experience',
+    'education' => 'Education',
+    'language' => 'Language',
+    'links' => 'Professional Profiles',
+    'present' => 'Present',
+];
