@@ -9,6 +9,7 @@ use App\Models\Study;
 use App\Support\Locale\Locale;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -30,6 +31,7 @@ class CvController extends Controller
         $pdf = Pdf::loadView('pdf.cv', [
             'locale' => $locale,
             'fullName' => $fullName,
+            'avatarPath' => $this->avatarPath($profile),
             'profile' => $profile?->toLocalizedArray($locale),
             'skills' => Skill::orderBy('name')->get(),
             'experiences' => Experience::orderBy('start_date', 'desc')->get()
@@ -66,5 +68,17 @@ class CvController extends Controller
         $entry['date_range'] = Carbon::parse($entry['start_date'])->format('m/Y')." – {$end}";
 
         return $entry;
+    }
+
+    // dompdf reads images from the filesystem, not HTTP — resolve to an absolute path on the
+    // `public` disk and skip it entirely if the file is missing, same graceful-degradation
+    // pattern as the site's own avatar handling (see `Hero.svelte`'s `avatarFailed`).
+    private function avatarPath(?Profile $profile): ?string
+    {
+        if (! $profile?->avatar || ! Storage::disk('public')->exists($profile->avatar)) {
+            return null;
+        }
+
+        return Storage::disk('public')->path($profile->avatar);
     }
 }
