@@ -80,7 +80,11 @@ describe('typewriter', () => {
         };
 
         const destroyMock = vi.fn();
-        function MockTyped() { return { destroy: destroyMock }; }
+        let nodeTextWhenConstructed;
+        function MockTyped(target) {
+            nodeTextWhenConstructed = target.textContent;
+            return { destroy: destroyMock };
+        }
         const typedCtor = vi.fn(MockTyped);
         vi.doMock('typed.js', () => ({ default: typedCtor }));
 
@@ -98,6 +102,11 @@ describe('typewriter', () => {
         expect(typedCtor.mock.calls[0][0]).toBe(node);
         expect(typedCtor.mock.calls[0][1].strings).toEqual(['Martín Paredes']);
         expect(disconnectCalled).toBe(true);
+
+        // Typed.js backspaces whatever is already in the node before typing —
+        // if the SSR/no-JS text is still there when it's constructed, it
+        // backspaces-then-retypes the identical string, which is invisible.
+        expect(nodeTextWhenConstructed).toBe('');
 
         // A second intersection callback (real observer would never send one
         // post-disconnect, but guard against it anyway) must not re-init.
