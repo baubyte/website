@@ -7,6 +7,7 @@ describe('typewriter', () => {
     beforeEach(() => {
         originalIntersectionObserver = window.IntersectionObserver;
         originalMatchMedia = window.matchMedia;
+        vi.resetModules();
     });
 
     afterEach(() => {
@@ -16,18 +17,21 @@ describe('typewriter', () => {
             window.IntersectionObserver = originalIntersectionObserver;
         }
         window.matchMedia = originalMatchMedia;
-        vi.resetModules();
+        vi.doUnmock('typed.js');
+        vi.useRealTimers();
     });
 
-    test('never clips the text when prefers-reduced-motion: reduce is active', async () => {
+    test('never touches the text when prefers-reduced-motion: reduce is active', async () => {
         window.matchMedia = vi.fn().mockImplementation((query) => ({
             matches: query === '(prefers-reduced-motion: reduce)',
         }));
         window.IntersectionObserver = class {
             observe() {}
-            unobserve() {}
             disconnect() {}
         };
+
+        const typedCtor = vi.fn();
+        vi.doMock('typed.js', () => ({ default: typedCtor }));
 
         const { typewriter } = await import('./typewriter.js');
         const node = document.createElement('h1');
@@ -35,36 +39,18 @@ describe('typewriter', () => {
 
         const action = typewriter(node);
 
-        expect(node.style.clipPath).toBe('');
+        expect(typedCtor).not.toHaveBeenCalled();
         expect(node.textContent).toBe('Martín Paredes');
 
         action?.destroy?.();
     });
 
-    test('never clips the text when IntersectionObserver is unavailable', async () => {
+    test('never touches the text when IntersectionObserver is unavailable', async () => {
         window.matchMedia = vi.fn().mockReturnValue({ matches: false });
         delete window.IntersectionObserver;
 
-        const { typewriter } = await import('./typewriter.js');
-        const node = document.createElement('h1');
-        node.textContent = 'Martín Paredes';
-
-        const action = typewriter(node);
-
-        expect(node.style.clipPath).toBe('');
-        expect(node.textContent).toBe('Martín Paredes');
-
-        action?.destroy?.();
-    });
-
-    test('when animation is supported, clips the text before it enters the viewport', async () => {
-        window.matchMedia = vi.fn().mockReturnValue({ matches: false });
-
-        window.IntersectionObserver = class {
-            observe() {}
-            unobserve() {}
-            disconnect() {}
-        };
+        const typedCtor = vi.fn();
+        vi.doMock('typed.js', () => ({ default: typedCtor }));
 
         const { typewriter } = await import('./typewriter.js');
         const node = document.createElement('h1');
@@ -72,13 +58,13 @@ describe('typewriter', () => {
 
         const action = typewriter(node);
 
-        expect(node.style.clipPath).toBe('inset(0 100% 0 0)');
+        expect(typedCtor).not.toHaveBeenCalled();
         expect(node.textContent).toBe('Martín Paredes');
 
         action?.destroy?.();
     });
 
-    test('reveals once on entry and disconnects — one-shot, never re-hides on a later exit', async () => {
+    test('starts Typed.js once the node enters the viewport, then disconnects (one-shot)', async () => {
         window.matchMedia = vi.fn().mockReturnValue({ matches: false });
 
         let observedCallback;
@@ -88,11 +74,15 @@ describe('typewriter', () => {
                 observedCallback = callback;
             }
             observe() {}
-            unobserve() {}
             disconnect() {
                 disconnectCalled = true;
             }
         };
+
+        const destroyMock = vi.fn();
+        function MockTyped() { return { destroy: destroyMock }; }
+        const typedCtor = vi.fn(MockTyped);
+        vi.doMock('typed.js', () => ({ default: typedCtor }));
 
         const { typewriter } = await import('./typewriter.js');
         const node = document.createElement('h1');
@@ -100,87 +90,90 @@ describe('typewriter', () => {
 
         const action = typewriter(node);
 
-        expect(() => {
-            observedCallback([{ isIntersecting: true, target: node }]);
-        }).not.toThrow();
+        expect(typedCtor).not.toHaveBeenCalled();
 
-        // Real browsers stop calling back after disconnect(); this asserts
-        // the action actually disconnects on its first reveal so a real
-        // exit callback can never reach it again.
+        observedCallback([{ isIntersecting: true, target: node }]);
+
+        expect(typedCtor).toHaveBeenCalledTimes(1);
+        expect(typedCtor.mock.calls[0][0]).toBe(node);
+        expect(typedCtor.mock.calls[0][1].strings).toEqual(['Martín Paredes']);
         expect(disconnectCalled).toBe(true);
-        expect(node.textContent).toBe('Martín Paredes');
+
+        // A second intersection callback (real observer would never send one
+        // post-disconnect, but guard against it anyway) must not re-init.
+        observedCallback([{ isIntersecting: true, target: node }]);
+        expect(typedCtor).toHaveBeenCalledTimes(1);
 
         action?.destroy?.();
     });
 
-    test('reveals the text on its own even if IntersectionObserver never calls back', async () => {
-        vi.useFakeTimers();
-        window.matchMedia = vi.fn().mockReturnValue({ matches: false });
-        window.IntersectionObserver = class {
-            observe() {}
-            unobserve() {}
-            disconnect() {}
-        };
-
-        const { typewriter } = await import('./typewriter.js');
-        const node = document.createElement('h1');
-        node.textContent = 'Martín Paredes';
-
-        const action = typewriter(node, { duration: 900, delay: 0 });
-
-        expect(node.style.clipPath).toBe('inset(0 100% 0 0)');
-
-        vi.advanceTimersByTime(900 + 0 + 1000 + 1);
-
-        expect(node.style.clipPath).toBe('inset(0 0% 0 0)');
-        expect(node.textContent).toBe('Martín Paredes');
-
-        action?.destroy?.();
-        vi.useRealTimers();
-    });
-
-    test('a late/spurious exit callback after disconnect cannot re-clip the text', async () => {
+    test('falls back to the real final text if Typed.js never calls onComplete', async () => {
         vi.useFakeTimers();
         window.matchMedia = vi.fn().mockReturnValue({ matches: false });
 
         let observedCallback;
-        let disconnected = false;
         window.IntersectionObserver = class {
             constructor(callback) {
                 observedCallback = callback;
             }
             observe() {}
-            unobserve() {}
-            disconnect() {
-                disconnected = true;
-            }
+            disconnect() {}
         };
+
+        const destroyMock = vi.fn();
+        function MockTyped() { return { destroy: destroyMock }; }
+        const typedCtor = vi.fn(MockTyped);
+        vi.doMock('typed.js', () => ({ default: typedCtor }));
 
         const { typewriter } = await import('./typewriter.js');
         const node = document.createElement('h1');
         node.textContent = 'Martín Paredes';
 
-        const action = typewriter(node, { duration: 900, delay: 0 });
+        const action = typewriter(node, { typeSpeed: 45 });
 
         observedCallback([{ isIntersecting: true, target: node }]);
-        expect(disconnected).toBe(true);
+        // Typed.js's mock never called onComplete, so only the safety net can restore the text.
+        node.textContent = '';
 
-        // animejs drives onUpdate via requestAnimationFrame, which fake
-        // timers don't advance, so what actually resolves clip-path here is
-        // the safety net (a real setTimeout) reaching its own deadline —
-        // exactly like the real browser does if the animation stalls.
-        vi.advanceTimersByTime(900 + 0 + 1000 + 1);
-        expect(node.style.clipPath).toBe('inset(0 0% 0 0)');
+        vi.advanceTimersByTime(45 * 'Martín Paredes'.length + 3000 + 1);
 
-        // A real IntersectionObserver would never invoke this callback again
-        // post-disconnect; the action's own logic only ever reveals on
-        // `isIntersecting`, so even a stray false callback is a safe no-op.
-        observedCallback([{ isIntersecting: false, target: node }]);
-
-        expect(node.style.clipPath).toBe('inset(0 0% 0 0)');
+        expect(destroyMock).toHaveBeenCalledTimes(1);
         expect(node.textContent).toBe('Martín Paredes');
 
         action?.destroy?.();
-        vi.useRealTimers();
+    });
+
+    test('destroy() tears down the timer, observer, and any live Typed.js instance', async () => {
+        window.matchMedia = vi.fn().mockReturnValue({ matches: false });
+
+        let observedCallback;
+        let disconnectCalledTimes = 0;
+        window.IntersectionObserver = class {
+            constructor(callback) {
+                observedCallback = callback;
+            }
+            observe() {}
+            disconnect() {
+                disconnectCalledTimes += 1;
+            }
+        };
+
+        const destroyMock = vi.fn();
+        function MockTyped() { return { destroy: destroyMock }; }
+        const typedCtor = vi.fn(MockTyped);
+        vi.doMock('typed.js', () => ({ default: typedCtor }));
+
+        const { typewriter } = await import('./typewriter.js');
+        const node = document.createElement('h1');
+        node.textContent = 'Martín Paredes';
+
+        const action = typewriter(node);
+        observedCallback([{ isIntersecting: true, target: node }]);
+
+        action?.destroy?.();
+
+        expect(destroyMock).toHaveBeenCalledTimes(1);
+        // Already disconnected on entry (one-shot); destroy() calling it again is a harmless no-op.
+        expect(disconnectCalledTimes).toBeGreaterThanOrEqual(1);
     });
 });

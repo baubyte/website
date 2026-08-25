@@ -35,6 +35,7 @@
         "@inertiajs/svelte": "^3.7.0",
         "animejs": "^4.5.0",
         "atropos": "^2.0.2",
+        "typed.js": "^3.0.0",
         "ziggy-js": "^2.6.4"
     }
 }
