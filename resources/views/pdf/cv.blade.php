@@ -1,4 +1,3 @@
-{{-- Two-column float layout: dompdf 3.x has no flexbox/grid, and its <table> pagination emits blank leading pages here. --}}
 <!DOCTYPE html>
 <html lang="{{ $locale }}">
 

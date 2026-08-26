@@ -5,6 +5,7 @@
     import { t } from '../lib/i18n.js';
     import { route } from '../lib/route.js';
     import { typewriter } from '../lib/typewriter.js';
+    import axios from 'axios';
 
     /**
      * Chat widget that replaces the legacy `mailto:` contact link (see
@@ -117,26 +118,6 @@
         }
     });
 
-    /**
-     * Laravel's default `web` CSRF middleware accepts the raw `XSRF-TOKEN`
-     * cookie value copied verbatim into the `X-XSRF-TOKEN` header — it
-     * decrypts it server-side, so no client-side decryption is needed.
-     * `axios` (see `bootstrap.js`) does this automatically via its
-     * `xsrfCookieName`/`xsrfHeaderName` defaults; plain `fetch` doesn't,
-     * so this widget reads the cookie itself instead of pulling axios in
-     * for a single request. Returns `null` outside a browser/cookie
-     * context (e.g. the cookie hasn't been set yet).
-     */
-    function xsrfToken() {
-        if (typeof document === 'undefined') {
-            return null;
-        }
-
-        const match = document.cookie.match(/(?:^|;\s*)XSRF-TOKEN=([^;]*)/);
-
-        return match ? decodeURIComponent(match[1]) : null;
-    }
-
     function pushMessage(role, text) {
         messages = [...messages, { id: crypto.randomUUID(), role, text }];
     }
@@ -165,42 +146,35 @@
         sending = true;
 
         try {
-            const response = await fetch(route('chat'), {
-                method: 'POST',
-                credentials: 'same-origin',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Accept: 'application/json',
-                    'X-XSRF-TOKEN': xsrfToken() ?? '',
-                },
-                body: JSON.stringify({
-                    message,
-                    conversation_id: conversationId,
-                    locale,
-                    page: typeof window !== 'undefined' ? window.location.pathname : undefined,
-                    turnstile_token: turnstileSiteKey ? turnstileToken : undefined,
-                }),
+            const response = await axios.post(route('chat'), {
+                message,
+                conversation_id: conversationId,
+                locale,
+                page: typeof window !== 'undefined' ? window.location.pathname : undefined,
+                turnstile_token: turnstileSiteKey ? turnstileToken : undefined,
             });
 
-            const body = await response.json().catch(() => null);
+            const body = response.data;
 
-            if (response.ok && body?.reply) {
+            if (body?.reply) {
                 conversationId = body.conversation_id ?? conversationId;
                 pushMessage('assistant', body.reply);
                 return;
             }
 
+            pushMessage('assistant', body?.reply ?? t('chat.network_error'));
+        } catch (error) {
+            // Axios throws an error for non-2xx status codes.
             // A 503 (`{ error: 'chat_unavailable', reply }`) already
             // carries a localized, user-facing `reply` from
             // `ChatController` — show it as-is instead of inventing
             // another error string. Only fall back to the local
             // `network_error` copy when the response itself is malformed.
-            pushMessage('assistant', body?.reply ?? t('chat.network_error'));
-        } catch {
-            // `fetch()` only throws here on a real network-level failure
-            // (offline, DNS, CORS, etc.) — the server never got to
-            // respond, so there's no localized `reply` to reuse.
-            pushMessage('assistant', t('chat.network_error'));
+            if (error.response?.data?.reply) {
+                pushMessage('assistant', error.response.data.reply);
+            } else {
+                pushMessage('assistant', t('chat.network_error'));
+            }
         } finally {
             sending = false;
 

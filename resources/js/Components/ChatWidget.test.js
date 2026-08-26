@@ -1,12 +1,15 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/svelte';
+import axios from 'axios';
 import ChatWidget from './ChatWidget.svelte';
 import Contact from './Contact.svelte';
 
+vi.mock('axios');
+
 /**
  * `ChatWidget` talks to `POST /api/chat`
- * (`App\Http\Controllers\ChatController`) via plain `fetch` — these
- * tests mock `global.fetch` so no real network call is ever made. The
+ * (`App\Http\Controllers\ChatController`) via `axios.post` — these
+ * tests mock `axios.post` so no real network call is ever made. The
  * `chat` route already exists in the test build's `ziggy.js`, so `route()`
  * resolves for real; only the network layer is mocked.
  */
@@ -18,17 +21,12 @@ async function typeAndSend(message) {
 
 describe('ChatWidget', () => {
     beforeEach(() => {
-        vi.stubGlobal('fetch', vi.fn());
-    });
-
-    afterEach(() => {
-        vi.unstubAllGlobals();
+        vi.clearAllMocks();
     });
 
     test('sending a message immediately appends it to the message list', async () => {
-        global.fetch.mockResolvedValueOnce({
-            ok: true,
-            json: async () => ({ reply: 'Hola, ¿en qué puedo ayudarte?', conversation_id: 'abc-123' }),
+        axios.post.mockResolvedValueOnce({
+            data: { reply: 'Hola, ¿en qué puedo ayudarte?', conversation_id: 'abc-123' },
         });
 
         render(ChatWidget, { props: { locale: 'es' } });
@@ -39,9 +37,8 @@ describe('ChatWidget', () => {
     });
 
     test('renders the real assistant reply from a successful response', async () => {
-        global.fetch.mockResolvedValueOnce({
-            ok: true,
-            json: async () => ({ reply: 'Claro, contame más.', conversation_id: 'abc-123' }),
+        axios.post.mockResolvedValueOnce({
+            data: { reply: 'Claro, contame más.', conversation_id: 'abc-123' },
         });
 
         render(ChatWidget, { props: { locale: 'es' } });
@@ -52,14 +49,12 @@ describe('ChatWidget', () => {
     });
 
     test('reuses the same conversation_id on a second message instead of generating a new one', async () => {
-        global.fetch
+        axios.post
             .mockResolvedValueOnce({
-                ok: true,
-                json: async () => ({ reply: 'Primera respuesta', conversation_id: 'server-issued-id' }),
+                data: { reply: 'Primera respuesta', conversation_id: 'server-issued-id' },
             })
             .mockResolvedValueOnce({
-                ok: true,
-                json: async () => ({ reply: 'Segunda respuesta', conversation_id: 'server-issued-id' }),
+                data: { reply: 'Segunda respuesta', conversation_id: 'server-issued-id' },
             });
 
         render(ChatWidget, { props: { locale: 'es' } });
@@ -70,18 +65,19 @@ describe('ChatWidget', () => {
         await typeAndSend('Segundo mensaje');
         await screen.findByText('Segunda respuesta');
 
-        const secondCallBody = JSON.parse(global.fetch.mock.calls[1][1].body);
-        expect(secondCallBody.conversation_id).toBe('server-issued-id');
+        const secondCallPayload = axios.post.mock.calls[1][1];
+        expect(secondCallPayload.conversation_id).toBe('server-issued-id');
     });
 
     test('a 503 response shows its already-localized fallback reply as-is, without breaking the widget', async () => {
-        global.fetch.mockResolvedValueOnce({
-            ok: false,
-            status: 503,
-            json: async () => ({
-                error: 'chat_unavailable',
-                reply: 'El chat no está disponible en este momento. Probá de nuevo en unos minutos.',
-            }),
+        axios.post.mockRejectedValueOnce({
+            response: {
+                status: 503,
+                data: {
+                    error: 'chat_unavailable',
+                    reply: 'El chat no está disponible en este momento. Probá de nuevo en unos minutos.',
+                },
+            },
         });
 
         render(ChatWidget, { props: { locale: 'es' } });
@@ -97,8 +93,8 @@ describe('ChatWidget', () => {
         expect(screen.getByLabelText('Escribí tu mensaje')).not.toBeDisabled();
     });
 
-    test('a real network failure (fetch rejects) falls back to the local error copy instead of throwing', async () => {
-        global.fetch.mockRejectedValueOnce(new TypeError('Failed to fetch'));
+    test('a real network failure (axios rejects) falls back to the local error copy instead of throwing', async () => {
+        axios.post.mockRejectedValueOnce(new Error('Network Error'));
 
         render(ChatWidget, { props: { locale: 'es' } });
 
@@ -113,7 +109,7 @@ describe('ChatWidget', () => {
         render(ChatWidget, { props: { locale: 'es' } });
 
         expect(screen.getByRole('button', { name: /enviar/i })).toBeDisabled();
-        expect(global.fetch).not.toHaveBeenCalled();
+        expect(axios.post).not.toHaveBeenCalled();
     });
 
     test('shows an inviting empty-state hint, never a fake message pretending to be the assistant', () => {
@@ -126,11 +122,10 @@ describe('ChatWidget', () => {
 
 describe('ChatWidget with Turnstile configured', () => {
     beforeEach(() => {
-        vi.stubGlobal('fetch', vi.fn());
+        vi.clearAllMocks();
     });
 
     afterEach(() => {
-        vi.unstubAllGlobals();
         delete window.turnstile;
     });
 
@@ -155,9 +150,8 @@ describe('ChatWidget with Turnstile configured', () => {
             }),
             reset: vi.fn(),
         };
-        global.fetch.mockResolvedValueOnce({
-            ok: true,
-            json: async () => ({ reply: 'Hola!', conversation_id: 'abc-123' }),
+        axios.post.mockResolvedValueOnce({
+            data: { reply: 'Hola!', conversation_id: 'abc-123' },
         });
 
         render(ChatWidget, { props: { locale: 'es', turnstileSiteKey: 'test-site-key' } });
@@ -165,22 +159,21 @@ describe('ChatWidget with Turnstile configured', () => {
 
         await typeAndSend('Hola');
 
-        const body = JSON.parse(global.fetch.mock.calls[0][1].body);
-        expect(body.turnstile_token).toBe('real-token-from-cloudflare');
+        const payload = axios.post.mock.calls[0][1];
+        expect(payload.turnstile_token).toBe('real-token-from-cloudflare');
     });
 
     test('without a site key, no Turnstile token is required and none is sent', async () => {
-        global.fetch.mockResolvedValueOnce({
-            ok: true,
-            json: async () => ({ reply: 'Hola!', conversation_id: 'abc-123' }),
+        axios.post.mockResolvedValueOnce({
+            data: { reply: 'Hola!', conversation_id: 'abc-123' },
         });
 
         render(ChatWidget, { props: { locale: 'es', turnstileSiteKey: null } });
 
         await typeAndSend('Hola');
 
-        const body = JSON.parse(global.fetch.mock.calls[0][1].body);
-        expect(body.turnstile_token).toBeUndefined();
+        const payload = axios.post.mock.calls[0][1];
+        expect(payload.turnstile_token).toBeUndefined();
     });
 });
 

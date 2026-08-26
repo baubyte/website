@@ -3,7 +3,7 @@ import './bootstrap';
 
 import { createInertiaApp } from '@inertiajs/svelte';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
-import { mount } from 'svelte';
+import { hydrate, mount } from 'svelte';
 
 import esFront from './lang/es/front.json';
 import enFront from './lang/en/front.json';
@@ -24,8 +24,13 @@ createInertiaApp({
         // so @erag/lang-sync-inertia picks it up natively without a backend payload
         const locale = props.initialPage.props.locale || 'es';
         props.initialPage.props.lang = staticLangs[locale];
-
-        mount(App, { target: el, props });
+        const isSsr = el.hasAttribute('data-server-rendered')
+        if (isSsr) {
+            hydrate(App, { target: el, props });
+        }
+        if (!isSsr) {
+            mount(App, { target: el, props });
+        }
 
         // Removes the plain-HTML/CSS pre-hydration loader from
         // app.blade.php now that Svelte has actually mounted real content

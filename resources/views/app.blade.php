@@ -79,13 +79,26 @@
                 50% { transform: rotate(45deg) rotateX(-385deg) rotateY(25deg); }
                 100% { transform: rotate(45deg) rotateX(-385deg) rotateY(385deg); }
             }
+            
+            /* If SSR generated content, hide the loader instantly so we don't cover the HTML */
+            #app[data-server-rendered="true"] ~ #pre-hydration-loader {
+                display: none !important;
+            }
         </style>
+        
+        <noscript>
+            <style>
+                #pre-hydration-loader { display: none !important; }
+            </style>
+        </noscript>
 
         @routes
         @vite('resources/js/app.js')
         @inertiaHead
     </head>
     <body>
+        @inertia
+
         <div id="pre-hydration-loader" class="bg-base-100" role="status" aria-label="Loading">
             <div class="cube">
                 <div class="border-primary bg-primary/20"></div>
@@ -111,7 +124,5 @@
                 if (el) el.remove();
             }, 5000);
         </script>
-
-        @inertia
     </body>
 </html>
