@@ -1,5 +1,4 @@
 ############################################
-# PR10 (SSR + Docker) -- D9 of the migration design doc.
 #
 # THE MOST FRAGILE POINT OF THIS DEPLOY: there is exactly ONE Node build
 # stage (`build` below). Both the `web` (PHP) and `ssr` (Node) final

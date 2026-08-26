@@ -1,0 +1,103 @@
+<?php
+
+namespace Deployer;
+
+require 'recipe/common.php';
+
+// Cargar variables del archivo .env si no están en el entorno
+$envFile = __DIR__ . '/.env';
+if (file_exists($envFile)) {
+    $lines = file($envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    foreach ($lines as $line) {
+        if (strpos(trim($line), '#') === 0) continue; // Ignorar comentarios
+        putenv($line);
+    }
+}
+// Config 
+set('application', 'Website Baubyte');
+set('repository', getenv('DEPLOY_REPO') ?: 'git@github.com:baubyte/website.git');
+set('keep_releases', 2);
+
+// Definimos explícitamente el usuario del servidor web dentro del contenedor.
+set('http_user', 'www-data');
+
+// Compartimos el archivo .env para que no se borre en cada despliegue.
+add('shared_files', ['.env']);
+// Hacemos que la carpeta 'storage' sea compartida (Laravel usa storage en vez de writable).
+add('shared_dirs', ['storage']);
+
+// --- Configuración del Host ---
+host("production")
+    ->set('hostname', getenv('DEPLOY_HOST') ?: 'default-host')
+    ->set('remote_user', getenv('DEPLOY_USER') ?: 'default-user')
+    ->set('deploy_path', getenv('DEPLOY_PATH') ?: '/default/path');
+
+// --- Tareas de Despliegue Personalizadas ---
+desc('Construye y levanta los contenedores de Docker');
+task('docker:down', function () {
+    run('cd {{release_path}} && docker compose down');
+    writeln('<info>✓ Contenedores Docker detenidos</info>');
+});
+
+task('deploy:docker', function () {
+    run('cd {{release_path}} && docker compose build && docker compose up -d --remove-orphans');
+    writeln('<info>✓ Contenedores Docker iniciados en modo daemon</info>');
+});
+
+desc('Ejecuta las migraciones de Laravel dentro de Docker');
+task('artisan:migrate', function () {
+    // Usamos el exec para correr las migraciones en el contenedor que acabamos de levantar
+    run('cd {{release_path}} && docker compose exec -T baubyte-website php artisan migrate --force');
+    writeln('<info>✓ Migraciones completadas</info>');
+});
+
+desc('Ejecuta storage:link de Laravel dentro de Docker');
+task('artisan:storage:link', function () {
+    run('cd {{release_path}} && docker compose exec -T baubyte-website php artisan storage:link');
+    writeln('<info>✓ Symlink de storage creado</info>');
+});
+
+desc('Verifica el estado de los contenedores Docker');
+task('docker:status', function () {
+    $result = run('cd {{release_path}} && docker compose ps');
+    writeln('<info>Estado de los contenedores:</info>');
+    writeln($result);
+});
+
+task('copy:env', function () {
+    // Subir el archivo al servidor (si estás subiendo el prod.env local)
+    // Ojo: Esto asume que tienes un prod.env local y quieres forzarlo.
+    upload('./prod.env', '{{deploy_path}}/shared/.env');
+    writeln('<info>✓ Archivo .env copiado correctamente al servidor</info>');
+});
+
+desc('Verifica la configuración del entorno');
+task('env:check', function () {
+    if (test('[ -f {{deploy_path}}/shared/.env ]')) {
+        writeln('<info>✓ Archivo .env existe en el servidor</info>');
+    } else {
+        writeln('<error>✗ Archivo .env no encontrado en el servidor</error>');
+    }
+});
+
+// --- Flujo de Despliegue ---
+desc('Despliega la aplicación');
+task('deploy', [
+    'deploy:prepare',      // Prepara directorios (releases, shared)
+    'copy:env',            // Sube tu prod.env (siempre y cuando lo quieras sobreescribir)
+    'deploy:publish',      // Symlink de current release
+    'docker:down',         // Apaga la versión anterior
+    'deploy:docker',       // Levanta la nueva (compila imágenes)
+    'artisan:migrate',     // Corre migraciones en BD
+    'artisan:storage:link' // Asegura el symlink de public/storage
+]);
+
+desc('Verifica el estado completo del despliegue');
+task('deploy:verify', [
+    'env:check',       
+    'docker:status',   
+]);
+
+// --- Hooks ---
+after('deploy:failed', 'deploy:unlock');
+after('deploy', 'deploy:cleanup'); // Limpia versiones antiguas

@@ -24,3 +24,4 @@ yarn-error.log
 /.zed
 # Local AI runtime state
 .atl/
+prod.env

@@ -1,6 +1,6 @@
-name: 'baubyte-website-laravel'
+name: 'baubyte-website'
 services:
-  baubyte-website-laravel:
+  baubyte-website:
     build:
       context: .
       dockerfile: Dockerfile
@@ -8,7 +8,7 @@ services:
       args:
         UID: 1001
         GID: 1001
-    container_name: baubyte-website-laravel
+    container_name: baubyte-website
     restart: unless-stopped
     environment:
       SSL_MODE: "mixed"  # Escucha tanto HTTP (80) como HTTPS (443)
@@ -19,21 +19,16 @@ services:
     volumes:
       - ./storage:/var/www/html/storage:rw  # Logs, cache, sesiones, uploads
       - ./.env:/var/www/html/.env:ro        # Configuración del entorno
-    # No `depends_on: ssr` on purpose (PR10/D9 rollback boundary): the `ssr`
-    # service below can be disabled or removed from this file entirely and
-    # this service must still come up and serve the site via Inertia's
-    # automatic client-side-render fallback, with zero changes required
-    # here. A hard dependency would break that guarantee.
     networks:
-      - baubyte-website-laravel-net
+      - baubyte-website-net
       - traefik-proxy # Red compartida con Traefik
     labels:
       # --- Etiquetas para Traefik ---
       - "traefik.enable=true"
-      - "traefik.http.routers.baubyte-laravel.rule=Host(`baubyte.com.ar`) || Host(`www.baubyte.com.ar`)"
-      - "traefik.http.routers.baubyte-laravel.entrypoints=websecure"
-      - "traefik.http.routers.baubyte-laravel.tls.certresolver=letsencrypt"
-      - "traefik.http.services.baubyte-laravel.loadbalancer.server.port=8080"
+      - "traefik.http.routers.baubyte.rule=Host(`baubyte.com.ar`) || Host(`www.baubyte.com.ar`)"
+      - "traefik.http.routers.baubyte.entrypoints=websecure"
+      - "traefik.http.routers.baubyte.tls.certresolver=letsencrypt"
+      - "traefik.http.services.baubyte.loadbalancer.server.port=8080"
       - "traefik.docker.network=traefik-proxy"
 
   ssr:
@@ -41,25 +36,13 @@ services:
       context: .
       dockerfile: Dockerfile
       target: ssr
-    container_name: baubyte-website-laravel-ssr
+    container_name: baubyte-website-ssr
     restart: unless-stopped
-    # Internal-only (D9): reached by the `baubyte-website-laravel` service
-    # over the shared bridge network at `http://ssr:13714` (see
-    # `config/inertia.php`'s `ssr.url` / `.env.example`'s
-    # `INERTIA_SSR_URL`). Deliberately carries NO Traefik labels and does
-    # NOT join `traefik-proxy` -- this service is never meant to be
-    # reachable from outside the Docker network.
     networks:
-      - baubyte-website-laravel-net
-    healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:13714/health"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-      start_period: 10s
+      - baubyte-website-net
 
 networks:
-  baubyte-website-laravel-net:
+  baubyte-website-net:
     driver: bridge
   traefik-proxy:
     external: true
