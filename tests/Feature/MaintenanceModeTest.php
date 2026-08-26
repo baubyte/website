@@ -4,7 +4,9 @@ namespace Tests\Feature;
 
 use App\Http\Middleware\PreventRequestsDuringMaintenance;
 use App\Services\MaintenanceToggler;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Artisan;
+use Livewire\Mechanisms\HandleRequests\EndpointResolver;
 use Tests\TestCase;
 
 /**
@@ -42,6 +44,7 @@ use Tests\TestCase;
  */
 class MaintenanceModeTest extends TestCase
 {
+    use RefreshDatabase;
     protected function tearDown(): void
     {
         Artisan::call('up');
@@ -107,6 +110,43 @@ class MaintenanceModeTest extends TestCase
 
         $this->assertContains('admin', $paths);
         $this->assertContains('admin/*', $paths);
+        $this->assertContains('filament/*', $paths);
+        $this->assertContains('livewire*', $paths);
         $this->assertContains('up', $paths);
+    }
+
+    public function test_unauthenticated_livewire_request_is_blocked_during_maintenance(): void
+    {
+        Artisan::call('down', [
+            '--render' => 'errors::503',
+            '--secret' => 'test-maintenance-secret',
+        ]);
+
+        // A livewire route should be allowed by the basic maintenance bypass, 
+        // but our BlockPublicLivewireDuringMaintenance middleware should catch it 
+        // because the user is not authenticated.
+        $response = $this->post(EndpointResolver::updatePath(), [], [
+            'Accept' => 'application/json',
+        ]);
+
+        $response->assertStatus(503);
+    }
+
+    public function test_authenticated_livewire_request_is_allowed_during_maintenance(): void
+    {
+        Artisan::call('down', [
+            '--render' => 'errors::503',
+            '--secret' => 'test-maintenance-secret',
+        ]);
+
+        $user = \App\Models\User::factory()->create();
+
+        // An authenticated request should pass through the middleware
+        // (It may return a 404/400 from Livewire since it's an empty payload, but NOT a 503)
+        $response = $this->actingAs($user)->post(EndpointResolver::updatePath(), [], [
+            'Accept' => 'application/json',
+        ]);
+
+        $this->assertNotEquals(503, $response->status()); // As long as it bypassed the 503, the middleware worked
     }
 }

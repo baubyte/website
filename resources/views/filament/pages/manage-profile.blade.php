@@ -4,7 +4,7 @@
 
         <div style="margin-top: 1.5rem;">
             <x-filament::button type="submit">
-                Save
+                Guardar Cambios
             </x-filament::button>
         </div>
     </form>

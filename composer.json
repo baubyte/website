@@ -20,6 +20,7 @@
         "barryvdh/laravel-ide-helper": "^3.7",
         "deployer/deployer": "^8.0",
         "fakerphp/faker": "^1.23",
+        "laravel-lang/common": "^6.8",
         "laravel/boost": "^2.5",
         "laravel/pail": "^1.1",
         "laravel/pint": "^1.13",

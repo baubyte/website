@@ -5,42 +5,90 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\ExperienceResource\Pages;
 use App\Models\Experience;
 use Filament\Actions;
-use Filament\Forms;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\ForceDeleteAction;
+use Filament\Actions\RestoreAction;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
-use Filament\Tables;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
+
 
 class ExperienceResource extends Resource
 {
     protected static ?string $model = Experience::class;
+
+    protected static ?string $modelLabel = 'experiencia';
+
+    protected static ?string $pluralModelLabel = 'experiencias';
+
+    protected static ?string $navigationLabel = 'Experiencia';
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-rectangle-stack';
 
     public static function form(Schema $schema): Schema
     {
         return $schema
+            ->components([
+                self::getPersonalInfoSection(),
+            ]);
+    }
+
+    private static function getPersonalInfoSection(): Section
+    {
+        return Section::make('Información Laboral')
+            ->description('Datos de la experiencia')
+            ->columns(2)
+            ->columnSpanFull()
             ->schema([
-                Forms\Components\TextInput::make('company')
+                TextInput::make('company')
+                    ->label('Empresa')
                     ->required()
-                    ->maxLength(120),
-                Forms\Components\TextInput::make('specialty_es')
-                    ->label('Specialty (ES)')
-                    ->required()
-                    ->maxLength(120),
-                Forms\Components\TextInput::make('specialty_en')
-                    ->label('Specialty (EN)')
-                    ->required()
-                    ->maxLength(120),
-                Forms\Components\Textarea::make('description_es')
-                    ->label('Description (ES)')
+                    ->minLength(2)
+                    ->maxLength(120)
                     ->columnSpanFull(),
-                Forms\Components\Textarea::make('description_en')
-                    ->label('Description (EN)')
+                TextInput::make('specialty_es')
+                    ->label('Especialidad (ES)')
+                    ->required()
+                    ->minLength(2)
+                    ->maxLength(120),
+                TextInput::make('specialty_en')
+                    ->label('Especialidad (EN)')
+                    ->required()
+                    ->maxLength(120),
+                Textarea::make('description_es')
+                    ->label('Descripción (ES)')
+                    ->nullable()
+                    ->minLength(10)
+                    ->maxLength(500)
+                    ->rows(6)
                     ->columnSpanFull(),
-                Forms\Components\DatePicker::make('start_date')
+                Textarea::make('description_en')
+                    ->label('Descripción (EN)')
+                    ->nullable()
+                    ->minLength(10)
+                    ->maxLength(120)
+                    ->rows(6)
+                    ->columnSpanFull(),
+                DatePicker::make('start_date')
+                    ->label('Fecha de inicio')
                     ->required(),
-                Forms\Components\DatePicker::make('end_date'),
+                DatePicker::make('end_date')
+                    ->label('Fecha de fin')
+                    ->nullable()
+                    ->minDate(fn (Get $get) => $get('start_date'))
+                    ->validationMessages([
+                        'after_or_equal' => 'La :attribute no puede ser menor a :date.',
+                    ]),
             ]);
     }
 
@@ -48,29 +96,34 @@ class ExperienceResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('company')
+                TextColumn::make('company')
+                    ->label('Empresa')
                     ->searchable()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('specialty_es')
-                    ->label('Specialty (ES)')
+                TextColumn::make('specialty_es')
+                    ->label('Especialidad (ES)')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('start_date')
+                TextColumn::make('start_date')
+                    ->label('Fecha de inicio')
                     ->date()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('end_date')
+                TextColumn::make('end_date')
+                    ->label('Fecha de fin')
                     ->date()
                     ->sortable(),
             ])
             ->filters([
-                //
+                TrashedFilter::make(),
             ])
             ->recordActions([
-                Actions\EditAction::make(),
-                Actions\DeleteAction::make(),
+                EditAction::make(),
+                DeleteAction::make(),
+                ForceDeleteAction::make(),
+                RestoreAction::make(),
             ])
             ->toolbarActions([
-                Actions\BulkActionGroup::make([
-                    Actions\DeleteBulkAction::make(),
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
                 ]),
             ]);
     }

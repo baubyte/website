@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\BlockPublicLivewireDuringMaintenance;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\SetApplicationLocale;
 use Illuminate\Foundation\Application;
@@ -16,6 +17,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->web(append: [
             SetApplicationLocale::class,
             HandleInertiaRequests::class,
+            BlockPublicLivewireDuringMaintenance::class,
         ]);
 
         // LOAD-BEARING: without this exception list, `artisan down` locks
@@ -34,6 +36,12 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->preventRequestsDuringMaintenance(except: [
             'admin',
             'admin/*',
+            'filament/*',
+            'livewire',
+            'livewire/*',
+            'livewire*',
+            'livewire-*',
+            'livewire-*/*',
             'up',
         ]);
     })

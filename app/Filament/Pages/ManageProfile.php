@@ -13,6 +13,7 @@ use Filament\Forms\Contracts\HasForms;
 use Filament\Notifications\Notification;
 use Filament\Pages\Concerns\HasUnsavedDataChangesAlert;
 use Filament\Pages\Page;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 
 /**
@@ -30,9 +31,9 @@ class ManageProfile extends Page implements HasForms
 
     protected string $view = 'filament.pages.manage-profile';
 
-    protected static ?string $navigationLabel = 'Profile';
+    protected static ?string $navigationLabel = 'Perfil';
 
-    protected static ?string $title = 'Profile';
+    protected static ?string $title = 'Perfil';
 
     /**
      * @var array<string, mixed>|null
@@ -53,56 +54,127 @@ class ManageProfile extends Page implements HasForms
     {
         return $schema
             ->components([
+                $this->getPersonalInfoSection(),
+                $this->getBioSection(),
+                $this->getSocialLinksSection(),
+            ])
+            ->statePath('data');
+    }
+
+    private function getPersonalInfoSection(): Section
+    {
+        return Section::make('Información Personal')
+            ->description('Datos personales, contacto y foto de perfil')
+            ->columns(2)
+            ->schema([
                 FileUpload::make('avatar')
+                    ->label('Foto de perfil')
                     ->avatar()
-                    ->helperText('Filename/path of the profile avatar image.')
+                    ->helperText('')
                     ->required()
                     ->disk('public')
                     ->directory('profiles')
-                    ->visibility('public'),
+                    ->visibility('public')
+                    ->columnSpanFull(),
                 TextInput::make('name')
+                    ->label('Nombre')
                     ->required()
+                    ->rules(['regex:/^[\p{L}\s]+$/u'])
+                    ->minLength(2)
                     ->maxLength(120),
                 TextInput::make('surname')
+                    ->label('Apellido')
                     ->required()
+                    ->rules(['regex:/^[\p{L}\s]+$/u'])
+                    ->minLength(2)
                     ->maxLength(120),
                 TextInput::make('email_contact')
-                    ->label('Contact email')
-                    ->email()
-                    ->maxLength(100),
+                    ->label('Correo electrónico de contacto')
+                    ->rules([
+                        'email',
+                        'min:2',
+                        'max:100'
+                    ])
+                    ->columnSpanFull(),
+            ]);
+    }
+
+    private function getBioSection(): Section
+    {
+        return Section::make('Bio & Especialidades')
+            ->description('Contenido bilingüe presentado en el sitio web')
+            ->columns(2)
+            ->schema([
                 Textarea::make('description_es')
-                    ->label('Description (ES)')
-                    ->columnSpanFull(),
+                    ->label('Descripción (ES)')
+                    ->rules([
+                        'min:10',
+                        'max:500'
+                    ])
+                    ->rows(6),
                 Textarea::make('description_en')
-                    ->label('Description (EN)')
-                    ->columnSpanFull(),
+                    ->label('Descripción (EN)')
+                    ->rules([
+                        'min:10',
+                        'max:500'
+                    ])
+                    ->rows(6),
                 TextInput::make('specialty_es')
-                    ->label('Specialty (ES)')
+                    ->label('Especialidad (ES)')
                     ->required()
-                    ->maxLength(100),
+                    ->rules([
+                        'min:2',
+                        'max:100'
+                    ]),
                 TextInput::make('specialty_en')
-                    ->label('Specialty (EN)')
-                    ->maxLength(100),
+                    ->label('Especialidad (EN)')
+                    ->required()
+                    ->rules([
+                        'min:2',
+                        'max:100'
+                    ]),
                 TextInput::make('language_es')
-                    ->label('Language (ES)')
-                    ->maxLength(100),
+                    ->label('Idioma (ES)')
+                    ->required()
+                    ->rules([
+                        'min:2',
+                        'max:100'
+                    ]),
                 TextInput::make('language_en')
-                    ->label('Language (EN)')
-                    ->maxLength(100),
+                    ->label('Idioma (EN)')
+                    ->required()
+                    ->rules([
+                        'min:2',
+                        'max:100'
+                    ]),
+            ]);
+    }
+
+    private function getSocialLinksSection(): Section
+    {
+        return Section::make('Redes & Enlaces')
+            ->description('Perfiles y presencia online')
+            ->columns(3)
+            ->schema([
                 TextInput::make('github_url')
                     ->label('GitHub URL')
                     ->url()
-                    ->maxLength(100),
+                    ->rules([
+                        'max:100'
+                    ]),
                 TextInput::make('linkedin_url')
                     ->label('LinkedIn URL')
                     ->url()
-                    ->maxLength(100),
+                    ->rules([
+                        'max:100'
+                    ]),
                 TextInput::make('instagram_url')
                     ->label('Instagram URL')
                     ->url()
-                    ->maxLength(100),
-            ])
-            ->statePath('data');
+                    ->rules([
+                        'max:100'
+                    ]),
+            ]);
     }
 
     public function save(): void
@@ -114,7 +186,7 @@ class ManageProfile extends Page implements HasForms
         $this->rememberData();
 
         Notification::make()
-            ->title('Profile saved')
+            ->title('Perfil guardado')
             ->success()
             ->send();
     }
@@ -127,34 +199,55 @@ class ManageProfile extends Page implements HasForms
     protected function getHeaderActions(): array
     {
         return [
-            Action::make('toggleMaintenanceMode')
-                ->label(fn (): string => app()->isDownForMaintenance()
-                    ? 'Deactivate maintenance mode'
-                    : 'Activate maintenance mode')
-                ->color(fn (): string => app()->isDownForMaintenance() ? 'success' : 'danger')
-                ->icon(fn (): string => app()->isDownForMaintenance()
-                    ? 'heroicon-o-lock-open'
-                    : 'heroicon-o-lock-closed')
-                ->requiresConfirmation()
-                ->action(function (MaintenanceToggler $toggler): void {
-                    if (app()->isDownForMaintenance()) {
-                        $toggler->deactivate();
+            $this->toggleMaintenanceModeAction(),
+        ];
+    }
 
-                        Notification::make()
-                            ->title('Maintenance mode deactivated')
-                            ->success()
-                            ->send();
-
-                        return;
-                    }
-
-                    $toggler->activate();
+    protected function toggleMaintenanceModeAction(): Action
+    {
+        return Action::make('toggleMaintenanceMode')
+            ->label(fn(): string => app()->isDownForMaintenance()
+                ? 'Desactivar modo mantenimiento'
+                : 'Activar modo mantenimiento')
+            ->color(fn(): string => app()->isDownForMaintenance() ? 'success' : 'danger')
+            ->icon(fn(): string => app()->isDownForMaintenance()
+                ? 'heroicon-o-lock-open'
+                : 'heroicon-o-lock-closed')
+            ->requiresConfirmation()
+            ->modalHeading(fn(): string => app()->isDownForMaintenance()
+                ? 'Desactivar modo mantenimiento'
+                : 'Activar modo mantenimiento')
+            ->modalDescription(fn(): string => app()->isDownForMaintenance()
+                ? '¿Estás seguro de que deseas desactivar el modo mantenimiento? El sitio volverá a estar público.'
+                : '¿Estás seguro de que deseas activar el modo mantenimiento? Los visitantes no podrán acceder al sitio público.')
+            ->modalSubmitActionLabel(fn(): string => app()->isDownForMaintenance()
+                ? 'Sí, desactivar'
+                : 'Sí, activar')
+            ->modalCancelActionLabel('Cancelar')
+            ->modalIcon(fn(): string => app()->isDownForMaintenance()
+                ? 'heroicon-o-check-circle'
+                : 'heroicon-o-exclamation-triangle')
+            ->modalIconColor(fn(): string => app()->isDownForMaintenance() ? 'success' : 'danger')
+            ->action(function (MaintenanceToggler $toggler): void {
+                if (app()->isDownForMaintenance()) {
+                    $toggler->deactivate();
 
                     Notification::make()
-                        ->title('Maintenance mode activated')
-                        ->warning()
+                        ->title('Modo mantenimiento desactivado')
+                        ->body('El sitio volverá a estar público.')
+                        ->success()
                         ->send();
-                }),
-        ];
+
+                    return;
+                }
+
+                $toggler->activate();
+
+                Notification::make()
+                    ->title('Modo mantenimiento activado')
+                    ->body('El sitio pasará a modo mantenimiento.')
+                    ->warning()
+                    ->send();
+            });
     }
 }

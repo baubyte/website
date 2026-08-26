@@ -39,6 +39,12 @@ class PreventRequestsDuringMaintenance extends Middleware
     protected $except = [
         'admin',
         'admin/*',
+        'filament/*',
+        'livewire',
+        'livewire/*',
+        'livewire*',
+        'livewire-*',
+        'livewire-*/*',
         'up',
     ];
 }
