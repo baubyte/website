@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use Filament\Enums\ThemeMode;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -9,7 +10,8 @@ use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Pages;
 use Filament\Panel;
 use Filament\PanelProvider;
-use Filament\Support\Colors\Color;
+use Openplain\FilamentShadcnTheme\Color;
+use Filament\Support\Colors\Color as FilamentColor;
 use Filament\Widgets;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
@@ -27,8 +29,18 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
+            ->brandName('Baubyte Admin')
+            ->favicon(asset('favicon.png'))
+            ->font('Plus Jakarta Sans')
+            ->spa()
+            ->sidebarCollapsibleOnDesktop()
+            ->unsavedChangesAlerts()
             ->colors([
-                'primary' => Color::Amber,
+                'primary' => Color::adaptive(
+                    lightColor: FilamentColor::Blue,
+                    darkColor: FilamentColor::Teal
+                ),
+                'gray' => FilamentColor::Zinc,
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')

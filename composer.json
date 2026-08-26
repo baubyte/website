@@ -13,6 +13,7 @@
         "inertiajs/inertia-laravel": "^3.3",
         "laravel/framework": "^13.26",
         "laravel/tinker": "^3.0",
+        "openplain/filament-shadcn-theme": "^1.1",
         "tightenco/ziggy": "^2.6"
     },
     "require-dev": {
