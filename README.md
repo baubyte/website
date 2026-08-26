@@ -35,7 +35,7 @@ Sitio personal de portfolio, migrado de **CodeIgniter 4** a **Laravel 13 + Inert
 | Admin | Filament 5, auth nativa de Laravel (single-account, sin roles/permisos) |
 | i18n | `erag/laravel-lang-sync-inertia` — una sola fuente de verdad en `lang/{locale}/front.php` |
 | Rutas en el frontend | `tightenco/ziggy` |
-| PDF | `barryvdh/laravel-dompdf` (descarga del CV) |
+| PDF | `fruitcake/laravel-weasyprint` (WeasyPrint para descarga del CV en CSS Paged Media) |
 | Datos | Importados una vez desde la base legacy de CodeIgniter vía `php artisan legacy:import` |
 
 **SSR con fallback automático**: si el servicio SSR (`baubyte-website-ssr`, sin exposición directa a Traefik) no está corriendo o falla, Inertia cae a client-side rendering sin código propio — es el comportamiento nativo de `Inertia\Ssr\HttpGateway::dispatch()`. Ver `App\Listeners\LogSsrFallback` para la observabilidad de ese fallback.
@@ -98,6 +98,29 @@ Además de las estándar de Laravel:
 | `N8N_CHAT_WEBHOOK_URL` / `N8N_CHAT_WEBHOOK_SECRET` | ❌ | El chat responde "no disponible" sin llamar a n8n |
 | `TURNSTILE_SITE_KEY` / `TURNSTILE_SECRET_KEY` | ❌ | El chat no pide verificación anti-bot |
 | `CHAT_DAILY_MESSAGE_LIMIT` | ❌ (default 200) | — |
+| `INERTIA_SSR_URL` | ❌ | URL del servidor SSR (`http://ssr:13714` en prod Docker, `http://127.0.0.1:13714` en DDEV) |
+| `WEASYPRINT_BINARY` | ❌ | Ruta al binario de WeasyPrint (`/usr/bin/weasyprint`) |
+
+---
+
+## 🚢 Despliegue en Producción (Deployer + Docker)
+
+El despliegue está automatizado con **Deployer** y **Docker Compose** detrás de **Traefik**.
+
+```bash
+# Desplegar en producción
+./vendor/bin/dep deploy
+
+# Verificar estado de los contenedores
+./vendor/bin/dep deploy:verify
+```
+
+El pipeline de deploy:
+1. Sube y vincula `prod.env` como `.env` compartido.
+2. Mantiene persistente el directorio `storage/` con sus symlinks.
+3. Detiene la versión previa y compila las nuevas imágenes en Docker (etapa única de build en `Dockerfile` para evitar hydration mismatches).
+4. Ejecuta `php artisan migrate --force` y `php artisan storage:link` dentro del contenedor.
+5. Limpia versiones antiguas conservando los últimos 2 releases.
 
 ---
 
@@ -105,5 +128,5 @@ Además de las estándar de Laravel:
 
 ```bash
 ddev artisan test   # PHPUnit/Pest — requiere la conexión `legacy` de DDEV para los tests de importación
-npx vitest run       # Vitest — componentes Svelte
+npm test            # Vitest — componentes Svelte
 ```
