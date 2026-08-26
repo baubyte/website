@@ -11,6 +11,7 @@ use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Notifications\Notification;
+use Filament\Pages\Concerns\HasUnsavedDataChangesAlert;
 use Filament\Pages\Page;
 use Filament\Schemas\Schema;
 
@@ -23,6 +24,7 @@ use Filament\Schemas\Schema;
 class ManageProfile extends Page implements HasForms
 {
     use InteractsWithForms;
+    use HasUnsavedDataChangesAlert;
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-user-circle';
 
@@ -108,6 +110,8 @@ class ManageProfile extends Page implements HasForms
         $data = $this->form->getState();
 
         $this->profile()->fill($data)->save();
+
+        $this->rememberData();
 
         Notification::make()
             ->title('Profile saved')

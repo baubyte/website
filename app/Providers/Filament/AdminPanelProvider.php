@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use Filament\Enums\ThemeMode;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -31,6 +32,7 @@ class AdminPanelProvider extends PanelProvider
             ->brandName('Baubyte Admin')
             ->favicon(asset('favicon.png'))
             ->font('Plus Jakarta Sans')
+            ->defaultThemeMode(ThemeMode::Dark)
             ->spa()
             ->sidebarCollapsibleOnDesktop()
             ->unsavedChangesAlerts()
