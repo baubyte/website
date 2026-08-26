@@ -56,9 +56,8 @@
 
                 turnstileWidgetId = window.turnstile.render(turnstileEl, {
                     sitekey: turnstileSiteKey,
-                    size: 'compact',
+                    size: 'invisible',
                     language: locale,
-                    appearance: 'interaction-only',
                     callback: (token) => {
                         turnstileToken = token;
                     },
@@ -224,10 +223,7 @@
     </div>
 
     {#if turnstileSiteKey}
-        <div
-            bind:this={turnstileEl}
-            class="mb-2 flex min-h-[65px] items-center justify-center border-t border-base-content/10 pt-2"
-        ></div>
+        <div bind:this={turnstileEl} class="empty:hidden"></div>
     {/if}
 
     <form class="flex items-center gap-2" onsubmit={sendMessage}>

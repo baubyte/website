@@ -68,9 +68,9 @@
 
     <div class="container relative z-10 mx-auto grid grid-cols-1 items-center gap-14 px-4 md:grid-cols-2 md:gap-16">
         <div class="text-center md:text-left">
-            <!-- Decorative only, never a real profile.showName() call -->
+            <!-- Decorative only, never a real profile.fullName() call -->
             <p class="mb-4 font-mono text-sm text-base-content/60" aria-hidden="true">
-                <span class="text-primary">const</span> <span class="text-base-content/80">developer</span> = <span class="text-secondary">profile</span><span class="text-base-content/60">.</span><span class="text-accent">showName()</span><span class="text-base-content/60">;</span>
+                <span class="text-primary">const</span> <span class="text-base-content/80">developer</span> = <span class="text-secondary">profile</span><span class="text-base-content/60">.</span><span class="text-accent">fullName()</span><span class="text-base-content/60">;</span>
             </p>
 
             <h1
@@ -139,31 +139,40 @@
                         -->
                         <div class="atropos-inner">
                             <div class="relative flex h-full w-full items-center justify-center">
-                                <svg
-                                    class="pointer-events-none absolute inset-0 h-full w-full text-primary"
-                                    viewBox="0 0 200 200"
-                                    fill="none"
-                                    aria-hidden="true"
-                                    data-atropos-offset="0"
-                                >
-                                    <polygon points="100,4 196,178 4,178" stroke="currentColor" stroke-width="1.25" opacity="0.5" />
-                                </svg>
-
-                                <!--
-                                    The triangle's visual centroid (points
-                                    100,4 / 196,178 / 4,178 in a 200x200 box)
-                                    sits at y=120 -- 10% lower than the
-                                    container's geometric center (y=100) that
-                                    flex `items-center` aligns to by default.
-                                    Left uncorrected, the avatar reads as
-                                    floating near the apex instead of resting
-                                    inside the triangle's visual mass. Its
-                                    x-centroid (100+196+4)/3=100 already
-                                    matches center exactly, so no horizontal
-                                    nudge is needed.
-                                -->
                                 <div
-                                    class="avatar -translate-y-[5%]"
+                                    class="pointer-events-none absolute inset-0 flex items-center justify-center text-primary"
+                                    data-atropos-offset="0"
+                                    aria-hidden="true"
+                                >
+                                    <!-- Halo suave interior -->
+                                    <div
+                                        class="absolute h-56 w-56 rounded-full bg-primary/10 blur-xl"
+                                    ></div>
+                                    <!-- Esquinas de Escáner / Terminal Brackets `[ ]` -->
+                                    <svg
+                                        class="absolute inset-2 h-[calc(100%-1rem)] w-[calc(100%-1rem)] opacity-60"
+                                        viewBox="0 0 100 100"
+                                        fill="none"
+                                    >
+                                        <!-- Esquina Superior Izquierda -->
+                                        <path d="M 4 20 L 4 4 L 20 4" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" />
+                                        <!-- Esquina Superior Derecha -->
+                                        <path d="M 80 4 L 96 4 L 96 20" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" />
+                                        <!-- Esquina Inferior Derecha -->
+                                        <path d="M 96 80 L 96 96 L 80 96" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" />
+                                        <!-- Esquina Inferior Izquierda -->
+                                        <path d="M 20 96 L 4 96 L 4 80" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" />
+
+                                        <!-- Guías cruzadas centrales de precisión -->
+                                        <line x1="50" y1="2" x2="50" y2="8" stroke="currentColor" stroke-width="1" opacity="0.4" />
+                                        <line x1="50" y1="92" x2="50" y2="98" stroke="currentColor" stroke-width="1" opacity="0.4" />
+                                        <line x1="2" y1="50" x2="8" y2="50" stroke="currentColor" stroke-width="1" opacity="0.4" />
+                                        <line x1="92" y1="50" x2="98" y2="50" stroke="currentColor" stroke-width="1" opacity="0.4" />
+                                    </svg>
+                                </div>
+
+                                <div
+                                    class="avatar"
                                     class:placeholder={!profile?.avatar || avatarFailed}
                                     data-atropos-offset="2"
                                 >
@@ -231,7 +240,7 @@
                 {#if topBackendSkill}
                     <button
                         type="button"
-                        class="absolute -left-4 top-6 flex h-11 cursor-default items-center gap-2 overflow-hidden rounded-lg border border-primary/40 bg-base-100 px-2.5 text-primary shadow-lg transition-[width] duration-300 ease-out sm:-left-8 sm:top-8"
+                        class="absolute -left-4 top-5 flex h-11 cursor-default items-center gap-2 overflow-hidden rounded-lg border border-primary/40 bg-base-100 px-2.5 text-primary shadow-lg transition-[width] duration-300 ease-out sm:-left-8 sm:top-7"
                         data-atropos-offset="4"
                         aria-label={topBackendSkill.name}
                     >
