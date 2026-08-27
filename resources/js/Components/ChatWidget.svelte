@@ -5,6 +5,7 @@
     import { t } from '../lib/i18n.js';
     import { route } from '../lib/route.js';
     import { typewriter } from '../lib/typewriter.js';
+    import { renderMarkdown } from '../lib/markdown.js';
     import axios from 'axios';
 
     /**
@@ -31,6 +32,7 @@
     let sending = $state(false);
     let conversationId = $state(null);
     let messagesEl;
+    let textareaEl = $state();
     let turnstileEl = $state();
     let turnstileToken = $state(null);
     let turnstileWidgetId = null;
@@ -121,6 +123,22 @@
         messages = [...messages, { id: crypto.randomUUID(), role, text }];
     }
 
+    function autoResizeTextarea() {
+        if (!textareaEl) {
+            return;
+        }
+
+        textareaEl.style.height = 'auto';
+        textareaEl.style.height = `${Math.min(textareaEl.scrollHeight, 128)}px`;
+    }
+
+    function handleKeydown(event) {
+        if (event.key === 'Enter' && !event.shiftKey) {
+            event.preventDefault();
+            sendMessage(event);
+        }
+    }
+
     /**
      * `conversation_id` is generated client-side on the first message of
      * a session and reused for every following message so the backend
@@ -128,7 +146,9 @@
      * `ChatController` contract (`conversation_id?: string uuid`).
      */
     async function sendMessage(event) {
-        event.preventDefault();
+        if (event) {
+            event.preventDefault();
+        }
 
         const message = draft.trim();
 
@@ -142,6 +162,11 @@
 
         pushMessage('user', message);
         draft = '';
+
+        if (textareaEl) {
+            textareaEl.style.height = 'auto';
+        }
+
         sending = true;
 
         try {
@@ -201,13 +226,19 @@
 
         {#each messages as message (message.id)}
             <div class="flex {message.role === 'user' ? 'justify-end' : 'justify-start'}">
-                <p
-                    class="max-w-[85%] rounded-box px-4 py-2 text-sm {message.role === 'user'
-                        ? 'bg-primary text-primary-content'
-                        : 'bg-base-200 text-base-content'}"
-                >
-                    {message.text}
-                </p>
+                {#if message.role === 'user'}
+                    <div
+                        class="max-w-[85%] rounded-box bg-primary px-4 py-2.5 text-sm text-primary-content whitespace-pre-wrap"
+                    >
+                        {message.text}
+                    </div>
+                {:else}
+                    <div
+                        class="chat-markdown max-w-[85%] rounded-box bg-base-200 px-4 py-3 text-sm leading-relaxed text-base-content [&_a]:text-primary [&_a]:underline hover:[&_a]:opacity-80 [&_blockquote]:border-l-2 [&_blockquote]:border-primary/50 [&_blockquote]:pl-3 [&_blockquote]:italic [&_code]:rounded [&_code]:bg-base-300/80 [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:font-mono [&_code]:text-xs [&_ol]:my-2 [&_ol]:list-decimal [&_ol]:pl-5 [&_p]:mb-2.5 [&_p:last-child]:mb-0 [&_pre]:my-2 [&_pre]:overflow-x-auto [&_pre]:rounded-lg [&_pre]:bg-base-300 [&_pre]:p-3 [&_pre]:font-mono [&_pre]:text-xs [&_pre_code]:bg-transparent [&_pre_code]:p-0 [&_strong]:font-semibold [&_ul]:my-2 [&_ul]:list-disc [&_ul]:pl-5"
+                    >
+                        {@html renderMarkdown(message.text)}
+                    </div>
+                {/if}
             </div>
         {/each}
 
@@ -226,21 +257,24 @@
         <div bind:this={turnstileEl} class="empty:hidden"></div>
     {/if}
 
-    <form class="flex items-center gap-2" onsubmit={sendMessage}>
+    <form class="flex items-end gap-2" onsubmit={sendMessage}>
         <label for="chat-input" class="sr-only">{t('chat.input_label')}</label>
-        <input
+        <textarea
             id="chat-input"
-            type="text"
-            class="input input-bordered w-full"
-            placeholder={t('chat.input_placeholder')}
+            bind:this={textareaEl}
             bind:value={draft}
+            oninput={autoResizeTextarea}
+            onkeydown={handleKeydown}
+            rows="1"
+            class="textarea textarea-bordered min-h-[2.75rem] max-h-32 w-full resize-none py-2.5 leading-normal [scrollbar-width:thin] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-base-content/15 [&::-webkit-scrollbar-track]:bg-transparent"
+            placeholder={t('chat.input_placeholder')}
             disabled={sending}
             autocomplete="off"
-        />
+        ></textarea>
 
         <button
             type="submit"
-            class="btn btn-primary gap-2"
+            class="btn btn-primary h-[2.75rem] min-h-[2.75rem] shrink-0 gap-2"
             disabled={sending || !draft.trim() || (turnstileSiteKey && !turnstileToken)}
         >
             {#if sending}

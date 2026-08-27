@@ -68,7 +68,7 @@ class SendChatMessage
                 'X-Webhook-Secret' => $secret,
             ])
                 ->connectTimeout(5)
-                ->timeout(15)
+                ->timeout(30)
                 ->retry(1, 300)
                 ->post($webhookUrl, $payload);
         } catch (ConnectionException|Throwable) {

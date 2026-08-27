@@ -36,16 +36,32 @@ describe('ChatWidget', () => {
         expect(screen.getByText('Hola, quiero hacerte una consulta')).toBeInTheDocument();
     });
 
-    test('renders the real assistant reply from a successful response', async () => {
+    test('pressing Enter without Shift sends the message', async () => {
         axios.post.mockResolvedValueOnce({
-            data: { reply: 'Claro, contame más.', conversation_id: 'abc-123' },
+            data: { reply: 'Recibido por Enter', conversation_id: 'abc-123' },
+        });
+
+        render(ChatWidget, { props: { locale: 'es' } });
+
+        const textarea = screen.getByLabelText('Escribí tu mensaje');
+        await fireEvent.input(textarea, { target: { value: 'Mensaje con enter' } });
+        await fireEvent.keyDown(textarea, { key: 'Enter', shiftKey: false });
+
+        expect(await screen.findByText('Recibido por Enter')).toBeInTheDocument();
+    });
+
+    test('renders the real assistant reply from a successful response with markdown formatting', async () => {
+        axios.post.mockResolvedValueOnce({
+            data: { reply: 'Hola, soy **Ada** de `BAUBYTE`.', conversation_id: 'abc-123' },
         });
 
         render(ChatWidget, { props: { locale: 'es' } });
 
         await typeAndSend('Hola');
 
-        expect(await screen.findByText('Claro, contame más.')).toBeInTheDocument();
+        expect(await screen.findByText('Ada')).toBeInTheDocument();
+        expect(screen.getByText('Ada').tagName).toBe('STRONG');
+        expect(screen.getByText('BAUBYTE').tagName).toBe('CODE');
     });
 
     test('reuses the same conversation_id on a second message instead of generating a new one', async () => {
