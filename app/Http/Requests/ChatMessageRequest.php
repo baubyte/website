@@ -3,6 +3,8 @@
 namespace App\Http\Requests;
 
 use Illuminate\Contracts\Validation\Validator as ValidatorContract;
+use Illuminate\Validation\ValidationException;
+use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -33,7 +35,7 @@ class ChatMessageRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'message' => ['required', 'string', 'max:2000'],
+            'message' => ['required', 'string', 'max:800'],
             'conversation_id' => ['nullable', 'uuid'],
             'locale' => ['required', 'in:es,en'],
             'page' => ['nullable', 'string', 'max:255'],
@@ -45,6 +47,8 @@ class ChatMessageRequest extends FormRequest
     }
 
     /**
+     * @inheritDoc
+     *
      * @return array<int, callable>
      */
     public function after(): array
@@ -83,5 +87,23 @@ class ChatMessageRequest extends FormRequest
         }
 
         return $response->successful() && $response->json('success') === true;
+    }
+
+    /**
+     * Standardize validation errors so the frontend always receives
+     * the same `{ error, reply }` structure, avoiding client-side spaghetti.
+     *
+     * @throws \Illuminate\Validation\ValidationException
+     */
+    protected function failedValidation(Validator $validator)
+    {
+        $message = collect($validator->errors()->all())->join("\n");
+
+        $response = response()->json([
+            'error' => 'validation_error',
+            'reply' => $message,
+        ], 422);
+
+        throw new ValidationException($validator, $response);
     }
 }

@@ -109,6 +109,28 @@ describe('ChatWidget', () => {
         expect(screen.getByLabelText('Escribí tu mensaje')).not.toBeDisabled();
     });
 
+    test('a 422 validation error response displays the validation errors from backend', async () => {
+        axios.post.mockRejectedValueOnce({
+            response: {
+                status: 422,
+                data: {
+                    error: 'validation_error',
+                    reply: 'El campo mensaje no debe ser mayor que 800 caracteres.',
+                },
+            },
+        });
+
+        render(ChatWidget, { props: { locale: 'es' } });
+
+        await typeAndSend('Mensaje largo');
+
+        expect(
+            await screen.findByText('El campo mensaje no debe ser mayor que 800 caracteres.'),
+        ).toBeInTheDocument();
+
+        expect(screen.getByLabelText('Escribí tu mensaje')).not.toBeDisabled();
+    });
+
     test('a real network failure (axios rejects) falls back to the local error copy instead of throwing', async () => {
         axios.post.mockRejectedValueOnce(new Error('Network Error'));
 

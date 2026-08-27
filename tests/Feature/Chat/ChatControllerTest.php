@@ -33,6 +33,7 @@ class ChatControllerTest extends TestCase
         Config::set('app.url', 'https://example.test');
         Config::set('services.n8n.chat_webhook', self::WEBHOOK_URL);
         Config::set('services.n8n.secret', self::WEBHOOK_SECRET);
+        Config::set('services.turnstile.secret_key', null);
     }
 
     /** @param  array<string, mixed>  $overrides */
@@ -175,7 +176,7 @@ class ChatControllerTest extends TestCase
         $response = $this->postChat($this->validPayload(['message' => str_repeat('a', 2001)]));
 
         $response->assertStatus(422);
-        $response->assertJsonValidationErrors('message');
+        $response->assertJson(['error' => 'validation_error']);
         Http::assertNothingSent();
     }
 
@@ -186,7 +187,7 @@ class ChatControllerTest extends TestCase
         $response = $this->postChat($this->validPayload(['locale' => 'fr']));
 
         $response->assertStatus(422);
-        $response->assertJsonValidationErrors('locale');
+        $response->assertJson(['error' => 'validation_error']);
         Http::assertNothingSent();
     }
 
@@ -197,7 +198,7 @@ class ChatControllerTest extends TestCase
         $response = $this->postChat($this->validPayload(['conversation_id' => 'not-a-uuid']));
 
         $response->assertStatus(422);
-        $response->assertJsonValidationErrors('conversation_id');
+        $response->assertJson(['error' => 'validation_error']);
         Http::assertNothingSent();
     }
 
@@ -318,7 +319,7 @@ class ChatControllerTest extends TestCase
         $response = $this->postChat($this->validPayload());
 
         $response->assertStatus(422);
-        $response->assertJsonValidationErrors('turnstile_token');
+        $response->assertJson(['error' => 'validation_error']);
         Http::assertNotSent(fn (ClientRequest $request) => $request->url() === self::WEBHOOK_URL);
     }
 
@@ -332,7 +333,7 @@ class ChatControllerTest extends TestCase
         $response = $this->postChat($this->validPayload(['turnstile_token' => 'a-fake-token']));
 
         $response->assertStatus(422);
-        $response->assertJsonValidationErrors('turnstile_token');
+        $response->assertJson(['error' => 'validation_error']);
         Http::assertNotSent(fn (ClientRequest $request) => $request->url() === self::WEBHOOK_URL);
     }
 }

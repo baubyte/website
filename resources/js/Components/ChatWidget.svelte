@@ -188,14 +188,15 @@
 
             pushMessage('assistant', body?.reply ?? t('chat.network_error'));
         } catch (error) {
-            // Axios throws an error for non-2xx status codes.
-            // A 503 (`{ error: 'chat_unavailable', reply }`) already
-            // carries a localized, user-facing `reply` from
-            // `ChatController` — show it as-is instead of inventing
-            // another error string. Only fall back to the local
-            // `network_error` copy when the response itself is malformed.
-            if (error.response?.data?.reply) {
-                pushMessage('assistant', error.response.data.reply);
+            // A 503 (`{ error: 'chat_unavailable', reply }`) or a 422
+            // (`{ error: 'validation_error', reply }`) carries a localized,
+            // user-facing `reply` from the backend. Show it as-is.
+            // Only fall back to the local `network_error` copy when the response
+            // itself has no user-facing error message or is malformed.
+            const data = error.response?.data;
+
+            if (data?.reply) {
+                pushMessage('assistant', data.reply);
             } else {
                 pushMessage('assistant', t('chat.network_error'));
             }
