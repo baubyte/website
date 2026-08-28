@@ -111,6 +111,31 @@ task('deploy:verify', [
 after('deploy:failed', 'deploy:unlock');
 after('deploy', 'deploy:cleanup'); // Limpia versiones antiguas
 
+desc('Limpia de forma forzada los releases fallidos/viejos (Usar 1 sola vez)');
+task('deploy:force_cleanup', function () {
+    $releasesToKill = ['1', '2', '3', '4', '5', '6'];
+    foreach ($releasesToKill as $rel) {
+        run("rm -rf {{deploy_path}}/releases/$rel");
+    }
+    // Deployer 7 guarda el historial en formato JSON en un sola línea, por eso sed no funcionaba.
+    // Usamos PHP directamente en el servidor para parsear y limpiar el JSON.
+    $phpScript = <<<'PHP'
+$file = '.dep/releases';
+if (file_exists($file)) {
+    $data = json_decode(file_get_contents($file), true);
+    if (is_array($data)) {
+        $filtered = array_filter($data, function($item) {
+            $rel = is_array($item) ? ($item[1] ?? null) : $item;
+            return !in_array((string)$rel, ['1','2','3','4','5','6']);
+        });
+        file_put_contents($file, json_encode(array_values($filtered)));
+    }
+}
+PHP;
+    run("cd {{deploy_path}} && php -r " . escapeshellarg($phpScript));
+    writeln("<info>✓ Carpetas 1 al 6 eliminadas y referencias limpiadas.</info>");
+});
+
 desc('Limpia imágenes viejas de Docker, preservando las de los releases actuales');
 task('docker:prune', function () {
     // 1. Obtener los releases actuales que deployer está manteniendo
