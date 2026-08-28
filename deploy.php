@@ -126,8 +126,8 @@ task('docker:prune', function () {
         }
     }
 
-    // 2. Obtener todas las etiquetas (tags) de la imagen ghcr.io/baubyte/website
-    $tags = run("docker images ghcr.io/baubyte/website --format '{{.Tag}}'");
+    // 2. Obtener todas las etiquetas (tags) de la imagen ghcr.io/baubyte/website (evitamos usar {{.Tag}} para no chocar con el motor de plantillas de Deployer)
+    $tags = run("docker images ghcr.io/baubyte/website | awk '{if (NR>1) print \$2}'");
     
     // 3. Borrar las que no correspondan a los hashes que queremos mantener
     $deleted = 0;
