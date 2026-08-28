@@ -42,14 +42,20 @@ task('docker:down', function () {
 });
 
 task('deploy:docker', function () {
-    run('cd {{release_path}} && docker compose build && docker compose up -d --remove-orphans');
-    writeln('<info>✓ Contenedores Docker iniciados en modo daemon</info>');
+    run('cd {{release_path}} && docker compose pull && docker compose up -d --remove-orphans', timeout: 3600);
+    writeln('<info>✓ Contenedores Docker iniciados en modo daemon (desde GHCR)</info>');
+});
+
+desc('Importa datos legacy (ejecutar manualmente solo 1 vez)');
+task('artisan:legacy:import', function () {
+    run('cd {{current_path}} && docker compose exec -T baubyte-website php artisan legacy:import', timeout: 3600);
+    writeln('<info>✓ Importación legacy completada</info>');
 });
 
 desc('Ejecuta las migraciones de Laravel dentro de Docker');
 task('artisan:migrate', function () {
     // Usamos el exec para correr las migraciones en el contenedor que acabamos de levantar
-    run('cd {{release_path}} && docker compose exec -T baubyte-website php artisan migrate --force');
+    run('cd {{release_path}} && docker compose exec -T baubyte-website php artisan migrate --force', timeout: 360);
     writeln('<info>✓ Migraciones completadas</info>');
 });
 
@@ -90,7 +96,7 @@ task('deploy', [
     'deploy:publish',      // Symlink de current release
     'docker:down',         // Apaga la versión anterior
     'deploy:docker',       // Levanta la nueva (compila imágenes)
-    'artisan:migrate',     // Corre migraciones en BD
+    // 'artisan:migrate',     // Comentado temporalmente por migración inicial
     'artisan:storage:link', // Asegura el symlink de public/storage
 ]);
 
@@ -103,3 +109,10 @@ task('deploy:verify', [
 // --- Hooks ---
 after('deploy:failed', 'deploy:unlock');
 after('deploy', 'deploy:cleanup'); // Limpia versiones antiguas
+
+desc('Limpia imágenes viejas de Docker');
+task('docker:prune', function () {
+    run('docker image prune -a -f');
+    writeln('<info>✓ Imágenes antiguas de Docker purgadas</info>');
+});
+after('deploy', 'docker:prune'); // Limpia imagenes viejas de Docker

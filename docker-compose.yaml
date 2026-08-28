@@ -8,6 +8,7 @@ services:
       args:
         UID: 1001
         GID: 1001
+    image: ghcr.io/baubyte/website:web-latest
     container_name: baubyte-website
     restart: unless-stopped
     environment:
@@ -36,6 +37,7 @@ services:
       context: .
       dockerfile: Dockerfile
       target: ssr
+    image: ghcr.io/baubyte/website:ssr-latest
     container_name: baubyte-website-ssr
     restart: unless-stopped
     networks:
