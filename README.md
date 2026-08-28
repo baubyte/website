@@ -103,24 +103,36 @@ Además de las estándar de Laravel:
 
 ---
 
-## 🚢 Despliegue en Producción (Deployer + Docker)
+## 🚢 Despliegue en Producción (GitHub Actions + Deployer + Docker)
 
-El despliegue está automatizado con **Deployer** y **Docker Compose** detrás de **Traefik**.
+El flujo de despliegue combina **GitHub Actions** para la compilación de imágenes Docker en **GitHub Container Registry (GHCR)** y **Deployer** para la orquestación en el servidor detrás de **Traefik**.
 
+### 1. Construcción de Imágenes (CI)
+Las imágenes (`web` y `ssr`) se compilan y publican en GHCR mediante el workflow `.github/workflows/docker-publish.yml`:
+- **Automático**: al crear y pushear un tag de versión (`git push origin main --tags` con tags tipo `v*`).
+- **Manual**: desde la pestaña **Actions** en GitHub (*"Construir y Publicar Docker"* > *"Run workflow"*).
+
+### 2. Despliegue en Servidor (CD)
 ```bash
-# Desplegar en producción
+# Desplegar en producción (descarga imágenes desde GHCR y levanta contenedores)
 ./vendor/bin/dep deploy
 
 # Verificar estado de los contenedores
 ./vendor/bin/dep deploy:verify
+
+# Tareas manuales (en caso de requerirlas fuera del ciclo de deploy)
+./vendor/bin/dep artisan:legacy:import   # Importación inicial de base legacy (1 sola vez)
+./vendor/bin/dep artisan:migrate         # Ejecutar migraciones pendientes
 ```
 
-El pipeline de deploy:
-1. Sube y vincula `prod.env` como `.env` compartido.
+El pipeline de `dep deploy`:
+1. Sube y vincula `prod.env` como `.env` compartido (`shared/.env`).
 2. Mantiene persistente el directorio `storage/` con sus symlinks.
-3. Detiene la versión previa y compila las nuevas imágenes en Docker (etapa única de build en `Dockerfile` para evitar hydration mismatches).
-4. Ejecuta `php artisan migrate --force` y `php artisan storage:link` dentro del contenedor.
-5. Limpia versiones antiguas conservando los últimos 2 releases.
+3. Detiene la versión previa y descarga las imágenes precompiladas desde GHCR (`docker compose pull`).
+4. Levanta los contenedores en modo daemon (`docker compose up -d`).
+5. Asegura el symlink de `storage:link`.
+6. Limpia versiones antiguas de releases conservando los últimos 2 (`deploy:cleanup`).
+7. Purga imágenes huérfanas/antiguas de Docker para optimizar espacio en disco (`docker:prune`).
 
 ---
 
