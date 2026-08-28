@@ -98,7 +98,9 @@ Además de las estándar de Laravel:
 | `N8N_CHAT_WEBHOOK_URL` / `N8N_CHAT_WEBHOOK_SECRET` | ❌ | El chat responde "no disponible" sin llamar a n8n |
 | `TURNSTILE_SITE_KEY` / `TURNSTILE_SECRET_KEY` | ❌ | El chat no pide verificación anti-bot |
 | `CHAT_DAILY_MESSAGE_LIMIT` | ❌ (default 200) | — |
+| `INERTIA_SSR_ENABLED` | ❌ (default `false`) | Habilita Server-Side Rendering (debe ser `true` en producción) |
 | `INERTIA_SSR_URL` | ❌ | URL del servidor SSR (`http://ssr:13714` en prod Docker, `http://127.0.0.1:13714` en DDEV) |
+| `INERTIA_SSR_ENSURE_BUNDLE_EXISTS` | ❌ (default `true`) | En producción Docker debe ser `false` ya que el bundle reside en el contenedor `ssr` y no en el disco de PHP |
 | `WEASYPRINT_BINARY` | ❌ | Ruta al binario de WeasyPrint (`/usr/bin/weasyprint`) |
 
 ---
