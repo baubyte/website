@@ -10,7 +10,6 @@ use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Pages;
 use Filament\Panel;
 use Filament\PanelProvider;
-use Openplain\FilamentShadcnTheme\Color;
 use Filament\Support\Colors\Color as FilamentColor;
 use Filament\Widgets;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
@@ -19,6 +18,7 @@ use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use Openplain\FilamentShadcnTheme\Color;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -29,7 +29,9 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
-            ->brandName('Baubyte Admin')
+            ->passwordReset()
+            ->profile()
+            ->brandName('Baubyte Website CMS')
             ->favicon(asset('favicon.png'))
             ->font('Plus Jakarta Sans')
             ->defaultThemeMode(ThemeMode::Dark)
