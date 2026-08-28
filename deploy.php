@@ -42,7 +42,7 @@ task('docker:down', function () {
 });
 
 task('deploy:docker', function () {
-    $commitSha = run('cd {{release_path}} && git rev-parse HEAD');
+    $commitSha = trim(run('cat {{release_path}}/REVISION'));
     run("cd {{release_path}} && export IMAGE_TAG=$commitSha && docker compose pull && docker compose up -d --remove-orphans", timeout: 3600);
     writeln("<info>✓ Contenedores Docker iniciados con la imagen versión: $commitSha</info>");
 });
@@ -119,8 +119,10 @@ task('docker:prune', function () {
     foreach (explode("\n", $releases) as $release) {
         $release = trim($release);
         if (!empty($release)) {
-            $hash = run("cd {{deploy_path}}/releases/$release && git rev-parse HEAD");
-            $hashesToKeep[] = $hash;
+            $hash = trim(run("cat {{deploy_path}}/releases/$release/REVISION || echo ''"));
+            if (!empty($hash)) {
+                $hashesToKeep[] = $hash;
+            }
         }
     }
 
