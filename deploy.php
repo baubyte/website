@@ -55,7 +55,7 @@ task('artisan:legacy:import', function () {
 desc('Ejecuta las migraciones de Laravel dentro de Docker');
 task('artisan:migrate', function () {
     // Usamos el exec para correr las migraciones en el contenedor que acabamos de levantar
-    run('cd {{release_path}} && docker compose exec -T baubyte-website php artisan migrate --force', timeout: 360);
+    run('cd {{release_or_current_path}} && docker compose exec -T baubyte-website php artisan migrate --force', timeout: 360);
     writeln('<info>✓ Migraciones completadas</info>');
 });
 
