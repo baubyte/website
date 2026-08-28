@@ -42,8 +42,9 @@ task('docker:down', function () {
 });
 
 task('deploy:docker', function () {
-    run('cd {{release_path}} && docker compose pull && docker compose up -d --remove-orphans', timeout: 3600);
-    writeln('<info>✓ Contenedores Docker iniciados en modo daemon (desde GHCR)</info>');
+    $commitSha = run('cd {{release_path}} && git rev-parse HEAD');
+    run("cd {{release_path}} && export IMAGE_TAG=$commitSha && docker compose pull && docker compose up -d --remove-orphans", timeout: 3600);
+    writeln("<info>✓ Contenedores Docker iniciados con la imagen versión: $commitSha</info>");
 });
 
 desc('Importa datos legacy (ejecutar manualmente solo 1 vez)');
@@ -110,9 +111,48 @@ task('deploy:verify', [
 after('deploy:failed', 'deploy:unlock');
 after('deploy', 'deploy:cleanup'); // Limpia versiones antiguas
 
-desc('Limpia imágenes viejas de Docker');
+desc('Limpia imágenes viejas de Docker, preservando las de los releases actuales');
 task('docker:prune', function () {
-    run('docker image prune -a -f');
-    writeln('<info>✓ Imágenes antiguas de Docker purgadas</info>');
+    // 1. Obtener los releases actuales que deployer está manteniendo
+    $releases = run('ls -1 {{deploy_path}}/releases');
+    $hashesToKeep = [];
+    foreach (explode("\n", $releases) as $release) {
+        $release = trim($release);
+        if (!empty($release)) {
+            $hash = run("cd {{deploy_path}}/releases/$release && git rev-parse HEAD");
+            $hashesToKeep[] = $hash;
+        }
+    }
+
+    // 2. Obtener todas las etiquetas (tags) de la imagen ghcr.io/baubyte/website
+    $tags = run("docker images ghcr.io/baubyte/website --format '{{.Tag}}'");
+    
+    // 3. Borrar las que no correspondan a los hashes que queremos mantener
+    $deleted = 0;
+    foreach (explode("\n", $tags) as $tag) {
+        $tag = trim($tag);
+        if (empty($tag) || $tag === 'latest' || $tag === 'web-latest' || $tag === 'ssr-latest') {
+            continue;
+        }
+        
+        $shouldKeep = false;
+        foreach ($hashesToKeep as $hash) {
+            if (strpos($tag, $hash) !== false) {
+                $shouldKeep = true;
+                break;
+            }
+        }
+        
+        if (!$shouldKeep) {
+            // Utilizamos || true para no fallar el deploy si Docker no puede borrarla
+            run("docker rmi ghcr.io/baubyte/website:$tag || true", timeout: 300);
+            $deleted++;
+        }
+    }
+    
+    // 4. Limpiar dangling images (imágenes sin tag) de forma segura
+    run('docker image prune -f');
+    
+    writeln("<info>✓ Limpieza completada. Se eliminaron $deleted imágenes antiguas de versiones previas.</info>");
 });
 after('deploy', 'docker:prune'); // Limpia imagenes viejas de Docker

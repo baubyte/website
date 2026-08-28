@@ -112,6 +112,7 @@ El flujo de despliegue combina **GitHub Actions** para la compilación de imáge
 ### 1. Construcción de Imágenes (CI)
 Las imágenes (`web` y `ssr`) se compilan y publican en GHCR mediante el workflow `.github/workflows/docker-publish.yml`:
 - **Automático**: al crear y pushear un tag de versión (`git push origin main --tags` con tags tipo `v*`).
+- **Etiquetado doble**: las imágenes se etiquetan con `:latest` y también con el Hash del commit de Git (ej: `:web-abcdef1`). Esto es **crítico para poder hacer rollback**.
 - **Manual**: desde la pestaña **Actions** en GitHub (*"Construir y Publicar Docker"* > *"Run workflow"*).
 
 ### 2. Despliegue en Servidor (CD)
@@ -119,22 +120,19 @@ Las imágenes (`web` y `ssr`) se compilan y publican en GHCR mediante el workflo
 # Desplegar en producción (descarga imágenes desde GHCR y levanta contenedores)
 ./vendor/bin/dep deploy
 
+# Volver a la versión anterior (Rollback instantáneo)
+./vendor/bin/dep rollback
+
 # Verificar estado de los contenedores
 ./vendor/bin/dep deploy:verify
-
-# Tareas manuales (en caso de requerirlas fuera del ciclo de deploy)
-./vendor/bin/dep artisan:legacy:import   # Importación inicial de base legacy (1 sola vez)
-./vendor/bin/dep artisan:migrate         # Ejecutar migraciones pendientes
 ```
 
-El pipeline de `dep deploy`:
-1. Sube y vincula `prod.env` como `.env` compartido (`shared/.env`).
-2. Mantiene persistente el directorio `storage/` con sus symlinks.
-3. Detiene la versión previa y descarga las imágenes precompiladas desde GHCR (`docker compose pull`).
-4. Levanta los contenedores en modo daemon (`docker compose up -d`).
-5. Asegura el symlink de `storage:link`.
-6. Limpia versiones antiguas de releases conservando los últimos 2 (`deploy:cleanup`).
-7. Purga imágenes huérfanas/antiguas de Docker para optimizar espacio en disco (`docker:prune`).
+El pipeline de `dep deploy` / `dep rollback`:
+1. Mantiene persistente el directorio `storage/` con sus symlinks y archivo `.env`.
+2. Lee el Hash del commit del release actual que Deployer está desplegando.
+3. Inyecta este Hash como la variable `IMAGE_TAG`, y levanta los contenedores usando exactamente las imágenes de esa versión.
+4. Limpia versiones antiguas de releases conservando los últimos 2 (`deploy:cleanup`).
+5. **Prune inteligente**: el script analiza qué releases mantiene Deployer en disco, extrae sus hashes, y purga de Docker únicamente las imágenes antiguas que ya no son necesarias. Esto preserva localmente las imágenes de las últimas 2 versiones, permitiendo que `dep rollback` sea instantáneo al no tener que volver a descargar la imagen antigua desde GHCR.
 
 ---
 
