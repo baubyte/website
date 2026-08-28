@@ -9,6 +9,7 @@ use App\Models\Study;
 use App\Support\Icons\IconCatalog;
 use App\Support\Locale\Locale;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Cache;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -16,6 +17,14 @@ class HomeController extends Controller
 {
     public function index(): Response
     {
+        if (! session()->has('has_visited')) {
+            if (! Cache::has('site_visits')) {
+                Cache::forever('site_visits', 0);
+            }
+            Cache::increment('site_visits');
+            session()->put('has_visited', true);
+        }
+
         $locale = Locale::current();
         $profile = Profile::first();
 

@@ -2,12 +2,12 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Contracts\Validation\Validator as ValidatorContract;
-use Illuminate\Validation\ValidationException;
 use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Contracts\Validation\Validator as ValidatorContract;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 
 /**
  * `POST /api/chat` chat proxy. No per-user auth exists on this public
@@ -47,7 +47,7 @@ class ChatMessageRequest extends FormRequest
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      *
      * @return array<int, callable>
      */
@@ -93,7 +93,7 @@ class ChatMessageRequest extends FormRequest
      * Standardize validation errors so the frontend always receives
      * the same `{ error, reply }` structure, avoiding client-side spaghetti.
      *
-     * @throws \Illuminate\Validation\ValidationException
+     * @throws ValidationException
      */
     protected function failedValidation(Validator $validator)
     {

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 
 /**
  * One row per chat message the site receives via `ChatController`,
@@ -22,9 +23,10 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string|null $page
  * @property string $client_hash
  * @property string $reply_status
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property Carbon|null $deleted_at
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Lead newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Lead newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Lead onlyTrashed()
@@ -41,6 +43,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Lead whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Lead withTrashed(bool $withTrashed = true)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Lead withoutTrashed()
+ *
  * @mixin \Eloquent
  */
 class Lead extends Model

@@ -5,15 +5,17 @@ namespace Deployer;
 require 'recipe/common.php';
 
 // Cargar variables del archivo .env si no están en el entorno
-$envFile = __DIR__ . '/.env';
+$envFile = __DIR__.'/.env';
 if (file_exists($envFile)) {
     $lines = file($envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
     foreach ($lines as $line) {
-        if (strpos(trim($line), '#') === 0) continue; // Ignorar comentarios
+        if (strpos(trim($line), '#') === 0) {
+            continue;
+        } // Ignorar comentarios
         putenv($line);
     }
 }
-// Config 
+// Config
 set('application', 'Website Baubyte');
 set('repository', getenv('DEPLOY_REPO') ?: 'git@github.com:baubyte/website.git');
 set('keep_releases', 2);
@@ -27,7 +29,7 @@ add('shared_files', ['.env']);
 add('shared_dirs', ['storage']);
 
 // --- Configuración del Host ---
-host("production")
+host('production')
     ->set('hostname', getenv('DEPLOY_HOST') ?: 'default-host')
     ->set('remote_user', getenv('DEPLOY_USER') ?: 'default-user')
     ->set('deploy_path', getenv('DEPLOY_PATH') ?: '/default/path');
@@ -89,13 +91,13 @@ task('deploy', [
     'docker:down',         // Apaga la versión anterior
     'deploy:docker',       // Levanta la nueva (compila imágenes)
     'artisan:migrate',     // Corre migraciones en BD
-    'artisan:storage:link' // Asegura el symlink de public/storage
+    'artisan:storage:link', // Asegura el symlink de public/storage
 ]);
 
 desc('Verifica el estado completo del despliegue');
 task('deploy:verify', [
-    'env:check',       
-    'docker:status',   
+    'env:check',
+    'docker:status',
 ]);
 
 // --- Hooks ---

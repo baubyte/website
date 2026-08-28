@@ -3,6 +3,7 @@
 return [
     'hero' => [
         'download_cv' => 'Descargar CV',
+        'contact' => 'Hablemos',
         'years_experience' => '+:count años de experiencia',
     ],
     'about' => [

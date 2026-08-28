@@ -3,6 +3,7 @@
 return [
     'hero' => [
         'download_cv' => 'Download CV',
+        'contact' => "Let's talk",
         'years_experience' => '+:count years of experience',
     ],
     'about' => [

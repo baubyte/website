@@ -30,7 +30,7 @@ return [
     */
 
     'pdf' => [
-        'binary'  => env('WEASYPRINT_BINARY', '/usr/local/bin/weasyprint'),
+        'binary' => env('WEASYPRINT_BINARY', '/usr/local/bin/weasyprint'),
         'timeout' => 10,    // Default timeout is 10 seconds
         'page' => [     // By default uses @page { size: <format> <orientation> }, eg 'size: A4 landscape'
             'size' => null,
@@ -38,10 +38,10 @@ return [
         ],
         'options' => [
             'encoding' => null,
-            'stylesheet' => [], //An optional list of user stylesheets. The list can include are CSS objects, filenames, URLs, or file-like objects.s
-            'media-type' => null,   //Media type to use for @media.
+            'stylesheet' => [], // An optional list of user stylesheets. The list can include are CSS objects, filenames, URLs, or file-like objects.s
+            'media-type' => null,   // Media type to use for @media.
             'base-url' => null,
-            'attachment' => [], //A list of additional file attachments for the generated PDF document
+            'attachment' => [], // A list of additional file attachments for the generated PDF document
             'presentational-hints' => null,
             'pdf-identifier' => null,   // A bytestring used as PDF file identifier.
             'pdf-variant' => null,  // A PDF variant name.
@@ -49,7 +49,7 @@ return [
             'pdf-forms' => null,    // (bool) Whether PDF forms have to be included.
             'pdf-tags' => null,
             'custom-metadata' => null,
-            'uncompressed-pdf' => null, //Whether PDF content should be compressed.
+            'uncompressed-pdf' => null, // Whether PDF content should be compressed.
             'full-fonts' => null,
             'hinting' => null,
             'dpi' => null,
@@ -58,6 +58,6 @@ return [
             'cache-folder' => null,
             'timeout' => null,
         ],
-        'env'     => [],
+        'env' => [],
     ],
 ];

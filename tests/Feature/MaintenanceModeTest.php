@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Http\Middleware\PreventRequestsDuringMaintenance;
+use App\Models\User;
 use App\Services\MaintenanceToggler;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Artisan;
@@ -45,6 +46,7 @@ use Tests\TestCase;
 class MaintenanceModeTest extends TestCase
 {
     use RefreshDatabase;
+
     protected function tearDown(): void
     {
         Artisan::call('up');
@@ -122,8 +124,8 @@ class MaintenanceModeTest extends TestCase
             '--secret' => 'test-maintenance-secret',
         ]);
 
-        // A livewire route should be allowed by the basic maintenance bypass, 
-        // but our BlockPublicLivewireDuringMaintenance middleware should catch it 
+        // A livewire route should be allowed by the basic maintenance bypass,
+        // but our BlockPublicLivewireDuringMaintenance middleware should catch it
         // because the user is not authenticated.
         $response = $this->post(EndpointResolver::updatePath(), [], [
             'Accept' => 'application/json',
@@ -139,7 +141,7 @@ class MaintenanceModeTest extends TestCase
             '--secret' => 'test-maintenance-secret',
         ]);
 
-        $user = \App\Models\User::factory()->create();
+        $user = User::factory()->create();
 
         // An authenticated request should pass through the middleware
         // (It may return a 404/400 from Livewire since it's an empty payload, but NOT a 503)

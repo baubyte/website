@@ -69,6 +69,7 @@ class NoRoleOrPermissionTablesTest extends TestCase
             'failed_jobs',
             'profiles',
             'skills',
+            'skill_categories',
             'experiences',
             'studies',
             'portfolios',

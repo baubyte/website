@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\Concerns\ResolvesLocalizedFields;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
@@ -13,11 +14,12 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string $title_en
  * @property string|null $description_es
  * @property string|null $description_en
- * @property \Illuminate\Support\Carbon $start_date
- * @property \Illuminate\Support\Carbon|null $end_date
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property Carbon $start_date
+ * @property Carbon|null $end_date
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property Carbon|null $deleted_at
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Study newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Study newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Study onlyTrashed()
@@ -35,6 +37,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Study whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Study withTrashed(bool $withTrashed = true)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Study withoutTrashed()
+ *
  * @mixin \Eloquent
  */
 class Study extends Model
