@@ -37,7 +37,9 @@ jobs:
           context: .
           target: web
           push: true
-          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:web-latest
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:web-latest
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:web-${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -47,6 +49,8 @@ jobs:
           context: .
           target: ssr
           push: true
-          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:ssr-latest
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:ssr-latest
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:ssr-${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
