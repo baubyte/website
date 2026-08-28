@@ -19,25 +19,29 @@ class HomeController extends Controller
         $locale = Locale::current();
         $profile = Profile::first();
 
+        $profileData = $profile?->toLocalizedArray($locale);
+        $skillsData = Skill::with('skillCategory')->orderBy('name')->get()->map(fn (Skill $skill) => [
+            ...$skill->toArray(),
+            'category' => $skill->skillCategory ? $skill->skillCategory->toLocalizedArray($locale) : null,
+            'icon_data' => IconCatalog::resolve($skill->icon),
+        ])->values();
+
+        $experiencesData = Experience::orderBy('start_date', 'desc')->get()
+            ->map(fn (Experience $experience) => $experience->toLocalizedArray($locale))
+            ->values();
+
+        $studiesData = Study::orderBy('start_date', 'desc')->get()
+            ->map(fn (Study $study) => $study->toLocalizedArray($locale))
+            ->values();
+
+        $yearsOfExperience = $this->yearsOfExperience();
+
         return Inertia::render('Home', [
-            // `profile`/`experiences`/`studies` arrive already resolved to
-            // the session locale (see `ResolvesLocalizedFields`) — Svelte
-            // components never see the raw `_es`/`_en` field pair.
-            'profile' => $profile?->toLocalizedArray($locale),
-            'skills' => Skill::orderBy('name')->get()->map(fn (Skill $skill) => [
-                ...$skill->toArray(),
-                'icon_data' => IconCatalog::resolve($skill->icon),
-            ])->values(),
-            'experiences' => Experience::orderBy('start_date', 'desc')->get()
-                ->map(fn (Experience $experience) => $experience->toLocalizedArray($locale))
-                ->values(),
-            'studies' => Study::orderBy('start_date', 'desc')->get()
-                ->map(fn (Study $study) => $study->toLocalizedArray($locale))
-                ->values(),
-            // Real, computed from the earliest experience row — never a
-            // hardcoded string, so it never goes stale as experiences are
-            // added/edited from Filament.
-            'yearsOfExperience' => $this->yearsOfExperience(),
+            'profile' => $profileData,
+            'skills' => $skillsData,
+            'experiences' => $experiencesData,
+            'studies' => $studiesData,
+            'yearsOfExperience' => $yearsOfExperience,
         ]);
     }
 

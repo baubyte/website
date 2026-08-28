@@ -2,9 +2,10 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\ExperienceResource\Pages;
+use App\Filament\Resources\ExperienceResource\Pages\CreateExperience;
+use App\Filament\Resources\ExperienceResource\Pages\EditExperience;
+use App\Filament\Resources\ExperienceResource\Pages\ListExperiences;
 use App\Models\Experience;
-use Filament\Actions;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -16,12 +17,10 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
-use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
-
 
 class ExperienceResource extends Resource
 {
@@ -40,55 +39,62 @@ class ExperienceResource extends Resource
         return $schema
             ->components([
                 self::getPersonalInfoSection(),
+                self::getJobDetailsSection(),
             ]);
     }
 
     private static function getPersonalInfoSection(): Section
     {
         return Section::make('Información Laboral')
-            ->description('Datos de la experiencia')
+            ->description('Empresa y Fechas')
             ->columns(2)
             ->columnSpanFull()
             ->schema([
                 TextInput::make('company')
                     ->label('Empresa')
                     ->required()
-                    ->minLength(2)
                     ->maxLength(120)
-                    ->columnSpanFull(),
-                TextInput::make('specialty_es')
-                    ->label('Especialidad (ES)')
-                    ->required()
                     ->minLength(2)
-                    ->maxLength(120),
-                TextInput::make('specialty_en')
-                    ->label('Especialidad (EN)')
-                    ->required()
-                    ->maxLength(120),
-                Textarea::make('description_es')
-                    ->label('Descripción (ES)')
-                    ->nullable()
-                    ->minLength(10)
-                    ->maxLength(500)
-                    ->rows(6)
-                    ->columnSpanFull(),
-                Textarea::make('description_en')
-                    ->label('Descripción (EN)')
-                    ->nullable()
-                    ->minLength(10)
-                    ->maxLength(120)
-                    ->rows(6)
                     ->columnSpanFull(),
                 DatePicker::make('start_date')
                     ->label('Fecha de inicio')
-                    ->required(),
+                    ->native(false)
+                    ->required()
+                    ->date(),
                 DatePicker::make('end_date')
                     ->label('Fecha de fin')
+                    ->native(false)
+                    ->date()
+                    ->afterOrEqual('start_date')
+                    ->nullable(),
+            ]);
+    }
+
+    private static function getJobDetailsSection(): Section
+    {
+        return Section::make('Puesto')
+            ->description('Información del puesto')
+            ->columns(2)
+            ->columnSpanFull()
+            ->schema([
+                TextInput::make('specialty_es')
+                    ->label('Especialidad (ES)')
+                    ->required()
+                    ->rules(['min:2', 'max:120']),
+                TextInput::make('specialty_en')
+                    ->label('Especialidad (EN)')
+                    ->required()
+                    ->rules(['min:2', 'max:120']),
+                Textarea::make('description_es')
+                    ->label('Descripción (ES)')
                     ->nullable()
-                    ->minDate(fn (Get $get) => $get('start_date'))
-                    ->validationMessages([
-                        'after_or_equal' => 'La :attribute no puede ser menor a :date.',
-                    ]),
+                    ->rules(['min:10', 'max:500'])
+                    ->rows(6),
+                Textarea::make('description_en')
+                    ->label('Descripción (EN)')
+                    ->nullable()
+                    ->rules(['min:10', 'max:500'])
+                    ->rows(6),
             ]);
     }
 
@@ -104,11 +110,11 @@ class ExperienceResource extends Resource
                     ->label('Especialidad (ES)')
                     ->searchable(),
                 TextColumn::make('start_date')
-                    ->label('Fecha de inicio')
+                    ->label('Fecha de Inicio')
                     ->date()
                     ->sortable(),
                 TextColumn::make('end_date')
-                    ->label('Fecha de fin')
+                    ->label('Fecha de Fin')
                     ->date()
                     ->sortable(),
             ])
@@ -138,9 +144,9 @@ class ExperienceResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListExperiences::route('/'),
-            'create' => Pages\CreateExperience::route('/create'),
-            'edit' => Pages\EditExperience::route('/{record}/edit'),
+            'index' => ListExperiences::route('/'),
+            'create' => CreateExperience::route('/create'),
+            'edit' => EditExperience::route('/{record}/edit'),
         ];
     }
 }

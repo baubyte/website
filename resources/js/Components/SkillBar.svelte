@@ -28,13 +28,13 @@
         >
             <Icon icon={meta.icon} width="20" height="20" />
         </span>
-        <span class="flex-1 text-sm font-medium">{meta.label}</span>
+        <span class="flex-1 text-sm font-medium">{skill.name}</span>
         <span class="text-xs text-base-content/60">{skill.percentage}%</span>
     </div>
     <div
         class="h-2.5 w-full overflow-hidden rounded-full bg-base-300"
         role="progressbar"
-        aria-label={meta.label}
+        aria-label={skill.name}
         aria-valuenow={skill.percentage}
         aria-valuemin="0"
         aria-valuemax="100"

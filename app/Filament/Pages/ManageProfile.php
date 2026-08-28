@@ -5,9 +5,10 @@ namespace App\Filament\Pages;
 use App\Models\Profile;
 use App\Services\MaintenanceToggler;
 use Filament\Actions\Action;
+use Filament\Actions\ActionGroup;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Notifications\Notification;
@@ -24,8 +25,8 @@ use Filament\Schemas\Schema;
  */
 class ManageProfile extends Page implements HasForms
 {
-    use InteractsWithForms;
     use HasUnsavedDataChangesAlert;
+    use InteractsWithForms;
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-user-circle';
 
@@ -93,7 +94,7 @@ class ManageProfile extends Page implements HasForms
                     ->rules([
                         'email',
                         'min:2',
-                        'max:100'
+                        'max:100',
                     ])
                     ->columnSpanFull(),
             ]);
@@ -109,14 +110,14 @@ class ManageProfile extends Page implements HasForms
                     ->label('Descripción (ES)')
                     ->rules([
                         'min:10',
-                        'max:500'
+                        'max:500',
                     ])
                     ->rows(6),
                 Textarea::make('description_en')
                     ->label('Descripción (EN)')
                     ->rules([
                         'min:10',
-                        'max:500'
+                        'max:500',
                     ])
                     ->rows(6),
                 TextInput::make('specialty_es')
@@ -124,28 +125,28 @@ class ManageProfile extends Page implements HasForms
                     ->required()
                     ->rules([
                         'min:2',
-                        'max:100'
+                        'max:100',
                     ]),
                 TextInput::make('specialty_en')
                     ->label('Especialidad (EN)')
                     ->required()
                     ->rules([
                         'min:2',
-                        'max:100'
+                        'max:100',
                     ]),
                 TextInput::make('language_es')
                     ->label('Idioma (ES)')
                     ->required()
                     ->rules([
                         'min:2',
-                        'max:100'
+                        'max:100',
                     ]),
                 TextInput::make('language_en')
                     ->label('Idioma (EN)')
                     ->required()
                     ->rules([
                         'min:2',
-                        'max:100'
+                        'max:100',
                     ]),
             ]);
     }
@@ -160,19 +161,19 @@ class ManageProfile extends Page implements HasForms
                     ->label('GitHub URL')
                     ->url()
                     ->rules([
-                        'max:100'
+                        'max:100',
                     ]),
                 TextInput::make('linkedin_url')
                     ->label('LinkedIn URL')
                     ->url()
                     ->rules([
-                        'max:100'
+                        'max:100',
                     ]),
                 TextInput::make('instagram_url')
                     ->label('Instagram URL')
                     ->url()
                     ->rules([
-                        'max:100'
+                        'max:100',
                     ]),
             ]);
     }
@@ -192,42 +193,46 @@ class ManageProfile extends Page implements HasForms
     }
 
     /**
-     * Connects the `MaintenanceToggler` service to a real panel UI: a
-     * single header action that flips between activate/deactivate depending
-     * on the app's current maintenance state.
+     * Header actions for the profile page
+     *
+     * @return array<Action>
      */
     protected function getHeaderActions(): array
     {
         return [
+            $this->downloadCvAction(),
             $this->toggleMaintenanceModeAction(),
         ];
     }
 
+    /**
+     * Toggles the application's maintenance mode.
+     */
     protected function toggleMaintenanceModeAction(): Action
     {
         return Action::make('toggleMaintenanceMode')
-            ->label(fn(): string => app()->isDownForMaintenance()
+            ->label(fn (): string => app()->isDownForMaintenance()
                 ? 'Desactivar modo mantenimiento'
                 : 'Activar modo mantenimiento')
-            ->color(fn(): string => app()->isDownForMaintenance() ? 'success' : 'danger')
-            ->icon(fn(): string => app()->isDownForMaintenance()
+            ->color(fn (): string => app()->isDownForMaintenance() ? 'success' : 'danger')
+            ->icon(fn (): string => app()->isDownForMaintenance()
                 ? 'heroicon-o-lock-open'
                 : 'heroicon-o-lock-closed')
             ->requiresConfirmation()
-            ->modalHeading(fn(): string => app()->isDownForMaintenance()
+            ->modalHeading(fn (): string => app()->isDownForMaintenance()
                 ? 'Desactivar modo mantenimiento'
                 : 'Activar modo mantenimiento')
-            ->modalDescription(fn(): string => app()->isDownForMaintenance()
+            ->modalDescription(fn (): string => app()->isDownForMaintenance()
                 ? '¿Estás seguro de que deseas desactivar el modo mantenimiento? El sitio volverá a estar público.'
                 : '¿Estás seguro de que deseas activar el modo mantenimiento? Los visitantes no podrán acceder al sitio público.')
-            ->modalSubmitActionLabel(fn(): string => app()->isDownForMaintenance()
+            ->modalSubmitActionLabel(fn (): string => app()->isDownForMaintenance()
                 ? 'Sí, desactivar'
                 : 'Sí, activar')
             ->modalCancelActionLabel('Cancelar')
-            ->modalIcon(fn(): string => app()->isDownForMaintenance()
+            ->modalIcon(fn (): string => app()->isDownForMaintenance()
                 ? 'heroicon-o-check-circle'
                 : 'heroicon-o-exclamation-triangle')
-            ->modalIconColor(fn(): string => app()->isDownForMaintenance() ? 'success' : 'danger')
+            ->modalIconColor(fn (): string => app()->isDownForMaintenance() ? 'success' : 'danger')
             ->action(function (MaintenanceToggler $toggler): void {
                 if (app()->isDownForMaintenance()) {
                     $toggler->deactivate();
@@ -249,5 +254,25 @@ class ManageProfile extends Page implements HasForms
                     ->warning()
                     ->send();
             });
+    }
+
+    protected function downloadCvAction(): ActionGroup
+    {
+        return ActionGroup::make([
+            Action::make('downloadCvEs')
+                ->label('Español')
+                ->icon('heroicon-o-document-text')
+                ->url(route('cv.download', ['locale' => 'es']))
+                ->openUrlInNewTab(),
+            Action::make('downloadCvEn')
+                ->label('Ingles')
+                ->icon('heroicon-o-globe-alt')
+                ->url(route('cv.download', ['locale' => 'en']))
+                ->openUrlInNewTab(),
+        ])
+            ->label('Descargar CV')
+            ->icon('heroicon-o-arrow-down-tray')
+            ->color('gray')
+            ->button();
     }
 }

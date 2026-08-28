@@ -36,6 +36,9 @@ class ManageProfilePageTest extends TestCase
             'avatar' => 'avatar.webp',
             'email_contact' => 'contact@example.test',
             'specialty_es' => 'Desarrollador Backend',
+            'specialty_en' => 'Backend Developer',
+            'language_es' => 'Español (Nativo)',
+            'language_en' => 'English (Fluent)',
         ]);
     }
 
@@ -77,5 +80,14 @@ class ManageProfilePageTest extends TestCase
             'id' => $profile->id,
             'specialty_es' => 'Desarrollador Full Stack',
         ]);
+    }
+
+    public function test_it_can_trigger_download_cv_action_with_selected_locale(): void
+    {
+        $this->makeProfile();
+
+        Livewire::test(ManageProfile::class)
+            ->assertActionExists('downloadCvEs')
+            ->assertActionExists('downloadCvEn');
     }
 }

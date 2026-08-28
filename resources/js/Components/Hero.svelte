@@ -25,7 +25,7 @@
      */
     const topSkillIn = (category) =>
         skills
-            .filter((skill) => skill.category === category)
+            .filter((skill) => skill.category?.name === category)
             .slice()
             .sort((a, b) => (b.percentage ?? 0) - (a.percentage ?? 0))[0] ?? null;
 

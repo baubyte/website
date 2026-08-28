@@ -2,45 +2,88 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\StudyResource\Pages;
+use App\Filament\Resources\StudyResource\Pages\CreateStudy;
+use App\Filament\Resources\StudyResource\Pages\EditStudy;
+use App\Filament\Resources\StudyResource\Pages\ListStudies;
 use App\Models\Study;
-use Filament\Actions;
-use Filament\Forms;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
-use Filament\Tables;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 
 class StudyResource extends Resource
 {
     protected static ?string $model = Study::class;
 
-    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $modelLabel = 'Estudio';
+
+    protected static ?string $pluralModelLabel = 'Estudios';
+
+    protected static ?string $navigationLabel = 'Estudios';
+
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-academic-cap';
 
     public static function form(Schema $schema): Schema
     {
         return $schema
+            ->components([
+                self::getStudyInfoSection(),
+                self::getStudyDescriptionSection(),
+            ]);
+    }
+
+    private static function getStudyInfoSection(): Section
+    {
+        return Section::make('Información Académica')
+            ->description('Institución y Fechas')
+            ->columns(2)
+            ->columnSpanFull()
             ->schema([
-                Forms\Components\TextInput::make('entity')
+                TextInput::make('entity')
+                    ->label('Institución')
                     ->required()
-                    ->maxLength(120),
-                Forms\Components\TextInput::make('title_es')
-                    ->label('Title (ES)')
-                    ->required()
-                    ->maxLength(120),
-                Forms\Components\TextInput::make('title_en')
-                    ->label('Title (EN)')
-                    ->required()
-                    ->maxLength(120),
-                Forms\Components\Textarea::make('description_es')
-                    ->label('Description (ES)')
+                    ->rules(['min:2', 'max:120'])
                     ->columnSpanFull(),
-                Forms\Components\Textarea::make('description_en')
-                    ->label('Description (EN)')
-                    ->columnSpanFull(),
-                Forms\Components\DatePicker::make('start_date')
+                DatePicker::make('start_date')
+                    ->label('Fecha de Inicio')
+                    ->native(false)
                     ->required(),
-                Forms\Components\DatePicker::make('end_date'),
+                DatePicker::make('end_date')
+                    ->label('Fecha de Fin')
+                    ->native(false)
+                    ->afterOrEqual('start_date')
+                    ->nullable(),
+            ]);
+    }
+
+    private static function getStudyDescriptionSection(): Section
+    {
+        return Section::make('Descripción del Estudio')
+            ->description('Título y descripción en ambos idiomas')
+            ->columns(2)
+            ->columnSpanFull()
+            ->schema([
+                TextInput::make('title_es')
+                    ->label('Título (ES)')
+                    ->required()
+                    ->rules(['min:2', 'max:120']),
+                TextInput::make('title_en')
+                    ->label('Título (EN)')
+                    ->required()
+                    ->rules(['min:2', 'max:120']),
+                Textarea::make('description_es')
+                    ->label('Descripción (ES)'),
+                Textarea::make('description_en')
+                    ->label('Descripción (EN)'),
             ]);
     }
 
@@ -48,29 +91,32 @@ class StudyResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('entity')
+                TextColumn::make('entity')
+                    ->label('Institución')
                     ->searchable()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('title_es')
-                    ->label('Title (ES)')
+                TextColumn::make('title_es')
+                    ->label('Titulo (ES)')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('start_date')
+                TextColumn::make('start_date')
+                    ->label('Fecha de Inicio')
                     ->date()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('end_date')
+                TextColumn::make('end_date')
+                    ->label('Fecha de Fin')
                     ->date()
                     ->sortable(),
             ])
             ->filters([
-                //
+                TrashedFilter::make(),
             ])
             ->recordActions([
-                Actions\EditAction::make(),
-                Actions\DeleteAction::make(),
+                EditAction::make(),
+                DeleteAction::make(),
             ])
             ->toolbarActions([
-                Actions\BulkActionGroup::make([
-                    Actions\DeleteBulkAction::make(),
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
                 ]),
             ]);
     }
@@ -85,9 +131,9 @@ class StudyResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListStudies::route('/'),
-            'create' => Pages\CreateStudy::route('/create'),
-            'edit' => Pages\EditStudy::route('/{record}/edit'),
+            'index' => ListStudies::route('/'),
+            'create' => CreateStudy::route('/create'),
+            'edit' => EditStudy::route('/{record}/edit'),
         ];
     }
 }

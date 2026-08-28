@@ -76,6 +76,16 @@ class CvDownloadTest extends TestCase
         $this->assertStringStartsWith('%PDF-', $response->getContent());
     }
 
+    public function test_download_cv_with_explicit_locale_parameter(): void
+    {
+        $this->seedRealData();
+
+        $response = $this->get('/download-cv?locale=en');
+
+        $response->assertOk();
+        $response->assertHeader('Content-Type', 'application/pdf');
+    }
+
     public function test_download_cv_without_a_profile_still_responds_with_a_pdf(): void
     {
         $response = $this->get('/download-cv');
@@ -153,8 +163,6 @@ class CvDownloadTest extends TestCase
         $this->assertSame(3, substr_count($html, 'class="entry"'));
     }
 
-
-
     private function renderCvView(?Profile $profile): string
     {
         return view('pdf.cv', $this->cvViewData($profile))->render();
@@ -203,5 +211,4 @@ class CvDownloadTest extends TestCase
 
         return $entry;
     }
-
 }

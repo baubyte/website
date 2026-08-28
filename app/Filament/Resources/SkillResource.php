@@ -2,52 +2,98 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\SkillResource\Pages;
+use App\Filament\Resources\SkillResource\Pages\CreateSkill;
+use App\Filament\Resources\SkillResource\Pages\EditSkill;
+use App\Filament\Resources\SkillResource\Pages\ListSkills;
 use App\Models\Skill;
 use App\Support\Icons\IconCatalog;
 use Closure;
-use Filament\Actions;
-use Filament\Forms;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
-use Filament\Tables;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 
 class SkillResource extends Resource
 {
     protected static ?string $model = Skill::class;
 
-    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $modelLabel = 'Habilidad';
+
+    protected static ?string $pluralModelLabel = 'Habilidades';
+
+    protected static ?string $navigationLabel = 'Habilidades';
+
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-puzzle-piece';
 
     public static function form(Schema $schema): Schema
     {
         return $schema
+            ->components([
+                self::getSkillInfoSection(),
+                self::getSkillConfigSection(),
+            ]);
+    }
+
+    protected static function getSkillInfoSection(): Section
+    {
+        return Section::make('Información de la Habilidad')
+            ->description('Datos y Nivel de la habilidad')
+            ->columns(2)
+            ->columnSpanFull()
             ->schema([
-                Forms\Components\TextInput::make('name')
+                TextInput::make('name')
+                    ->label('Nombre')
                     ->required()
-                    ->maxLength(120),
-                Forms\Components\TextInput::make('percentage')
-                    ->label('Percentage')
-                    ->numeric()
-                    ->minValue(0)
-                    ->maxValue(100)
+                    ->rules(['min:2', 'max:120']),
+                TextInput::make('percentage')
+                    ->label('Porcentaje')
                     ->suffix('%')
-                    ->required(),
-                Forms\Components\TextInput::make('category')
-                    ->label('Category')
-                    ->helperText('How this skill groups on the public site. Free text — group them however makes sense, e.g. "Lenguajes", "Frameworks", "Bases de datos".')
-                    ->datalist(fn () => Skill::query()->whereNotNull('category')->distinct()->orderBy('category')->pluck('category')->all())
-                    ->maxLength(60),
-                Forms\Components\Select::make('icon')
-                    ->label('Icon')
-                    ->helperText('Search across ~1000 tech icons. Optional — skills left without one fall back to legacy name matching on the public site.')
+                    ->required()
+                    ->rules(['numeric', 'integer', 'min:1', 'max:100']),
+            ]);
+    }
+
+    protected static function getSkillConfigSection(): Section
+    {
+        return Section::make('Configuración de la Habilidad')
+            ->description('Categoría e Icono de la habilidad')
+            ->columns(2)
+            ->columnSpanFull()
+            ->schema([
+                Select::make('skill_category_id')
+                    ->relationship('skillCategory', 'name_es')
+                    ->label('Categoría')
+                    ->helperText('Cómo se agrupa esta habilidad en el sitio público.')
+                    ->searchable()
+                    ->preload()
+                    ->createOptionForm([
+                        TextInput::make('name_es')
+                            ->label('Nombre (Español)')
+                            ->required()
+                            ->maxLength(60),
+                        TextInput::make('name_en')
+                            ->label('Nombre (Inglés)')
+                            ->maxLength(60),
+                    ]),
+                Select::make('icon')
+                    ->label('Icono')
+                    ->helperText('Busca entre ~1000 iconos de tecnología. Opcional: las habilidades sin icono quedan sin él y usan el sistema de coincidencia de nombres heredado en el sitio público.')
                     ->searchable()
                     ->allowHtml()
                     ->getSearchResultsUsing(fn (string $search): array => self::iconOptions(IconCatalog::search($search)))
                     ->getOptionLabelUsing(fn (?string $state): ?string => $state === null ? null : self::renderIconOption($state, IconCatalog::labelFor($state) ?? $state))
                     ->rule(fn (): Closure => function (string $attribute, mixed $value, Closure $fail): void {
                         if ($value !== null && ! IconCatalog::has($value)) {
-                            $fail('The selected icon is not valid.');
+                            $fail('El icono seleccionado no es válido.');
                         }
                     }),
             ]);
@@ -57,33 +103,36 @@ class SkillResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('name')
+                TextColumn::make('name')
                     ->searchable()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('category')
+                TextColumn::make('skillCategory.name_es')
+                    ->label('Categoría')
                     ->badge()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('percentage')
+                TextColumn::make('percentage')
                     ->suffix('%')
                     ->sortable(),
-                Tables\Columns\TextColumn::make('icon')
-                    ->label('Icon')
+                TextColumn::make('icon')
+                    ->label('Icono')
                     ->html()
                     ->formatStateUsing(fn (?string $state): string => $state === null
                         ? '—'
                         : self::renderIconOption($state, IconCatalog::labelFor($state) ?? $state)),
             ])
             ->filters([
-                Tables\Filters\SelectFilter::make('category')
-                    ->options(fn () => Skill::query()->whereNotNull('category')->distinct()->orderBy('category')->pluck('category', 'category')->all()),
+                SelectFilter::make('skill_category_id')
+                    ->relationship('skillCategory', 'name_es')
+                    ->label('Categoría'),
+                TrashedFilter::make(),
             ])
             ->recordActions([
-                Actions\EditAction::make(),
-                Actions\DeleteAction::make(),
+                EditAction::make(),
+                DeleteAction::make(),
             ])
             ->toolbarActions([
-                Actions\BulkActionGroup::make([
-                    Actions\DeleteBulkAction::make(),
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
                 ]),
             ]);
     }
@@ -113,7 +162,7 @@ class SkillResource extends Resource
         }
 
         return sprintf(
-            '<span class="flex items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 %d %d" width="20" height="20" class="shrink-0">%s</svg><span>%s</span></span>',
+            '<span class="inline-flex items-center gap-2" style="display: inline-flex; align-items: center; gap: 0.5rem; vertical-align: middle;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 %d %d" width="20" height="20" class="shrink-0" style="width: 20px; height: 20px; flex-shrink: 0; display: inline-block; vertical-align: middle;">%s</svg><span>%s</span></span>',
             $icon['width'],
             $icon['height'],
             $icon['body'],
@@ -131,9 +180,9 @@ class SkillResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListSkills::route('/'),
-            'create' => Pages\CreateSkill::route('/create'),
-            'edit' => Pages\EditSkill::route('/{record}/edit'),
+            'index' => ListSkills::route('/'),
+            'create' => CreateSkill::route('/create'),
+            'edit' => EditSkill::route('/{record}/edit'),
         ];
     }
 }

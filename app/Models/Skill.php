@@ -3,7 +3,9 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
@@ -11,9 +13,10 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int $percentage
  * @property string|null $category
  * @property string|null $icon
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property Carbon|null $deleted_at
+ *
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Skill newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Skill newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Skill onlyTrashed()
@@ -27,6 +30,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Skill whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Skill withTrashed(bool $withTrashed = true)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Skill withoutTrashed()
+ *
  * @mixin \Eloquent
  */
 class Skill extends Model
@@ -41,7 +45,15 @@ class Skill extends Model
     protected $fillable = [
         'name',
         'percentage',
-        'category',
+        'skill_category_id',
         'icon',
     ];
+
+    /**
+     * @return BelongsTo<SkillCategory, static>
+     */
+    public function skillCategory()
+    {
+        return $this->belongsTo(SkillCategory::class);
+    }
 }

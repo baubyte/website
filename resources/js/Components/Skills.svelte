@@ -19,7 +19,7 @@
         const fallbackCategory = t('skills.other');
 
         for (const skill of skills) {
-            const category = skill.category?.trim() || fallbackCategory;
+            const category = skill.category?.name?.trim() || fallbackCategory;
 
             if (!byCategory.has(category)) {
                 byCategory.set(category, []);

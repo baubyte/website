@@ -78,7 +78,7 @@ class ExperienceResourceTest extends TestCase
         ]);
     }
 
-    public function test_it_can_soft_delete_an_experience(): void
+    public function test_it_soft_deletes_an_experience(): void
     {
         $experience = $this->makeExperience();
 
@@ -86,5 +86,19 @@ class ExperienceResourceTest extends TestCase
             ->callTableAction('delete', $experience);
 
         $this->assertSoftDeleted('experiences', ['id' => $experience->id]);
+    }
+
+    public function test_it_rejects_end_date_before_start_date(): void
+    {
+        Livewire::test(CreateExperience::class)
+            ->fillForm([
+                'company' => 'Baubyte',
+                'specialty_es' => 'Backend',
+                'specialty_en' => 'Backend',
+                'start_date' => '2022-01-01',
+                'end_date' => '2020-01-01',
+            ])
+            ->call('create')
+            ->assertHasFormErrors(['end_date']);
     }
 }
