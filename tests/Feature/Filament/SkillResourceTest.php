@@ -2,9 +2,9 @@
 
 namespace Tests\Feature\Filament;
 
-use App\Filament\Resources\SkillResource\Pages\CreateSkill;
-use App\Filament\Resources\SkillResource\Pages\EditSkill;
-use App\Filament\Resources\SkillResource\Pages\ListSkills;
+use App\Filament\Resources\Skill\Pages\CreateSkill;
+use App\Filament\Resources\Skill\Pages\EditSkill;
+use App\Filament\Resources\Skill\Pages\ListSkills;
 use App\Models\Skill;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;

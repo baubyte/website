@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Filament\Resources\ExperienceResource\Pages;
+namespace App\Filament\Resources\Experience\Pages;
 
-use App\Filament\Resources\ExperienceResource;
-use Filament\Actions;
+use App\Filament\Resources\Experience\ExperienceResource;
+use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
 
 class ListExperiences extends ListRecords
@@ -13,7 +13,7 @@ class ListExperiences extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make(),
+            CreateAction::make(),
         ];
     }
 }

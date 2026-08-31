@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Filament\Resources\SkillResource\Pages;
+namespace App\Filament\Resources\Skill\Pages;
 
-use App\Filament\Resources\SkillResource;
+use App\Filament\Resources\Skill\SkillResource;
 use Filament\Resources\Pages\CreateRecord;
 
 class CreateSkill extends CreateRecord

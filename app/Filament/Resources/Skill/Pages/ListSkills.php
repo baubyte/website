@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Filament\Resources\SkillResource\Pages;
+namespace App\Filament\Resources\Skill\Pages;
 
-use App\Filament\Resources\SkillResource;
-use Filament\Actions;
+use App\Filament\Resources\Skill\SkillResource;
+use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
 
 class ListSkills extends ListRecords
@@ -13,7 +13,7 @@ class ListSkills extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make(),
+            CreateAction::make(),
         ];
     }
 }

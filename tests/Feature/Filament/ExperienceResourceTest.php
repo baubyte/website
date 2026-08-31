@@ -2,9 +2,9 @@
 
 namespace Tests\Feature\Filament;
 
-use App\Filament\Resources\ExperienceResource\Pages\CreateExperience;
-use App\Filament\Resources\ExperienceResource\Pages\EditExperience;
-use App\Filament\Resources\ExperienceResource\Pages\ListExperiences;
+use App\Filament\Resources\Experience\Pages\CreateExperience;
+use App\Filament\Resources\Experience\Pages\EditExperience;
+use App\Filament\Resources\Experience\Pages\ListExperiences;
 use App\Models\Experience;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;

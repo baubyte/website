@@ -2,9 +2,9 @@
 
 namespace Tests\Feature\Filament;
 
-use App\Filament\Resources\StudyResource\Pages\CreateStudy;
-use App\Filament\Resources\StudyResource\Pages\EditStudy;
-use App\Filament\Resources\StudyResource\Pages\ListStudies;
+use App\Filament\Resources\Study\Pages\CreateStudy;
+use App\Filament\Resources\Study\Pages\EditStudy;
+use App\Filament\Resources\Study\Pages\ListStudies;
 use App\Models\Study;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;

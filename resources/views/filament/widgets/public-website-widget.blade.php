@@ -9,16 +9,16 @@
 
         <div class="fi-account-widget-main">
             <h2 class="fi-account-widget-heading">
-                Website Público
+                Website
             </h2>
 
             <p class="fi-account-widget-user-name">
-                Ir a la página principal
+                Home Público
             </p>
         </div>
 
-        <div class="fi-account-widget-logout-form">
-            <x-filament::button
+        <div class="fi-filament-info-widget-links">
+            <x-filament::link
                 color="gray"
                 icon="heroicon-m-arrow-top-right-on-square"
                 labeled-from="sm"

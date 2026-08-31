@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Filament\Resources\ExperienceResource\Pages;
+namespace App\Filament\Resources\Experience\Pages;
 
-use App\Filament\Resources\ExperienceResource;
+use App\Filament\Resources\Experience\ExperienceResource;
 use Filament\Resources\Pages\CreateRecord;
 
 class CreateExperience extends CreateRecord
