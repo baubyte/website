@@ -70,6 +70,44 @@ class IconCatalog
         return $name === null ? null : self::label($name);
     }
 
+    /**
+     * @param  list<array{id: string, label: string}>  $entries
+     * @return array<string, string>
+     */
+    public static function options(array $entries): array
+    {
+        $options = [];
+
+        foreach ($entries as $entry) {
+            $options[$entry['id']] = self::renderOption($entry['id'], $entry['label']);
+        }
+
+        return $options;
+    }
+
+    // SECURITY: allowHtml() / html() renders this raw — SVG must come only from IconCatalog::resolve(), never raw input.
+    public static function renderOption(string $id, ?string $label = null, int $size = 20): string
+    {
+        $label ??= self::labelFor($id) ?? $id;
+        $icon = self::resolve($id);
+
+        if ($icon === null) {
+            return e($label);
+        }
+
+        return sprintf(
+            '<span class="inline-flex items-center gap-2" style="display: inline-flex; align-items: center; gap: 0.5rem; vertical-align: middle;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 %d %d" width="%d" height="%d" class="shrink-0" style="width: %dpx; height: %dpx; flex-shrink: 0; display: inline-block; vertical-align: middle;">%s</svg><span>%s</span></span>',
+            $icon['width'],
+            $icon['height'],
+            $size,
+            $size,
+            $size,
+            $size,
+            $icon['body'],
+            e($label),
+        );
+    }
+
     private static function resolveName(?string $id): ?string
     {
         if ($id === null || ! str_contains($id, ':')) {
