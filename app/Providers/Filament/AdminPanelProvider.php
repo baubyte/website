@@ -12,6 +12,8 @@ use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color as FilamentColor;
 use Filament\Widgets;
+use Hammadzafar05\FilamentMobilePreset\FilamentMobilePresetPlugin;
+use Hammadzafar05\MobileBottomNav\MobileBottomNav;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
@@ -44,6 +46,17 @@ class AdminPanelProvider extends PanelProvider
                     darkColor: FilamentColor::Teal
                 ),
                 'gray' => FilamentColor::Zinc,
+            ])
+            ->plugins([
+                FilamentMobilePresetPlugin::make()
+                    ->bottomNav(
+                        MobileBottomNav::make()
+                        ->moreButtonLabel('mobile-bottom-nav.more')
+                        ->fromNavigation(5)
+                    )
+                    ->thumbAlignment(false)
+                    ->slideOverModals(false)
+                    ->createAnother(),
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')

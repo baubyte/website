@@ -30,11 +30,12 @@ class LeadsTable
             ->columns([
                 TextColumn::make('conversation_id')
                     ->label('ID de conversación')
+                    ->limit(12)
                     ->copyable()
                     ->copyMessage('ID de conversación copiado correctamente')
                     ->copyableState(fn (string $state): string => "{$state}")
                     ->tooltip('Copiar ID de conversación')
-                    ->limit(30)
+                    ->grow(false)
                     ->searchable(),
                 TextColumn::make('message')
                     ->label('Mensaje')
@@ -48,6 +49,7 @@ class LeadsTable
                 TextColumn::make('reply_status')
                     ->label('Estado de respuesta')
                     ->badge()
+                    ->grow(false)
                     ->color(fn (string $state): string => match (strtolower($state)) {
                         'failed'  => 'danger',
                         'success' => 'success',
@@ -57,14 +59,22 @@ class LeadsTable
                     ->searchable(),
                 TextColumn::make('page')
                     ->label('Página')
+                    ->grow(false)
                     ->toggleable(isToggledHiddenByDefault: false)
                     ->searchable(),
                 TextColumn::make('locale')
                     ->label('Idioma')
+                    ->grow(false)
                     ->toggleable(isToggledHiddenByDefault: false)
                     ->searchable(),
                 TextColumn::make('client_hash')
                     ->label('Hash del cliente')
+                    ->limit(12)
+                    ->copyable()
+                    ->copyMessage('Hash del cliente copiado correctamente')
+                    ->copyableState(fn (string $state): string => "{$state}")
+                    ->tooltip('Copiar hash del cliente')
+                    ->grow(false)
                     ->toggleable()
                     ->searchable(),
                 TextColumn::make('created_at')

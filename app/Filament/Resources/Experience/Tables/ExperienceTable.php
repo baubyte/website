@@ -30,10 +30,12 @@ class ExperienceTable
                     ->searchable(),
                 TextColumn::make('start_date')
                     ->label('Fecha de Inicio')
+                    ->grow(false)
                     ->date()
                     ->sortable(),
                 TextColumn::make('end_date')
                     ->label('Fecha de Fin')
+                    ->grow(false)
                     ->date()
                     ->sortable(),
                 TextColumn::make('created_at')
