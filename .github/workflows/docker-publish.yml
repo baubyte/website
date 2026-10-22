@@ -37,6 +37,7 @@ jobs:
           context: .
           target: web
           push: true
+          pull: true
           tags: |
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:web-latest
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:web-${{ github.sha }}
@@ -49,6 +50,7 @@ jobs:
           context: .
           target: ssr
           push: true
+          pull: true
           tags: |
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:ssr-latest
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:ssr-${{ github.sha }}
